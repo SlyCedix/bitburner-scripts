@@ -1,0 +1,12 @@
+{
+	"ns-template": {
+		"scope": "javascript",
+		"body": [
+			"/** @param {NS} ns **/",
+			"",
+			"export async function main(ns) {",
+			"",
+			"}"
+		]
+	}
+}

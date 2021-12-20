@@ -1,0 +1,6 @@
+import {getServersWithoutBackdoor} from "/scripts/helpers.ns"
+
+/** @param {NS} ns **/
+export async function main(ns) {
+    ns.tprint(await getServersWithoutBackdoor(ns));
+}

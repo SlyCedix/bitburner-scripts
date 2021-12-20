@@ -1,0 +1,7 @@
+/** @param {NS} ns **/
+
+import {getServersWithContracts} from "/scripts/helpers.ns"
+
+export async function main(ns) {
+    ns.tprint(await getServersWithContracts(ns));
+}

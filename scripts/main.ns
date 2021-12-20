@@ -1,0 +1,29 @@
+import { Hacknet } from "/scripts/hacknet.ns"
+import { Botnet } from "/scripts/hacking.ns"
+import { Contracts } from "/scripts/contracts.ns"
+
+/** @param {NS} ns **/
+export async function main(ns) {
+	ns.tail();
+
+	if(ns.args.length > 0 && ns.args[0] == 'level') {
+		var botnet = new Botnet(ns, true);
+	} else {
+		var botnet = new Botnet(ns);
+	}
+
+	await botnet.init()
+
+	var hacknet = new Hacknet(ns);
+	await hacknet.init();
+
+	var contracts = new Contracts(ns);
+	await contracts.init();
+
+	while (true) {
+		await hacknet.update();
+		await botnet.update();
+		await contracts.update();
+		await ns.sleep(5000);
+	}
+}
