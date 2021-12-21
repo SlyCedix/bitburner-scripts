@@ -19,6 +19,15 @@ export async function main(ns) {
 				currentSha = treeFile.sha;
 				ns.tprint(`INFO: Downloading scripts at ${currentSha}`)
 				var urls = await getUrls(ns, treeFile.tree);
+
+				var processes = ns.ps();
+
+				processes.forEach((script) => {
+					if(script.filename != ns.getScriptName()) {
+						ns.kill(script.filename, ns.getHostname());
+					}
+				})
+
 				for(var url of urls) {
 					var status = await ns.wget(url[1],`/${url[0]}`);
 					if(status) {
@@ -27,14 +36,6 @@ export async function main(ns) {
 						ns.tprint(`ERROR: Failed to download ${url[0]} from ${url[1]}`);
 					}
 				}
-
-				var processes = ns.ps();
-
-				processes.forEach((script) => {
-					if(script.filename != ns.getScriptName()) {
-						ns.kill(script.filename);
-					}
-				})
 
 				ns.run('/scripts/main.ns');
 			}
