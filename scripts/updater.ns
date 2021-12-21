@@ -5,6 +5,6 @@ const fetcherName = "/scripts/fetcher.ns"
 
 export async function main(ns) {
     ns.scriptKill(fetcherName, ns.getHostname())
-    var status = await wget(fetcherURL, fetcherName);
+    var status = await ns.wget(fetcherURL, fetcherName);
 	ns.run(fetcherName);
 }
