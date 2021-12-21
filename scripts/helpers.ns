@@ -29,16 +29,7 @@ export function findBestServer(ns) {
 }
 
 function getHackProduction(ns, hostname) {
-    // var hackProduction = ns.hackAnalyze(hostnames[i]);
-    // hackProduction *= ns.getServerMaxMoney(hostnames[i]);
-    // hackProduction /= ns.getHackTime(hostnames[i]);
-    // hackProduction *= ns.hackAnalyzeChance(hostnames[i]);
-
-    // var growthMod = ns.getServerGrowth(hostnames[i]) / ns.getGrowTime(hostnames[i])
-
-    // hackProduction *= growthMod;
-    
-    var hackProduction = ns.getServerMaxMoney(hostname);
+    var hackProduction = ns.getServerMaxMoney(hostname) * ns.getServerGrowth(hostname);
 
     return hackProduction;
 }
@@ -175,7 +166,7 @@ export function findServer(ns, target, start = 'home', source = '') {
         if(start != 'home') return `connect ${start}; connect ${target}`;
         return `home; connect ${target}`;
     }
-    
+
     for(let i = 0; i < hostnames.length; ++i) {
         var connection = findServer(ns, target, hostnames[i], start);
 
