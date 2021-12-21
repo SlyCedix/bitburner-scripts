@@ -286,17 +286,12 @@ function isParenthesis(char) {
 	return char == '(' || char == ')'
 }
 
-function largestPrimeFactor(data) {
-	var primeDivisors = [1];
-
-	for (let i = 1; i < Math.sqrt(data); i++) {
-		if (isPrime(i) && data % i == 0) primeDivisors.push(i);
+function largestPrimeFactor(data, start = 2) {
+	for (let i = start; i < Math.sqrt(data); i++) {
+		if (isPrime(i) && data % i == 0) return largestPrimeFactor(data / i, i);
 	}
 
-	var divisor = primeDivisors.reduce((a, b) => a * b);
-
-	if (divisor != data) return data / divisor;
-	else return Math.max(...primeDivisors);
+	return data;
 }
 
 function isPrime(n) {
