@@ -171,8 +171,11 @@ export function findServer(ns, target, start = 'home', source = '') {
         return hostname != source;
     });
 
-    if(hostnames.includes(target)) return `connect ${start}; connect ${target}`;
-
+    if(hostnames.includes(target)) {
+        if(start != 'home') return `connect ${start}; connect ${target}`;
+        return `home; connect ${target}`;
+    }
+    
     for(let i = 0; i < hostnames.length; ++i) {
         var connection = findServer(ns, target, hostnames[i], start);
 

@@ -27,8 +27,6 @@ export class Hacknet{
 		}
 
 		for (let i = 0; i < this.ns.hacknet.numNodes(); ++i) {
-			var node = this.ns.hacknet.getNodeStats(i)
-
 			if (this.ns.hacknet.getLevelUpgradeCost(i, 10) < maxCost) {
 				if(this.ns.hacknet.upgradeLevel(i)) {
 					this.ns.toast(`Hacknet: hacknet-node-${i} levels upgraded`);
