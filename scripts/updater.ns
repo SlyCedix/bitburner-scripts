@@ -4,7 +4,7 @@ const fetcherURL = "https://raw.githubusercontent.com/SlyCedix/bitburner-scripts
 const fetcherName = "/scripts/fetcher.ns"
 
 export async function main(ns) {
-    ns.killScript(fetcherName)
+    ns.scriptKill(fetcherName, ns.getHostname())
     var status = await wget(fetcherURL, fetcherName);
 	ns.run(fetcherName);
 }
