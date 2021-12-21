@@ -16,11 +16,11 @@ export class Contracts {
 	async update() {
 		var servers = getServersWithContracts(this.ns);
 
-		for (var i = 0; i < servers.length; ++i) {
+		for (let i = 0; i < servers.length; ++i) {
 			var server = servers[i];
 			var contracts = this.ns.ls(server, '.cct');
 
-			for (var j = 0; j < contracts.length; ++j) {
+			for (let j = 0; j < contracts.length; ++j) {
 				var contract = contracts[j];
 
 				var contractType = this.ns.codingcontract.getContractType(contract, server);
@@ -107,20 +107,20 @@ function spiralizeMatrix(data) {
 
 	var output = []
 
-	for (var i = 0; i < width; ++i) {
+	for (let i = 0; i < width; ++i) {
 		output.push(data[0][i]);
 	}
 
 	if (height > 1) {
-		for (var i = 1; i < height; ++i) {
+		for (let i = 1; i < height; ++i) {
 			output.push(data[i][width - 1]);
 		}
 
-		for (var i = width - 2; i >= 0; --i) {
+		for (let i = width - 2; i >= 0; --i) {
 			output.push(data[height - 1][i]);
 		}
 
-		for (var i = height - 2; i >= 1; --i) {
+		for (let i = height - 2; i >= 1; --i) {
 			output.push(data[i][0]);
 		}
 	}
@@ -129,7 +129,7 @@ function spiralizeMatrix(data) {
 	newdata.splice(height - 1, 1);
 	newdata.splice(0, 1);
 
-	for (var i = 0; i < newdata.length; ++i) {
+	for (let i = 0; i < newdata.length; ++i) {
 		newdata[i].splice(width - 1, 1);
 		newdata[i].splice(0, 1);
 	}
@@ -165,7 +165,7 @@ function uniquePaths(data) {
 	if (data[0].length > 1) {
 		var upField = JSON.parse(JSON.stringify(data));
 
-		for (var i = 0; i < data.length; ++i) {
+		for (let i = 0; i < data.length; ++i) {
 			upField[i].splice(0, 1);
 		}
 
@@ -198,8 +198,8 @@ function algorithmicStockTrader4(data) {
 function allTransactions(days) {
 	var transactions = [];
 
-	for (var i = 0; i < days.length; ++i) {
-		for (var j = i + 1; j < days.length; ++j) {
+	for (let i = 0; i < days.length; ++i) {
+		for (let j = i + 1; j < days.length; ++j) {
 			var profit = days[j] - days[i];
 			if (profit > 0) {
 				transactions.push([i, j, profit]);
@@ -216,7 +216,7 @@ function maximizeProfit(transactions, n = -1) {
 	if (n == 0) return 0;
 	if (transactions.length == 0) return 0;
 
-	for (var i = 0; i < transactions.length; ++i) {
+	for (let i = 0; i < transactions.length; ++i) {
 		var profit = transactions[i][2];
 		if (profit <= 0) continue;
 
@@ -243,8 +243,8 @@ function sanitizeParenthesis(data) {
 	var valid = []
 	var invalid = [];
 
-	for (var i = 0; i < data.length; ++i) {
-		for (var j = 1; j <= data[i].length; ++j) {
+	for (let i = 0; i < data.length; ++i) {
+		for (let j = 1; j <= data[i].length; ++j) {
 			if (isParenthesis(data[i][j - 1])) {
 				var newStr = data[i].slice(0, j - 1) + data[i].slice(j, data[i].length);
 
@@ -272,7 +272,7 @@ function sanitizeParenthesis(data) {
 function isValidParenthesis(checkStr) {
 	var paren = 0;
 
-	for (var i = 0; i < checkStr.length; ++i) {
+	for (let i = 0; i < checkStr.length; ++i) {
 		if (checkStr[i] == '(') paren++;
 		else if (checkStr[i] == ')') paren--;
 
@@ -289,7 +289,7 @@ function isParenthesis(char) {
 function largestPrimeFactor(data) {
 	var primeDivisors = [1];
 
-	for (var i = 1; i < Math.sqrt(data); i++) {
+	for (let i = 1; i < Math.sqrt(data); i++) {
 		if (isPrime(i) && data % i == 0) primeDivisors.push(i);
 	}
 
@@ -302,7 +302,7 @@ function largestPrimeFactor(data) {
 function isPrime(n) {
 	if (n < 2) return false;
 
-	for (var i = 2; i < Math.sqrt(n); ++i) {
+	for (let i = 2; i < Math.sqrt(n); ++i) {
 		if (n % i == 0) return false;
 	}
 
@@ -317,7 +317,7 @@ function pyramidSum(data, sum = 0) {
 	leftData.splice(0, 1);
 	var rightData = JSON.parse(JSON.stringify(leftData));
 
-	for (var i = 0; i < leftData.length; ++i) {
+	for (let i = 0; i < leftData.length; ++i) {
 		leftData[i].splice(leftData[i].length - 1, 1);
 		rightData[i].splice(0, 1);
 	}
@@ -334,8 +334,8 @@ function pyramidSum(data, sum = 0) {
 function maxSubarraySum(data) {
 	var maxSum = Number.MIN_VALUE;
 
-	for (var i = 0; i < data.length; ++i) {
-		for (var j = i; j < data.length; ++j) {
+	for (let i = 0; i < data.length; ++i) {
+		for (let j = i; j < data.length; ++j) {
 			var sum = data.slice(i, j + 1).reduce((a, b) => a + b, 0);
 			if (sum > maxSum) maxSum = sum;
 		}
@@ -365,10 +365,10 @@ function getAllEquations(data) {
 	var operators = ['+', '-', '*']
 	var equations = [];
 
-	for (var i = 0; i < operators.length; ++i) {
+	for (let i = 0; i < operators.length; ++i) {
 		var str = data.toString();
 
-		for (var j = 0; j < str.length - 1; ++j) {
+		for (let j = 0; j < str.length - 1; ++j) {
 			var isBetweenNumbers = (!isNaN(str[j]) && !isNaN(str[j + 1]));
 			var isNotZero = (str[j + 1] != 0);
 
@@ -384,7 +384,7 @@ function getAllEquations(data) {
 	}
 
 	var newEquations = []
-	for (var i = 0; i < equations.length; ++i) {
+	for (let i = 0; i < equations.length; ++i) {
 		newEquations = newEquations.concat(getAllEquations(equations[i]));
 	}
 
@@ -403,7 +403,7 @@ function waysToSum(data, max = null) {
 
 	var sum = 0;
 
-	for (var i = Math.min(data, max); i >= 1; --i) {
+	for (let i = Math.min(data, max); i >= 1; --i) {
 		sum += waysToSum(data - i, i);
 	}
 
@@ -417,7 +417,7 @@ function generateIPAddresses(data) {
 
 	var addresses = [];
 
-	for (var i = 0; i < 3; ++i) {
+	for (let i = 0; i < 3; ++i) {
 		var octet = lastSet.slice(0, i + 1);
 		if (isValidOctet(octet)) {
 			var newAddress = dataAddress.slice(0, dataAddress.length - 1).join('.');
@@ -438,7 +438,7 @@ function generateIPAddresses(data) {
 
 	var validAddresses = [];
 
-	for (var i = 0; i < addresses.length; ++i) {
+	for (let i = 0; i < addresses.length; ++i) {
 		validAddresses = validAddresses.concat(generateIPAddresses(addresses[i]));
 	}
 
@@ -472,7 +472,7 @@ function arrayJumping(data) {
 
 	var jumps = data[0];
 
-	for(var i = 1; i <= jumps; ++i) {
+	for(let i = 1; i <= jumps; ++i) {
 		var jumpTest = arrayJumping(data.slice(i, data.length));
 		if (jumpTest == 1) return 1;
 	}

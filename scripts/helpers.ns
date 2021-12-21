@@ -7,7 +7,7 @@ export function deepScan(ns, start, source = "") {
     var hostnames = ns.scan(start).filter(name => name != source);
 
     var newNames = []
-    for(var hostname of hostnames) {
+    for(let hostname of hostnames) {
         var scan = deepScan(ns, hostname, start);
         newNames = newNames.concat(scan);
     }
@@ -20,28 +20,27 @@ export function findBestServer(ns) {
 
     var hostnames = deepScan(ns, "home");
     hostnames = hostnames.filter((hostname) => ns.hasRootAccess(hostname));
-    var best = "home";
-    var bestProduction = 0;
 
-    for (var i = 0; i < hostnames.length; ++i) {
-        // var hackProduction = ns.hackAnalyze(hostnames[i]);
-        // hackProduction *= ns.getServerMaxMoney(hostnames[i]);
-        // hackProduction /= ns.getHackTime(hostnames[i]);
-        // hackProduction *= ns.hackAnalyzeChance(hostnames[i]);
+    hostnames.sort((a, b) => {
+        return getHackProduction(ns, b) - getHackProduction(ns, a);
+    })
 
-        // var growthMod = ns.getServerGrowth(hostnames[i]) / ns.getGrowTime(hostnames[i])
+    return hostnames[0];
+}
 
-        // hackProduction *= growthMod;
-        var hackProduction = ns.getServerMaxMoney(hostnames[i]);
+function getHackProduction(ns, hostname) {
+    // var hackProduction = ns.hackAnalyze(hostnames[i]);
+    // hackProduction *= ns.getServerMaxMoney(hostnames[i]);
+    // hackProduction /= ns.getHackTime(hostnames[i]);
+    // hackProduction *= ns.hackAnalyzeChance(hostnames[i]);
 
+    // var growthMod = ns.getServerGrowth(hostnames[i]) / ns.getGrowTime(hostnames[i])
 
-        if (hackProduction > bestProduction) {
-            best = hostnames[i];
-            bestProduction = hackProduction;
-        }
-    }
+    // hackProduction *= growthMod;
+    
+    var hackProduction = ns.getServerMaxMoney(hostnames[i]);
 
-    return best;
+    return hackProduction;
 }
 
 export function getNextHackingLevel(ns) {
@@ -52,7 +51,7 @@ export function getNextHackingLevel(ns) {
         (ns.getServerRequiredHackingLevel(hostname) > ns.getHackingLevel()));
     var lowest = Number.MAX_VALUE;
 
-    for (var i = 0; i < hostnames.length; ++i) {
+    for (let i = 0; i < hostnames.length; ++i) {
         if (ns.getServerRequiredHackingLevel(hostnames[i]) < lowest) {
             lowest = ns.getServerRequiredHackingLevel(hostnames[i]);
         }
@@ -104,7 +103,7 @@ export async function scpAll(ns, source = 'home') {
 
     var hostnames = deepScan(ns, "home");
 
-    for (var i = 0; i < hostnames.length; ++i) {
+    for (let i = 0; i < hostnames.length; ++i) {
         await ns.scp(source, hostnames[i]);
     }
 }
@@ -174,7 +173,7 @@ export function findServer(ns, target, start = 'home', source = '') {
 
     if(hostnames.includes(target)) return `connect ${start}; connect ${target}`;
 
-    for(var i = 0; i < hostnames.length; ++i) {
+    for(let i = 0; i < hostnames.length; ++i) {
         var connection = findServer(ns, target, hostnames[i], start);
 
         if(connection.length > 0) {

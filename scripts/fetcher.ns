@@ -23,11 +23,11 @@ export async function main(ns) {
 
 				processes.forEach((script) => {
 					if(script.filename != ns.getScriptName()) {
-						ns.scriptKill(script.filename, ns.getHostname());
+						ns.kill(pid, ns.getHostname());
 					}
 				})
 
-				for(var url of urls) {
+				for(let url of urls) {
 					var status = await ns.wget(url[1],`/${url[0]}`);
 					if(status) {
 						ns.tprint(`SUCCESS: Downloaded ${url[0]}`);
@@ -47,7 +47,7 @@ export async function main(ns) {
 async function getUrls(ns, tree, dir = "") {
 	var urls = []
 
-	for(var node of tree) {
+	for(let node of tree) {
 		if(dir.length > 0) var fullPath = `${dir}/${node.path}`
 		else var fullPath = `${node.path}`
 

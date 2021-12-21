@@ -26,7 +26,7 @@ export class Hacknet{
 			}
 		}
 
-		for (var i = 0; i < this.ns.hacknet.numNodes(); ++i) {
+		for (let i = 0; i < this.ns.hacknet.numNodes(); ++i) {
 			var node = this.ns.hacknet.getNodeStats(i)
 
 			if (this.ns.hacknet.getLevelUpgradeCost(i, 10) < maxCost) {
@@ -50,7 +50,7 @@ export class Hacknet{
 	get totalProduction() {
 		var sum = 0;
 
-		for (var i = 0; i < this.ns.hacknet.numNodes(); ++i) {
+		for (let i = 0; i < this.ns.hacknet.numNodes(); ++i) {
 			sum += this.ns.hacknet.getNodeStats(i).production;
 		}
 

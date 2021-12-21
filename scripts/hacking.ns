@@ -165,7 +165,7 @@ export class Botnet {
 		
 		this.bots = [];
 
-		for (var i = 0; i < this.servers.length; ++i) {
+		for (let i = 0; i < this.servers.length; ++i) {
 			if (this.servers[i] != 'home') this.ns.killall(this.servers[i]);
 			var bot = new Bot(this.ns, this.target, this.servers[i], 0, this.leveling)
 			this.bots.push(bot);
@@ -214,7 +214,7 @@ export class Botnet {
 			await bot.init();
 		};
 
-		for (var i = 0; i < this.bots.length; ++i) {
+		for (let i = 0; i < this.bots.length; ++i) {
 			await this.bots[i].update();
 			await this.ns.sleep(25);
 		}
