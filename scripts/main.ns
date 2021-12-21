@@ -4,8 +4,6 @@ import { Contracts } from "/scripts/contracts.ns"
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	ns.tail();
-
 	if(ns.args.length > 0 && ns.args[0] == 'level') {
 		var botnet = new Botnet(ns, true);
 	} else {
