@@ -53,7 +53,7 @@ export class Contracts {
 						// case "Algorithmic Stock Trader IV":
 						// 	this.attemptContract(algorithmicStockTrader, contract, server, contractData);
 						// 	break;
-						case "Find All Valid Math Expressions":
+						case "Total Ways To Sum":
 							this.attemptContract(waysToSum, contract, server, contractData, true);
 							break;
 						case "Spiralize Matrix":
@@ -329,15 +329,14 @@ function maxSubarraySum(data) {
 	var maxSum = Number.MIN_VALUE;
 
 	for (var i = 0; i < data.length; ++i) {
-		for (var j = i + 1; j < data.length; ++j) {
-			var sum = data.slice(i, j).reduce((a, b) => a + b, 0);
+		for (var j = i; j < data.length; ++j) {
+			var sum = data.slice(i, j + 1).reduce((a, b) => a + b, 0);
 			if (sum > maxSum) maxSum = sum;
 		}
 	}
 
 	return maxSum;
 }
-
 function validEquations(data) {
 	var target = null
 	if (Array.isArray(data)) {
