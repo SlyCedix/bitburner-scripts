@@ -11,7 +11,6 @@ export async function main(ns) {
 	} else {
 		var botnet = new Botnet(ns);
 	}
-
 	await botnet.init()
 
 	var hacknet = new Hacknet(ns);

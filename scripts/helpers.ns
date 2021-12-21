@@ -38,7 +38,7 @@ function getHackProduction(ns, hostname) {
 
     // hackProduction *= growthMod;
     
-    var hackProduction = ns.getServerMaxMoney(hostnames[i]);
+    var hackProduction = ns.getServerMaxMoney(hostname);
 
     return hackProduction;
 }

@@ -202,7 +202,7 @@ export class Botnet {
 				});
 			}
 		}
-		
+
 		var boughtServer = buyServer(this.ns);
 		if (boughtServer) {
 			this.bots = this.bots.filter((hostname) => {
