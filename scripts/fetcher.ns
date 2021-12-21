@@ -24,7 +24,7 @@ export async function main(ns) {
 
 				processes.forEach((script) => {
 					if(script.filename != ns.getScriptName()) {
-						ns.kill(script.filename, ns.getHostname());
+						ns.scriptKill(script.filename, ns.getHostname());
 					}
 				})
 
