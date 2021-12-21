@@ -1,0 +1,10 @@
+/** @param {NS} ns **/
+
+const fetcherURL = "https://raw.githubusercontent.com/SlyCedix/bitburner-scripts/main/scripts/fetcher.ns"
+const fetcherName = "/scripts/fetcher.ns"
+
+export async function main(ns) {
+    ns.killScript(fetcherName)
+    var status = await wget(fetcherURL, fetcherName);
+	ns.run(fetcherName);
+}

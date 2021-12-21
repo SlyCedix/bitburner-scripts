@@ -24,9 +24,9 @@ export async function main(ns) {
 
 				processes.forEach((script) => {
 					if(script.filename != ns.getScriptName()) {
-						ns.kill(pid, ns.getHostname());
+						ns.killScript(script.filename, ns.getHostname());
 					}
-				})
+				});
 
 				for(let url of urls) {
 					var status = await ns.wget(url[1],`/${url[0]}`);
@@ -37,10 +37,10 @@ export async function main(ns) {
 					}
 				}
 
-				ns.run('/scripts/main.ns');
+				ns.run('/scripts/updater.ns');
+				return;
 			}
 		}
-
 		await ns.sleep(10000);
 	}
 }
