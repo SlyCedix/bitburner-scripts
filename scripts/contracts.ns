@@ -1,5 +1,5 @@
 /** @param {NS} ns **/
-import { getServersWithContracts, tprintColor } from "/scripts/helpers.ns"
+import { getServersWithContracts } from "/scripts/helpers.ns"
 
 export class Contracts {
 	failed = [];
@@ -10,7 +10,7 @@ export class Contracts {
 
 	async init() {
 		this.ns.disableLog("ALL")
-		this.ns.print(`Contracts: Initialized`);
+		this.ns.print(`INFO: Contracts Initialized`);
 	}
 
 	async update() {
@@ -73,7 +73,7 @@ export class Contracts {
 							break;
 						default:
 							this.failed.push(contract);
-							this.ns.tprint(`Contracts Error: No solver for ${contractType} on ${server} found`);
+							this.ns.tprint(`ERROR: No solver for ${contractType} on ${server} found`);
 							break;
 					}
 				}
@@ -87,7 +87,7 @@ export class Contracts {
 
 		if (!this.ns.codingcontract.attempt(solution, contract, server)) {
 			this.failed.push(contract);
-			this.ns.tprint(`Contract Error: failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`);
+			this.ns.tprint(`ERROR: Failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`);
 		}
 	}
 }

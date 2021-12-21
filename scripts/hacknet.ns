@@ -9,7 +9,7 @@ export class Hacknet{
 	} 
 
 	async init() {
-		this.ns.print('Hacknet: Initialized');
+		this.ns.print('INFO: Hacknet initialized');
 	}
 
 	async update() {

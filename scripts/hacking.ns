@@ -46,7 +46,7 @@ class Bot {
 
 		await this.ns.scp(files, 'home', this.server);
 
-		this.ns.print(`Bot: Initialized (${this.server} attacking ${this.target})`);
+		this.ns.print(`INFO: Bot initialized (${this.server} attacking ${this.target})`);
 	}
 
 	async update() {
@@ -89,7 +89,7 @@ class Bot {
 				break;
 
 			default:
-				this.ns.print(`Bot Error: Invalid target server ${this.target}`)
+				this.ns.print(`ERROR: Invalid target server ${this.target}`)
 		}
 	}
 
@@ -136,7 +136,7 @@ class Bot {
 				n++;
 			};
 
-			this.ns.print(`Bot: Executing ${script} on ${this.target} (t=${threadCount}) on ${this.server}`);
+			this.ns.print(`INFO: Bot executing ${script} on ${this.target} (t=${threadCount}) on ${this.server}`);
 		}
 	}
 }
@@ -178,7 +178,7 @@ export class Botnet {
 		this.bots.push(bot);
 		await bot.init();
 
-		this.ns.print(`Botnet: Initialized (attacking ${this.target})`);
+		this.ns.print(`INFO: Botnet initialized (attacking ${this.target})`);
 
 		this.initUI();
 	}

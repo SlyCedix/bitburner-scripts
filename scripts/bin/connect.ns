@@ -1,9 +1,9 @@
 /** @param {NS} ns **/
-import {findServer, runTerminalCommand, tprintColor} from "/scripts/helpers.ns";
+import {findServer, runTerminalCommand} from "/scripts/helpers.ns";
 
 export async function main(ns) {
 	if(ns.args.length != 1) {
-		tprintColor(`Error: Incorrect usage of connect command. Usage: connect [ip/hostname]`, '#c00');
+		ns.tprint("ERROR: Incorrect usage of connect command. Usage: connect [ip/hostname]");
 		return;
 	}
 
@@ -12,7 +12,7 @@ export async function main(ns) {
 	if(connectString.length > 0) {
 		runTerminalCommand(connectString);
 	} else {
-		tprintColor(`Error: Host ${ns.args[0]} not found.`, '#c00');
+		ns.tprint(`ERROR: Host ${ns.args[0]} not found.`);
 	}
 
 }
