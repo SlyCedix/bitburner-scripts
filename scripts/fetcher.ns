@@ -4,9 +4,8 @@ const repo = "SlyCedix/bitburner-scripts"
 const treeRoot = `https://api.github.com/repos/${repo}/git/trees/HEAD`
 
 export async function main(ns) {
-	var treeFile = JSON.parse(ns.read('tree.txt'));
-
-	if(treeFile.length > 1) {
+	if(fileExists("tree.txt")) {
+		var treeFile = JSON.parse(ns.read('tree.txt'));
 		var currentSha = treeFile.sha
 	} else {
 		var currentSha = "";
