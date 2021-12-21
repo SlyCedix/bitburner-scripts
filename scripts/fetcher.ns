@@ -1,0 +1,69 @@
+/** @param {NS} ns **/
+const repo = "SlyCedix/bitburner-scripts"
+
+const treeRoot = `https://api.github.com/repos/${repo}/git/trees/HEAD`
+
+export async function main(ns) {
+	var treeFile = JSON.parse(ns.read('tree.txt'));
+
+	if(treeFile.length > 1) {
+		var currentSha = treeFile.sha
+	} else {
+		var currentSha = "";
+	}
+
+    while(true) {
+		if(await ns.wget(treeRoot,'tree.txt')) {
+			treeFile = JSON.parse(ns.read('tree.txt'));
+			if(treeFile.sha != currentSha) {
+				currentSha = treeFile.sha;
+				ns.tprint(`INFO: Downloading scripts at ${currentSha}`)
+				var urls = await getUrls(ns, treeFile.tree);
+				for(var url of urls) {
+					var status = await ns.wget(url[1],`/${url[0]}`);
+					if(status) {
+						ns.tprint(`SUCCESS: Downloaded ${url[0]}`);
+					} else {
+						ns.tprint(`ERROR: Failed to download ${url[0]} from ${url[1]}`);
+					}
+				}
+
+				var processes = ns.ps();
+
+				processes.forEach((script) => {
+					if(script.filename != ns.getScriptName()) {
+						ns.kill(script.filename);
+					}
+				})
+
+				ns.run('/scripts/main.ns');
+			}
+		}
+
+		await ns.sleep(10000);
+	}
+}
+
+async function getUrls(ns, tree, dir = "") {
+	var urls = []
+
+	for(var node of tree) {
+		if(dir.length > 0) var fullPath = `${dir}/${node.path}`
+		else var fullPath = `${node.path}`
+
+		
+		if(node.type == "tree") {
+			var status = await ns.wget(node.url, 'tmp.txt');
+			if(status) {
+				var newTree = JSON.parse(ns.read('tmp.txt'));
+				urls = urls.concat(await getUrls(ns, newTree["tree"], fullPath));
+			} else {
+				ns.tprint(`ERROR: Could not fetch ${node.url}`);
+			}
+		} else if (node["type"] == "blob" && fullPath.includes(".ns")) {
+			urls.push([fullPath, `https://raw.githubusercontent.com/${repo}/main/${fullPath}`])
+		}
+	}
+
+	return urls;
+}
