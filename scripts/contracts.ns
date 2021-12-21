@@ -54,7 +54,7 @@ export class Contracts {
 						// 	this.attemptContract(algorithmicStockTrader, contract, server, contractData);
 						// 	break;
 						case "Total Ways to Sum":
-							this.attemptContract(waysToSum, contract, server, contractData, true);
+							this.attemptContract(waysToSum, contract, server, contractData);
 							break;
 						case "Spiralize Matrix":
 							this.attemptContract(spiralizeMatrix, contract, server, contractData, true);
