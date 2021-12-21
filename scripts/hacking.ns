@@ -4,7 +4,8 @@ import {
 	buyServer,
 	deepScan,
 	rootAll,
-	getPortFunctions
+	getPortFunctions,
+	getNextHackingLevel
 } from "/scripts/helpers.ns"
 
 class Bot {
@@ -151,6 +152,7 @@ export class Botnet {
 		this.ns.disableLog("ALL");
 
 		this.portFunctions = getPortFunctions(this.ns);
+		this.nextHackingLevel = getNextHackingLevel(this.ns);
 		rootAll(this.ns);
 
 		if(this.leveling) {
@@ -185,8 +187,11 @@ export class Botnet {
 
 	async update() {
 		var newPortFunctions = getPortFunctions(this.ns);
-		if(newPortFunctions.length > this.portFunctions.length) {
+
+		if(newPortFunctions.length > this.portFunctions.length
+		|| this.ns.getHackingLevel() > this.nextHackingLevel) {
 			this.portFunctions = newPortFunctions;
+			this.nextHackingLevel = this.ns.getHackingLevel(this.ns);
 			rootAll(this.ns);
 		}
 
