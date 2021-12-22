@@ -2,7 +2,7 @@
 
 const repo = "SlyCedix/bitburner-scripts"
 const branch = "main"
-const filename = '/scripts/fetcher.ns'
+const filename = '/scripts/fetcher.js'
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 
 export async function main(ns) {

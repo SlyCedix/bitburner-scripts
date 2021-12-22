@@ -74,7 +74,7 @@ export async function main(ns) {
 		}
 
 		if(runUpdater) {
-			ns.run('/scripts/updater.ns');
+			ns.run('/scripts/updater.js');
 			return;
 		}
 

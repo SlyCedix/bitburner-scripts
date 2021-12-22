@@ -1,5 +1,5 @@
 /** @param {NS} ns **/
-import {findServer, runTerminalCommand} from "/scripts/helpers.ns";
+import {findServer, runTerminalCommand} from "/scripts/helpers.js";
 
 export async function main(ns) {
 	if(ns.args.length != 1) {

@@ -6,7 +6,7 @@ import {
 	rootAll,
 	getPortFunctions,
 	getNextHackingLevel
-} from "/scripts/helpers.ns"
+} from "/scripts/helpers.js"
 
 class Bot {
 	bbBaseGrowth = 1.03;

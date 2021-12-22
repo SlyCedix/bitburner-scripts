@@ -1,5 +1,5 @@
 /** @param {NS} ns **/
-import { getServersWithContracts } from "/scripts/helpers.ns"
+import { getServersWithContracts } from "/scripts/helpers.js"
 
 export class Contracts {
 	failed = [];

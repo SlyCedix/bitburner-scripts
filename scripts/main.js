@@ -1,6 +1,6 @@
-import { Hacknet } from "/scripts/hacknet.ns"
-import { Botnet } from "/scripts/hacking.ns"
-import { Contracts } from "/scripts/contracts.ns"
+import { Hacknet } from "/scripts/hacknet.js"
+import { Botnet } from "/scripts/hacking.js"
+import { Contracts } from "/scripts/contracts.js"
 
 /** @param {NS} ns **/
 export async function main(ns) {

@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 
-import {findServer} from "/scripts/helpers.ns";
+import {findServer} from "/scripts/helpers.js";
 
 export async function main(ns) {
     ns.tprint(await findServer(ns, ns.args[0]));
