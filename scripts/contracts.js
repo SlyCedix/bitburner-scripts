@@ -108,6 +108,8 @@ function spiralizeMatrix(data) {
 	var width = data[0].length;
 	var height = data.length;
 
+	console.log(data);
+
 	var output = [];
 
 	for (let i = 0; i < width; ++i) {
@@ -118,13 +120,14 @@ function spiralizeMatrix(data) {
 		for (let i = 1; i < height; ++i) {
 			output.push(data[i][width - 1]);
 		}
+		if (width > 1) {
+			for (let i = width - 2; i >= 0; --i) {
+				output.push(data[height - 1][i]);
+			}
 
-		for (let i = width - 2; i >= 0; --i) {
-			output.push(data[height - 1][i]);
-		}
-
-		for (let i = height - 2; i >= 1; --i) {
-			output.push(data[i][0]);
+			for (let i = height - 2; i >= 1; --i) {
+				output.push(data[i][0]);
+			}
 		}
 	}
 
