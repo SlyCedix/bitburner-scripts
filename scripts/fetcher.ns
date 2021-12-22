@@ -52,7 +52,7 @@ export async function main(ns) {
 				let status = await getURL(rawURL + path);
 				let currFile = ns.read(path);
 
-				if(status === currFile) {
+				if(status === currFile && oldTree.length > 0) {
 					ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
 					treeEntry.sha = "";
 				} else if(status) {
