@@ -337,6 +337,7 @@ function maxSubarraySum(data) {
 
 	return maxSum;
 }
+
 function validEquations(data) {
 	var target = null;
 	if (Array.isArray(data)) {
@@ -359,6 +360,8 @@ function getAllEquations(data) {
 	var operators = ['+', '-', '*'];
 	var equations = [];
 
+	console.log(data);
+
 	for (let i = 0; i < operators.length; ++i) {
 		var str = data.toString();
 
@@ -368,7 +371,7 @@ function getAllEquations(data) {
 
 			var isLoneZero = false;
 			if (j < str.length - 2) isLoneZero = (str[j + 1] == 0 && isNaN(str[j + 2]));
-
+			if (j == str.length - 2 && str[j + 1] == 0) isLoneZero = true;
 			if (isBetweenNumbers && (isLoneZero || isNotZero)) {
 				var equation = str.slice(0, j + 1) + operators[i] + str.slice(j + 1, str.length);
 				equations.push(equation);
