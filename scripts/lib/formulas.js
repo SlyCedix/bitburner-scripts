@@ -10,7 +10,7 @@ const BNScriptHackMoney = 1;
 export const HackingFormulas = {
   growPercent : (server, threads, player, cores = 1) => calculateServerGrowth(server, threads, player, cores),
   growTime : (server, player) => calculateGrowTime(server, player) * 1000,
-  ehackChance : (server, player) => calculateHackingChance(server, player),
+  hackChance : (server, player) => calculateHackingChance(server, player),
   hackExp : (server, player) => calculateHackingExpGain(server, player),
   hackPercent : (server, player) => calculatePercentMoneyHacked(server, player),
   hackTime : (server, player) => calculateHackingTime(server, player) * 1000,
