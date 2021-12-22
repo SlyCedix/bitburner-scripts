@@ -16,22 +16,11 @@ export async function main(ns) {
 	}
 
 	while(true) {
-		ns.tprint(oldTree);
+		let treeFetch = (await getURL(treeURL, true)).tree;
 
-		let treeFetch = (await fetch(treeURL, {
-			method: 'GET',
-			headers: [['Authorization', `token ${key}`], ['Content-Type', 'application/json']]
-		}).then( response => {
-			if (response.status === 200) {
-				return response.json();
-			} else {
-				ns.tprint(`ERROR: Failed to fetch contents from ${contentsURL}`);
-			}
-		})).tree;
-
-		let toUpdate = treeFetch.filter( (entry) => {
-			return !oldTree.find(node => node.sha == entry.sha)
-				&& entry.path.includes('.ns');
+		let toUpdate = treeFetch.filter((entry) => {
+			return entry.path.includes('.ns')
+				&& !(oldTree.filter(node => node.sha == entry.sha).length);
 		})
 
 		let runUpdater = false;
@@ -47,12 +36,14 @@ export async function main(ns) {
 				});
 
 				if(processes.length > 0) {
-					ns.scriptKill(path);
+					ns.scriptKill(path, ns.getHostname());
 				}
 
-				let status = await ns.wget(rawURL + path, path);
-				
+				ns.tprint(`INFO: Attempting to download ${path}`)
+				let status = await getURL(rawURL + path);
+
 				if(status) {
+					await ns.write(path, status)
 					ns.tprint(`SUCCESS: Downloaded ${path}`);
 				} else {
 					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
@@ -69,6 +60,7 @@ export async function main(ns) {
 		}
 
 		if(runUpdater) {
+			ns.tprint('INFO: Updating fetcher.ns')
 			ns.run('/scripts/updater.ns');
 			return;
 		}
@@ -76,3 +68,22 @@ export async function main(ns) {
 		await ns.sleep(10000);
 	}
 }
+
+async function getURL(url, json = false) {
+	var fetchHeaders = [['Authorization', `token ${key}`]]
+
+	if(json) fetchHeaders.push(['Content-Type', 'application/json']);
+	else fetchHeaders.push(['Content-Type', 'text/plain'])
+
+	return fetch(url, {
+		method: 'GET',
+		headers: fetchHeaders
+	}).then( response => {
+		if (response.status === 200) {
+			if (json) return response.json();
+			else return response.text();
+		} else {
+			return false;
+		}
+	})
+} 
