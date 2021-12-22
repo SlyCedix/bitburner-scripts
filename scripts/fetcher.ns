@@ -19,12 +19,10 @@ export async function main(ns) {
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
 		let toUpdate = treeFetch.filter((entry) => {
-			ns.tprint(oldTree.filter(node => node.sha == entry.sha).length);
 			return entry.path.includes('.ns')
-				&& oldTree.filter(node => node.sha == entry.sha).length == 1;
+				&& oldTree.filter(node => node.sha == entry.sha).length == 0;
 		})
 
-		ns.tprint(toUpdate);
 		let runUpdater = false;
 
 		for (let treeEntry of toUpdate) {
