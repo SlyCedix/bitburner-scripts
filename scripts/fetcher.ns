@@ -43,14 +43,14 @@ export async function main(ns) {
 				let status = await getURL(rawURL + path);
 
 				if(status) {
-					await ns.write(path, status)
+					await ns.write(path, status, 'w')
 					ns.tprint(`SUCCESS: Downloaded ${path}`);
 				} else {
 					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
 				}
 
 				for(let process of processes) {
-					ns.run(process.filename, process.threads, process.args)
+					ns.run(process.filename, process.threads, ...process.args)
 				}
 			}
 		}

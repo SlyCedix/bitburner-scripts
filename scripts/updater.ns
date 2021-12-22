@@ -6,7 +6,7 @@ const filename = '/scripts/fetcher.ns'
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 
 export async function main(ns) {
-    ns.scriptKill(filename);
+    ns.scriptKill(filename, ns.getHostname());
     var status = await ns.wget(rawURL, filename);
-	ns.run(filename, ns.getHostname());
+	ns.run(filename);
 }
