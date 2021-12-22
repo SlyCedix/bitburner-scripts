@@ -349,7 +349,14 @@ function validEquations(data) {
 
 	if (target != null) {
 		equations = equations.filter((equation) => {
-			return eval(equation) == target; // jshint ignore:line
+			if (eval(equation) == target) { // jshint ignore:line
+				var operands = equation.replaceAll('/-|\*/g', '+').split('+');
+				for(let operand of operands) {
+					if(operand.length > 1 && operand[0] == '0') return false;
+				}
+				return true;
+			}
+			return false; 
 		});
 	}
 
@@ -370,14 +377,8 @@ function getAllEquations(data) {
 
 		for(let i = start; i < equation.length - 1; ++i){
 			let isBetweenNumbers = (!isNaN(equation[i]) && !isNaN(equation[i + 1]));
-			let isNotZero = (equation[i + 1] != 0);
-			
-			let isLoneZero = false;
 
-			if (i < equation.length - 2) isLoneZero = (equation[i + 1] == 0 && isNaN(equation[i + 2]));
-			if (i == equation.length - 2) isLoneZero = equation[i + 1] == 0;
-			
-			if (isBetweenNumbers && (isLoneZero || isNotZero)) {
+			if (isBetweenNumbers ) {
 				for(let operator of operators) {
 					let newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length);
 					equations.push(newEquation);
@@ -388,13 +389,9 @@ function getAllEquations(data) {
 
 	if (equations.length == 0) return [];
 
-	console.log(equations);
 	equations = equations.concat(getAllEquations(equations));
 
-	equations = equations.filter((eq, idx) => {
-		return equations.indexOf(eq) == idx;
-	});
-
+	console.log(equations);
 	return equations;
 }
 
