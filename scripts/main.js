@@ -14,9 +14,12 @@ export async function main(ns) {
 	await contracts.init();
 
 	while (true) {
+		let sleep = ns.asleep(5000);
+
 		await hacknet.update();
 		await botnet.update();
 		await contracts.update();
-		await ns.sleep(5000);
+		await ns.sleep(10);
+		await sleep;
 	}
 }

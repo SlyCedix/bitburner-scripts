@@ -12,6 +12,8 @@ export async function main(ns) {
 	var oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : [];
 
 	while(true) {
+		let sleep = ns.asleep(10000);
+
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
 		let toUpdate = treeFetch.filter((entry) => { // jshint ignore:line
@@ -74,7 +76,8 @@ export async function main(ns) {
 			return;
 		}
 
-		await ns.sleep(10000);
+		await ns.sleep(10);
+		await sleep;
 	}
 }
 
