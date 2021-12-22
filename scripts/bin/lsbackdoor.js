@@ -1,4 +1,4 @@
-import {getServersWithoutBackdoor} from "/scripts/helpers.js"
+import {getServersWithoutBackdoor} from "/scripts/helpers.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {

@@ -6,19 +6,16 @@ import {
 	rootAll,
 	getPortFunctions,
 	getNextHackingLevel
-} from "/scripts/helpers.js"
+} from "/scripts/helpers.js";
 
+const weakenScript = "/scripts/hacking/weaken.script";
+const growScript = "/scripts/hacking/grow.script";
+const hackScript = "/scripts/hacking/hack.script";
+
+const bbBaseGrowth = 1.03;
+const bbMaxGrowth = 1.0035;
+const fundPct = 0.9;
 class Bot {
-	bbBaseGrowth = 1.03;
-	bbMaxGrowth = 1.0035;
-	bbFortAmt = 0.002;
-	bbWeakAmt = 0.05;
-	fundPct = 0.9;
-
-	weakenScript = "/scripts/hacking/weaken.script";
-	growScript = "/scripts/hacking/grow.script";
-	hackScript = "/scripts/hacking/hack.script";
-
 	constructor(ns, target, server, buffer = 0.0, weakenOnly = false) {
 		ns.disableLog("ALL");
 
@@ -35,15 +32,15 @@ class Bot {
 		this.reqHackSkill = ns.getServerRequiredHackingLevel(target);
 		this.hackDiff = ns.getServerMinSecurityLevel(target);
 
-		this.weakenRam = ns.getScriptRam(this.weakenScript);
-		this.growRam = ns.getScriptRam(this.growScript);
-		this.hackRam = ns.getScriptRam(this.hackScript);
+		this.weakenRam = ns.getScriptRam(weakenScript);
+		this.growRam = ns.getScriptRam(growScript);
+		this.hackRam = ns.getScriptRam(hackScript);
 	}
 
 	async init() {
-		var files = [this.weakenScript,
-		this.growScript,
-		this.hackScript];
+		var files = [weakenScript,
+		growScript,
+		hackScript];
 
 		await this.ns.scp(files, 'home', this.server);
 
@@ -60,20 +57,20 @@ class Bot {
 
 		switch (this.status) {
 			case 0:
-				this.runScript(this.weakenScript, maxWeaken);
+				this.runScript(weakenScript, maxWeaken);
 				break;
 
 			case 1:
 				var weakenT = Math.floor(maxWeaken * 0.08);
 				var growT = maxWeaken - weakenT;
-				this.runScript(this.weakenScript, weakenT);
-				this.runScript(this.growScript, growT);
+				this.runScript(weakenScript, weakenT);
+				this.runScript(growScript, growT);
 				break;
 
 			case 2:
-				var hackT = Math.floor(this.fundPct / this.hackPct)
-				var growT = Math.ceil(Math.log(1 / (1 - this.fundPct)) / Math.log(this.growPct))
-				var weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05);
+				var hackT = Math.floor(fundPct / this.hackPct);
+				var growT = Math.ceil(Math.log(1 / (1 - fundPct)) / Math.log(this.growPct)); // jshint ignore:line
+				var weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05); // jshint ignore:line
 				var totalRam = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam);
 
 				if (totalRam > freeRam) {
@@ -84,13 +81,13 @@ class Bot {
 					totalRam = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam);
 				}
 
-				this.runScript(this.weakenScript, weakenT);
-				this.runScript(this.growScript, growT);
-				this.runScript(this.hackScript, hackT);
+				this.runScript(weakenScript, weakenT);
+				this.runScript(growScript, growT);
+				this.runScript(hackScript, hackT);
 				break;
 
 			default:
-				this.ns.print(`ERROR: Invalid target server ${this.target}`)
+				this.ns.print(`ERROR: Invalid target server ${this.target}`);
 		}
 	}
 
@@ -104,7 +101,7 @@ class Bot {
 	}
 
 	get growPct() {
-		var growRate = Math.min((1 + ((this.bbBaseGrowth - 1) / this.hackDiff)), this.bbMaxGrowth);
+		var growRate = Math.min((1 + ((bbBaseGrowth - 1) / this.hackDiff)), bbMaxGrowth);
 		var growPct = this.serverGrowth / 100;
 		growPct *= this.hackMults.growth;
 		growPct = Math.pow(growRate, growPct);
@@ -116,8 +113,8 @@ class Bot {
 		if (this.ns.getServerMaxMoney(this.target) == 0) {
 			return -1;
 		}
-		if (this.weakenOnly 
-		|| this.ns.getServerMinSecurityLevel(this.target) > this.ns.getServerSecurityLevel(this.target) + 2) {
+		if (this.ns.getServerMinSecurityLevel(this.target) > this.ns.getServerSecurityLevel(this.target) + 2 ||
+		this.weakenOnly) {
 			return 0;
 		}
 		if (this.ns.getServerMoneyAvailable(this.target) < this.ns.getServerMaxMoney(this.target) * 0.90) {
@@ -135,7 +132,7 @@ class Bot {
 
 			while (!this.ns.exec(script, this.server, threadCount, this.target, n)) {
 				n++;
-			};
+			}
 
 			this.ns.print(`INFO: Bot executing ${script} on ${this.target} (t=${threadCount}) on ${this.server}`);
 		}
@@ -156,7 +153,7 @@ export class Botnet {
 		rootAll(this.ns);
 
 		if(this.leveling) {
-			this.target = 'joesguns'
+			this.target = 'joesguns';
 		} else {
 			this.target = findBestServer(this.ns);
 		}
@@ -169,14 +166,14 @@ export class Botnet {
 
 		for (let i = 0; i < this.servers.length; ++i) {
 			if (this.servers[i] != 'home') this.ns.killall(this.servers[i]);
-			var bot = new Bot(this.ns, this.target, this.servers[i], 0, this.leveling)
+			let bot = new Bot(this.ns, this.target, this.servers[i], 0, this.leveling);
 			this.bots.push(bot);
 			await bot.init();
 			await this.ns.sleep(25);
 		}
 		
 		this.servers.push('home');
-		var bot = new Bot(this.ns, this.target, 'home', 8, this.leveling);
+		let bot = new Bot(this.ns, this.target, 'home', 8, this.leveling);
 		this.bots.push(bot);
 		await bot.init();
 
@@ -188,8 +185,8 @@ export class Botnet {
 	async update() {
 		var newPortFunctions = getPortFunctions(this.ns);
 
-		if(newPortFunctions.length > this.portFunctions.length
-		|| this.ns.getHackingLevel() > this.nextHackingLevel) {
+		if(newPortFunctions.length > this.portFunctions.length || 
+		this.ns.getHackingLevel() > this.nextHackingLevel) {
 			this.portFunctions = newPortFunctions;
 			this.nextHackingLevel = this.ns.getHackingLevel(this.ns);
 			rootAll(this.ns);
@@ -212,19 +209,19 @@ export class Botnet {
 		if (boughtServer) {
 			this.bots = this.bots.filter((hostname) => {
 				return hostname != boughtServer;
-			})
+			});
 	
 			var bot = new Bot(this.ns, this.target, boughtServer, 0, this.leveling);
 			this.bots.push(bot);
 			await bot.init();
-		};
+		}
 
 		for (let i = 0; i < this.bots.length; ++i) {
 			await this.bots[i].update();
 			await this.ns.sleep(25);
 		}
 
-		this.updateUI()
+		this.updateUI();
 	}
 
 	initUI() {
@@ -238,7 +235,7 @@ export class Botnet {
 
 		var securityLevel = this.ns.getServerSecurityLevel(this.target);
 
-		const doc = eval("document");
+		const doc = eval("document"); // jshint ignore:line
 
 		doc.getElementById('Target-hook-1').innerHTML = this.target;
 		doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a');
@@ -246,7 +243,7 @@ export class Botnet {
 	}
 
 	createDisplay(name) {
-		const doc = eval("document");
+		const doc = eval("document"); // jshint ignore:line
 		var display = doc.getElementById(name + '-hook-0');
 
 		if (typeof (display) == 'undefined' || display == null) {

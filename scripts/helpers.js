@@ -5,7 +5,7 @@ export function deepScan(ns, start, source = "") {
 
     var hostnames = ns.scan(start).filter(name => name != source);
 
-    var newNames = []
+    var newNames = [];
     for(let hostname of hostnames) {
         var scan = deepScan(ns, hostname, start);
         newNames = newNames.concat(scan);
@@ -22,7 +22,7 @@ export function findBestServer(ns) {
 
     hostnames.sort((a, b) => {
         return getHackProduction(ns, b) - getHackProduction(ns, a);
-    })
+    });
 
     return hostnames[0];
 }
@@ -64,7 +64,7 @@ export function buyServer(ns) {
     if (pServs.length < ns.getPurchasedServerLimit()) {
         if (serverCost < moneyAvailable) {
             var hostname = ns.purchaseServer("pserv-" + pServs.length, maxRam);
-            ns.toast(`Purchased server ${hostname} with ${formatRAM(ns, maxRam)}`)
+            ns.toast(`Purchased server ${hostname} with ${formatRAM(ns, maxRam)}`);
             return hostname;
         }
     } else {
@@ -73,11 +73,11 @@ export function buyServer(ns) {
         });
 
         if (oldServs.length > 0) {
-            if (ns.getPurchasedServerCost(maxRam) < moneyAvailable * .1) {
+            if (ns.getPurchasedServerCost(maxRam) < moneyAvailable * 0.1) {
                 ns.killall(pServs[0]);
                 ns.deleteServer(pServs[0]);
-                var hostname = ns.purchaseServer(pServs[0], maxRam);
-                ns.toast(`Upgraded server ${hostname} to ${formatRAM(ns, maxRam)}`)
+                let hostname = ns.purchaseServer(pServs[0], maxRam);
+                ns.toast(`Upgraded server ${hostname} to ${formatRAM(ns, maxRam)}`);
                 return hostname;
             }
         } else {
@@ -120,9 +120,9 @@ export function rootAll(ns) {
 
     // Checks which hostnames can be rooted, but are not
     var needRoot = hostnames.filter((hostname) => {
-        return !ns.hasRootAccess(hostname)
-            && (ns.getServerNumPortsRequired(hostname) <= portFunctions.length)
-            && (ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel());
+        return !ns.hasRootAccess(hostname) &&
+            (ns.getServerNumPortsRequired(hostname) <= portFunctions.length) &&
+            (ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel());
     });
 
     // Roots those servers
@@ -137,9 +137,9 @@ export function rootAll(ns) {
 export function getServersWithoutBackdoor(ns) {
     var hostnames = deepScan(ns, "home");
     hostnames = hostnames.filter((hostname) => {
-        return (!ns.getServer(hostname).backdoorInstalled
-            && ns.hasRootAccess(hostname)
-            && !ns.getPurchasedServers().includes(hostname));
+        return (!ns.getServer(hostname).backdoorInstalled &&
+            ns.hasRootAccess(hostname) &&
+            !ns.getPurchasedServers().includes(hostname));
     });
 
     return hostnames;
@@ -175,28 +175,15 @@ export function findServer(ns, target, start = 'home', source = '') {
         }
     }
 
-    return ""
+    return "";
 }
 
 export function runTerminalCommand(command) {
-    const terminalInput = eval('document').getElementById("terminal-input");
+    const terminalInput = eval('document').getElementById("terminal-input"); // jshint ignore:line
     terminalInput.value=command;
     const handler = Object.keys(terminalInput)[1];
     terminalInput[handler].onChange({target: terminalInput});
     terminalInput[handler].onKeyDown({keyCode:13, preventDefault:()=>null});
-}
-
-export function tprintColor(message, color = 'green') {
-    setTimeout(() => {
-        const term = eval('document').querySelector("#terminal");
-        const scrollParent = eval('document').querySelector('html');
-        const formatted = `<span style="color:${color}">${message}</span>`;
-        const node = term.lastChild.cloneNode(true);
-        node.firstChild.innerHTML = formatted;
-        
-        term.appendChild(node);
-        scrollParent.scrollTop = scrollParent.scrollHeight;
-    }, 20);
 }
 
 export function formatRAM(ns, n) {

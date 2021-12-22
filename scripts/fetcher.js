@@ -1,32 +1,28 @@
 /** @param {NS} ns **/
-import { key } from "/scripts/OAuth.js"
+import { key } from "/scripts/OAuth.js";
 
-const repo = "SlyCedix/bitburner-scripts"
-const branch = "main"
-const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`
-const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`
+const repo = "SlyCedix/bitburner-scripts";
+const branch = "main";
+const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
+const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`;
 
-const treeFile = 'tree.txt'
+const treeFile = 'tree.txt';
 
 export async function main(ns) {
-	if(ns.fileExists(treeFile)) {
-		var oldTree = JSON.parse(ns.read(treeFile));
-	} else {
-		var oldTree = [];
-	}
+	var oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : [];
 
 	while(true) {
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
-		let toUpdate = treeFetch.filter((entry) => {
-			return entry.path.includes('.js')
-				&& oldTree.filter(node => node.sha == entry.sha).length == 0;
-		})
+		let toUpdate = treeFetch.filter((entry) => { // jshint ignore:line
+			return entry.path.includes('.js') && 
+				oldTree.filter(node => node.sha == entry.sha).length == 0;
+		});
 
 		let runUpdater = false;
 
 		for (let treeEntry of toUpdate) {
-			let path = `/${treeEntry.path}`
+			let path = `/${treeEntry.path}`;
 
 			if (path == ns.getScriptName()) {
 				let status = await getURL(rawURL + path);
@@ -41,7 +37,7 @@ export async function main(ns) {
 					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
 				}
 			} else {
-				let processes = ns.ps().filter((process) => {
+				let processes = ns.ps().filter((process) => { // jshint ignore:line
 					return process.filename == path;
 				});
 
@@ -56,14 +52,14 @@ export async function main(ns) {
 					ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
 					treeEntry.sha = "";
 				} else if(status) {
-					await ns.write(path, status, 'w')
+					await ns.write(path, status, 'w');
 					ns.tprint(`SUCCESS: Downloaded ${path}`);
 				} else {
 					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
 				}
 
 				for(let process of processes) {
-					ns.run(process.filename, process.threads, ...process.args)
+					ns.run(process.filename, process.threads, ...process.args);
 				}
 			}
 		}
@@ -83,10 +79,10 @@ export async function main(ns) {
 }
 
 async function getURL(url, json = false) {
-	var fetchHeaders = [['Authorization', `token ${key}`]]
+	var fetchHeaders = [['Authorization', `token ${key}`]];
 
 	if(json) fetchHeaders.push(['Content-Type', 'application/json']);
-	else fetchHeaders.push(['Content-Type', 'text/plain'])
+	else fetchHeaders.push(['Content-Type', 'text/plain']);
 
 	return fetch(url, {
 		method: 'GET',
@@ -98,5 +94,5 @@ async function getURL(url, json = false) {
 		} else {
 			return false;
 		}
-	})
+	});
 } 

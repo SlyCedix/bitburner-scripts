@@ -1,15 +1,14 @@
 /** @param {NS} ns **/
-import { getServersWithContracts } from "/scripts/helpers.js"
+import { getServersWithContracts } from "/scripts/helpers.js";
 
 export class Contracts {
-	failed = [];
-
 	constructor(ns) {
+		this.failed = [];
 		this.ns = ns;
 	}
 
 	async init() {
-		this.ns.disableLog("ALL")
+		this.ns.disableLog("ALL");
 		this.ns.print(`INFO: Contracts Initialized`);
 	}
 
@@ -105,7 +104,7 @@ function spiralizeMatrix(data) {
 	var width = data[0].length;
 	var height = data.length;
 
-	var output = []
+	var output = [];
 
 	for (let i = 0; i < width; ++i) {
 		output.push(data[0][i]);
@@ -141,7 +140,7 @@ function spiralizeMatrix(data) {
 	return output;
 }
 function uniquePaths1(data) {
-	var data = new Array(data[0]).fill(new Array(data[1]).fill(0));
+	data = new Array(data[0]).fill(new Array(data[1]).fill(0));
 	return uniquePaths(data);
 }
 
@@ -220,12 +219,12 @@ function maximizeProfit(transactions, n = -1) {
 		var profit = transactions[i][2];
 		if (profit <= 0) continue;
 
-		var testTransactions = transactions.filter((transaction) => {
+		var testTransactions = transactions.filter((transaction) => { // jshint ignore:line
 			return transaction[0] > transactions[i][1];
 		});
 
 
-		if (!(testTransactions.length == 0)) {
+		if (testTransactions.length != 0) {
 			if (n == -1) profit += maximizeProfit(testTransactions);
 			else if (n > 1) profit += maximizeProfit(testTransactions, n - 1);
 		}
@@ -240,7 +239,7 @@ function sanitizeParenthesis(data) {
 	if(!Array.isArray(data)) data = [data];
 	console.log(data);
 	
-	var valid = []
+	var valid = [];
 	var invalid = [];
 
 	for (let i = 0; i < data.length; ++i) {
@@ -283,7 +282,7 @@ function isValidParenthesis(checkStr) {
 }
 
 function isParenthesis(char) {
-	return char == '(' || char == ')'
+	return char == '(' || char == ')';
 }
 
 function largestPrimeFactor(data, start = 2) {
@@ -339,7 +338,7 @@ function maxSubarraySum(data) {
 	return maxSum;
 }
 function validEquations(data) {
-	var target = null
+	var target = null;
 	if (Array.isArray(data)) {
 		target = data[1];
 		data = data[0];
@@ -349,7 +348,7 @@ function validEquations(data) {
 
 	if (target != null) {
 		equations = equations.filter((equation) => {
-			return eval(equation) == target;
+			return eval(equation) == target; // jshint ignore:line
 		});
 	}
 
@@ -357,7 +356,7 @@ function validEquations(data) {
 }
 
 function getAllEquations(data) {
-	var operators = ['+', '-', '*']
+	var operators = ['+', '-', '*'];
 	var equations = [];
 
 	for (let i = 0; i < operators.length; ++i) {
@@ -378,7 +377,7 @@ function getAllEquations(data) {
 		if (equations.length == 0) return [];
 	}
 
-	var newEquations = []
+	var newEquations = [];
 	for (let i = 0; i < equations.length; ++i) {
 		newEquations = newEquations.concat(getAllEquations(equations[i]));
 	}
@@ -387,7 +386,7 @@ function getAllEquations(data) {
 
 	equations = equations.filter((eq, idx) => {
 		return equations.indexOf(eq) == idx;
-	})
+	});
 
 	return equations;
 }
@@ -416,7 +415,7 @@ function generateIPAddresses(data) {
 		var octet = lastSet.slice(0, i + 1);
 		if (isValidOctet(octet)) {
 			var newAddress = dataAddress.slice(0, dataAddress.length - 1).join('.');
-			if (newAddress.length > 0) newAddress += '.'
+			if (newAddress.length > 0) newAddress += '.';
 			newAddress += octet + '.';
 			newAddress += lastSet.slice(i + 1, lastSet.length);
 
@@ -428,7 +427,7 @@ function generateIPAddresses(data) {
 		var splitAddress = address.split('.');
 		var last = splitAddress[splitAddress.length - 1];
 
-		return (last.length / (5 - splitAddress.length)) <= 3
+		return (last.length / (5 - splitAddress.length)) <= 3;
 	});
 
 	var validAddresses = [];
@@ -437,11 +436,11 @@ function generateIPAddresses(data) {
 		validAddresses = validAddresses.concat(generateIPAddresses(addresses[i]));
 	}
 
-	return validAddresses
+	return validAddresses;
 }
 
 function isValidOctet(val) {
-	return 0 < Number(val) && Number(val) < 256
+	return 0 < Number(val) && Number(val) < 256;
 }
 
 function mergeOverlappingIntervals(data) {

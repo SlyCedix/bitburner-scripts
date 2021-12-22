@@ -1,9 +1,9 @@
 /** @param {NS} ns **/
 
-const repo = "SlyCedix/bitburner-scripts"
-const branch = "main"
-const filename = '/scripts/fetcher.js'
-const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
+const repo = 'SlyCedix/bitburner-scripts';
+const branch = 'main';
+const filename = '/scripts/fetcher.js';
+const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`;
 
 export async function main(ns) {
     ns.scriptKill(filename, ns.getHostname());
