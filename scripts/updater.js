@@ -14,9 +14,10 @@ export async function main(ns) {
     var status = await getURL(rawURL);
 
     if (status) status = status.replaceAll(/(\.\.\/)(\.\.\/)*/g, "/"); // Resolves relative filepaths
-
+    let currFile = ns.read(path);
     if (status === currFile) {
-        ns.tprint(`INFO: Tried to download ${filename}, got same file as existing`);
+        ns.tprint(`INFO: Tried to download ${filename}, got same file as existing...retrying`);
+        ns.spawn(ns.getScriptName());
     } else if (status) {
         ns.tprint(`SUCCESS: Downloaded ${filename}`);
         await ns.write(filename, status, 'w');
