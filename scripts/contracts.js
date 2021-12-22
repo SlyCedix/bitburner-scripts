@@ -349,14 +349,11 @@ function validEquations(data) {
 
 	if (target != null) {
 		equations = equations.filter((equation) => {
-			if (eval(equation) == target) { // jshint ignore:line
-				var operands = equation.replaceAll('/-|\*/g', '+').split('+');
-				for(let operand of operands) {
-					if(operand.length > 1 && operand[0] == '0') return false;
-				}
-				return true;
+			try {
+				return eval(equation) == target // jshint ignore:line
+			} catch(e) {
+				return false;
 			}
-			return false; 
 		});
 	}
 
