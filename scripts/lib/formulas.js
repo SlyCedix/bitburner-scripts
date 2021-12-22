@@ -1,6 +1,12 @@
 const ServerBaseGrowthRate = 1.03;
 const ServerMaxGrowthRate = 1.0035;
 
+
+// Bitnode multipliers (Need SF5 for getBitNodeMultipliers)
+const BNServerGrowthRate = 1;
+const BNHackExpGain = 1;
+const BNScriptHackMoney = 1;
+
 export const HackingFormulas = {
   growPercent : (server, threads, player, cores = 1) => calculateServerGrowth(server, threads, player, cores),
   growTime : (server, player) => calculateGrowTime(server, player) * 1000,
@@ -22,7 +28,7 @@ function calculateServerGrowth(server, threads, player, cores = 1) {
     //Calculate adjusted server growth rate based on parameters
     const serverGrowthPercentage = server.serverGrowth / 100;
     const numServerGrowthCyclesAdjusted =
-        numServerGrowthCycles * serverGrowthPercentage * BitNodeMultipliers.ServerGrowthRate;
+        numServerGrowthCycles * serverGrowthPercentage * BNServerGrowthRate;
 
     //Apply serverGrowth for the calculated number of growth cycles
     const coreBonus = 1 + (cores - 1) / 16;
@@ -79,10 +85,10 @@ function calculateHackingExpGain(server, player) {
     let expGain = baseExpGain;
     expGain += server.baseDifficulty * player.hacking_exp_mult * diffFactor;
   
-    return expGain * BitNodeMultipliers.HackExpGain;
+    return expGain * BNHackExpGain;
 }
 
-export function calculatePercentMoneyHacked(server, player) {
+function calculatePercentMoneyHacked(server, player) {
   // Adjust if needed for balancing. This is the divisor for the final calculation
   const balanceFactor = 240;
 
@@ -96,7 +102,7 @@ export function calculatePercentMoneyHacked(server, player) {
     return 1;
   }
 
-  return percentMoneyHacked * BitNodeMultipliers.ScriptHackMoney;
+  return percentMoneyHacked * BNScriptHackMoney;
 }
 
 function calculateWeakenTime(server, player) {
