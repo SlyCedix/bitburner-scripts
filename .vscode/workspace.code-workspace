@@ -1,11 +1,22 @@
 {
-	"folders": [
-		{
-			"path": ".."
-		}
-	],
+	"folders": [{
+		"path": ".."
+	}],
 	"settings": {
-		"jshint.options": {"esversion": 8},
-		
+		// Make .git appear for hooks
+		"files.exclude": {
+			"**/.git": false
+		},
+
+		// Linter Settings
+		"typescript.validate.enable": false,
+		"javascript.validate.enable": false,
+		"jshint.options": {
+			"esversion": 8,
+			"evil": true
+		},
+
+		"editor.defaultFormatter": "HookyQR.beautify",
+		"editor.formatOnSave": true
 	}
 }
