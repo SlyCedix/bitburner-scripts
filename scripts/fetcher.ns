@@ -19,17 +19,29 @@ export async function main(ns) {
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
 		let toUpdate = treeFetch.filter((entry) => {
+			ns.tprint(oldTree.filter(node => node.sha == entry.sha).length);
 			return entry.path.includes('.ns')
-				&& !(oldTree.filter(node => node.sha == entry.sha).length);
+				&& oldTree.filter(node => node.sha == entry.sha).length == 1;
 		})
 
+		ns.tprint(toUpdate);
 		let runUpdater = false;
 
 		for (let treeEntry of toUpdate) {
 			let path = `/${treeEntry.path}`
 
 			if (path == ns.getScriptName()) {
-				runUpdater = true;
+				let status = await getURL(rawURL + path);
+				let currFile = ns.read(path);
+				if(status === currFile) {
+					ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
+					treeEntry.sha = "";
+				} else if(status) {
+					runUpdater = true;
+					ns.tprint(`SUCCESS: Downloaded ${path}`);
+				} else {
+					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
+				}
 			} else {
 				let processes = ns.ps().filter((process) => {
 					return process.filename == path;
@@ -64,7 +76,6 @@ export async function main(ns) {
 		}
 
 		if(runUpdater) {
-			ns.tprint('INFO: Updating fetcher.ns')
 			ns.run('/scripts/updater.ns');
 			return;
 		}
