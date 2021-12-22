@@ -51,7 +51,7 @@ export async function main(ns) {
 				}
 
 				let status = await getURL(rawURL + path);
-				status.replaceAll("/^[../][../]*/g", "/"); // Resolves relative filepaths
+				status.replaceAll(/(\.\.\/)(\.\.\/)*/g, "/"); // Resolves relative filepaths
 				let currFile = ns.read(path);
 
 				if (status === currFile && oldTree.length > 0) {
