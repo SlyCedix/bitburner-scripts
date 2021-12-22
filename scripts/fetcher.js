@@ -19,7 +19,7 @@ export async function main(ns) {
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
 		let toUpdate = treeFetch.filter((entry) => {
-			return entry.path.includes('.ns')
+			return entry.path.includes('.js')
 				&& oldTree.filter(node => node.sha == entry.sha).length == 0;
 		})
 

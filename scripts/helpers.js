@@ -1,5 +1,4 @@
 /** @param {NS} ns **/
-var ns = eval('window').ns
 
 export function deepScan(ns, start, source = "") {
     ns.disableLog('ALL');
