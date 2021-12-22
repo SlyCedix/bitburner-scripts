@@ -1,4 +1,5 @@
 /** @param {NS} ns **/
+
 import {
 	findBestServer,
 	buyServer,
@@ -6,11 +7,11 @@ import {
 	rootAll,
 	getPortFunctions,
 	getNextHackingLevel
-} from "/scripts/helpers.js";
+} from "../scripts/lib/helpers.js";
 
-const weakenScript = "/scripts/hacking/weaken.script";
-const growScript = "/scripts/hacking/grow.script";
-const hackScript = "/scripts/hacking/hack.script";
+const weakenScript = "../scripts/hacking/weaken.script";
+const growScript = "../scripts/hacking/grow.script";
+const hackScript = "../scripts/hacking/hack.script";
 
 const bbBaseGrowth = 1.03;
 const bbMaxGrowth = 1.0035;
@@ -38,9 +39,7 @@ class Bot {
 	}
 
 	async init() {
-		var files = [weakenScript,
-		growScript,
-		hackScript];
+		var files = [weakenScript, growScript, hackScript];
 
 		await this.ns.scp(files, 'home', this.server);
 
@@ -114,7 +113,7 @@ class Bot {
 			return -1;
 		}
 		if (this.ns.getServerMinSecurityLevel(this.target) > this.ns.getServerSecurityLevel(this.target) + 2 ||
-		this.weakenOnly) {
+			this.weakenOnly) {
 			return 0;
 		}
 		if (this.ns.getServerMoneyAvailable(this.target) < this.ns.getServerMaxMoney(this.target) * 0.90) {
@@ -152,7 +151,7 @@ export class Botnet {
 		this.nextHackingLevel = getNextHackingLevel(this.ns);
 		rootAll(this.ns);
 
-		if(this.leveling) {
+		if (this.leveling) {
 			this.target = 'joesguns';
 		} else {
 			this.target = findBestServer(this.ns);
@@ -161,7 +160,7 @@ export class Botnet {
 		this.servers = (deepScan(this.ns, this.ns.getHostname())).filter((hostname) => {
 			return this.ns.hasRootAccess(hostname);
 		});
-		
+
 		this.bots = [];
 
 		for (let i = 0; i < this.servers.length; ++i) {
@@ -171,7 +170,7 @@ export class Botnet {
 			await bot.init();
 			await this.ns.sleep(25);
 		}
-		
+
 		this.servers.push('home');
 		let bot = new Bot(this.ns, this.target, 'home', 8, this.leveling);
 		this.bots.push(bot);
@@ -185,20 +184,20 @@ export class Botnet {
 	async update() {
 		var newPortFunctions = getPortFunctions(this.ns);
 
-		if(newPortFunctions.length > this.portFunctions.length || 
-		this.ns.getHackingLevel() > this.nextHackingLevel) {
+		if (newPortFunctions.length > this.portFunctions.length ||
+			this.ns.getHackingLevel() > this.nextHackingLevel) {
 			this.portFunctions = newPortFunctions;
 			this.nextHackingLevel = this.ns.getHackingLevel(this.ns);
 			rootAll(this.ns);
 		}
 
-		if(!this.leveling) {
+		if (!this.leveling) {
 			var newBest = findBestServer(this.ns);
 			if (newBest != this.target) {
 				this.target = newBest;
 				this.bots.forEach((bot) => {
 					if (bot.target != bot.server) {
-						if(bot.server != 'home') this.ns.killall(bot.server);
+						if (bot.server != 'home') this.ns.killall(bot.server);
 						bot.target = newBest;
 					}
 				});
@@ -210,7 +209,7 @@ export class Botnet {
 			this.bots = this.bots.filter((hostname) => {
 				return hostname != boughtServer;
 			});
-	
+
 			var bot = new Bot(this.ns, this.target, boughtServer, 0, this.leveling);
 			this.bots.push(bot);
 			await bot.init();
@@ -235,7 +234,7 @@ export class Botnet {
 
 		var securityLevel = this.ns.getServerSecurityLevel(this.target);
 
-		const doc = eval("document"); // jshint ignore:line
+		const doc = eval("document");
 
 		doc.getElementById('Target-hook-1').innerHTML = this.target;
 		doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a');
@@ -243,7 +242,7 @@ export class Botnet {
 	}
 
 	createDisplay(name) {
-		const doc = eval("document"); // jshint ignore:line
+		const doc = eval("document");
 		var display = doc.getElementById(name + '-hook-0');
 
 		if (typeof (display) == 'undefined' || display == null) {

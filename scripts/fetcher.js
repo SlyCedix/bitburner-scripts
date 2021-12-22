@@ -1,5 +1,8 @@
 /** @param {NS} ns **/
-import { key } from "/scripts/OAuth.js";
+
+import {
+	key
+} from "../scripts/OAuth.js";
 
 const repo = "SlyCedix/bitburner-scripts";
 const branch = "main";
@@ -11,13 +14,13 @@ const treeFile = 'tree.txt';
 export async function main(ns) {
 	var oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : [];
 
-	while(true) {
+	while (true) {
 		let sleep = ns.asleep(10000);
 
 		let treeFetch = (await getURL(treeURL, true)).tree;
 
 		let toUpdate = treeFetch.filter((entry) => { // jshint ignore:line
-			return entry.path.includes('.js') && 
+			return entry.path.includes('.js') &&
 				oldTree.filter(node => node.sha == entry.sha).length == 0;
 		});
 
@@ -29,10 +32,10 @@ export async function main(ns) {
 			if (path == ns.getScriptName()) {
 				let status = await getURL(rawURL + path);
 				let currFile = ns.read(path);
-				if(status === currFile) {
+				if (status === currFile) {
 					ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
 					treeEntry.sha = "";
-				} else if(status) {
+				} else if (status) {
 					runUpdater = true;
 					ns.tprint(`SUCCESS: Downloaded ${path}`);
 				} else {
@@ -43,35 +46,36 @@ export async function main(ns) {
 					return process.filename == path;
 				});
 
-				if(processes.length > 0) {
+				if (processes.length > 0) {
 					ns.scriptKill(path, ns.getHostname());
 				}
 
 				let status = await getURL(rawURL + path);
+				status.replaceAll("/^[../][../]*/g", "/"); // Resolves relative filepaths
 				let currFile = ns.read(path);
 
-				if(status === currFile && oldTree.length > 0) {
+				if (status === currFile && oldTree.length > 0) {
 					ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
 					treeEntry.sha = "";
-				} else if(status) {
+				} else if (status) {
 					await ns.write(path, status, 'w');
 					ns.tprint(`SUCCESS: Downloaded ${path}`);
 				} else {
 					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
 				}
 
-				for(let process of processes) {
+				for (let process of processes) {
 					ns.run(process.filename, process.threads, ...process.args);
 				}
 			}
 		}
 
-		if(toUpdate.length > 0) {
+		if (toUpdate.length > 0) {
 			await ns.write('tree.txt', JSON.stringify(treeFetch), 'w');
 			oldTree = treeFetch;
 		}
 
-		if(runUpdater) {
+		if (runUpdater) {
 			ns.run('/scripts/updater.js');
 			return;
 		}
@@ -82,15 +86,17 @@ export async function main(ns) {
 }
 
 async function getURL(url, json = false) {
-	var fetchHeaders = [['Authorization', `token ${key}`]];
+	var fetchHeaders = [
+		['Authorization', `token ${key}`]
+	];
 
-	if(json) fetchHeaders.push(['Content-Type', 'application/json']);
+	if (json) fetchHeaders.push(['Content-Type', 'application/json']);
 	else fetchHeaders.push(['Content-Type', 'text/plain']);
 
 	return fetch(url, {
 		method: 'GET',
 		headers: fetchHeaders
-	}).then( response => {
+	}).then(response => {
 		if (response.status === 200) {
 			if (json) return response.json();
 			else return response.text();
@@ -98,4 +104,4 @@ async function getURL(url, json = false) {
 			return false;
 		}
 	});
-} 
+}

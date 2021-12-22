@@ -1,10 +1,17 @@
-import { Hacknet } from "/scripts/hacknet.js";
-import { Botnet } from "/scripts/hacking.js";
-import { Contracts } from "/scripts/contracts.js";
-
 /** @param {NS} ns **/
+
+import {
+	Hacknet
+} from "../scripts/hacknet.js";
+import {
+	Botnet
+} from "../scripts/hacking.js";
+import {
+	Contracts
+} from "../scripts/contracts.js";
+
 export async function main(ns) {
-	var botnet =  new Botnet(ns, ns.args[0] == 'level');
+	var botnet = new Botnet(ns, ns.args[0] == 'level');
 	await botnet.init();
 
 	var hacknet = new Hacknet(ns);

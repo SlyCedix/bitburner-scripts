@@ -6,7 +6,7 @@ export function deepScan(ns, start, source = "") {
     var hostnames = ns.scan(start).filter(name => name != source);
 
     var newNames = [];
-    for(let hostname of hostnames) {
+    for (let hostname of hostnames) {
         var scan = deepScan(ns, hostname, start);
         newNames = newNames.concat(scan);
     }
@@ -156,21 +156,21 @@ export function getServersWithContracts(ns) {
 
 export function findServer(ns, target, start = 'home', source = '') {
     var str = "";
-    
+
     var hostnames = ns.scan(start).filter((hostname) => {
         return hostname != source;
     });
 
-    if(hostnames.includes(target)) {
-        if(start != 'home') return `connect ${start}; connect ${target}`;
+    if (hostnames.includes(target)) {
+        if (start != 'home') return `connect ${start}; connect ${target}`;
         return `home; connect ${target}`;
     }
 
-    for(let i = 0; i < hostnames.length; ++i) {
+    for (let i = 0; i < hostnames.length; ++i) {
         var connection = findServer(ns, target, hostnames[i], start);
 
-        if(connection.length > 0) {
-            if(start == 'home') return `home; ${connection}`;
+        if (connection.length > 0) {
+            if (start == 'home') return `home; ${connection}`;
             else return `connect ${start}; ${connection}`;
         }
     }
@@ -179,11 +179,16 @@ export function findServer(ns, target, start = 'home', source = '') {
 }
 
 export function runTerminalCommand(command) {
-    const terminalInput = eval('document').getElementById("terminal-input"); // jshint ignore:line
-    terminalInput.value=command;
+    const terminalInput = eval('document').getElementById("terminal-input");
+    terminalInput.value = command;
     const handler = Object.keys(terminalInput)[1];
-    terminalInput[handler].onChange({target: terminalInput});
-    terminalInput[handler].onKeyDown({keyCode:13, preventDefault:()=>null});
+    terminalInput[handler].onChange({
+        target: terminalInput
+    });
+    terminalInput[handler].onKeyDown({
+        keyCode: 13,
+        preventDefault: () => null
+    });
 }
 
 export function formatRAM(ns, n) {

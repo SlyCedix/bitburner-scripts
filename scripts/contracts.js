@@ -1,5 +1,8 @@
 /** @param {NS} ns **/
-import { getServersWithContracts } from "/scripts/helpers.js";
+
+import {
+	getServersWithContracts
+} from "../scripts/lib/helpers.js";
 
 export class Contracts {
 	constructor(ns) {
@@ -96,6 +99,7 @@ export class Contracts {
 		}
 	}
 }
+
 function formatOutput(output) {
 	return `[${output.toString().replaceAll(',', ', ')}]`;
 }
@@ -139,6 +143,7 @@ function spiralizeMatrix(data) {
 
 	return output;
 }
+
 function uniquePaths1(data) {
 	data = new Array(data[0]).fill(new Array(data[1]).fill(0));
 	return uniquePaths(data);
@@ -236,9 +241,9 @@ function maximizeProfit(transactions, n = -1) {
 }
 
 function sanitizeParenthesis(data) {
-	if(!Array.isArray(data)) data = [data];
+	if (!Array.isArray(data)) data = [data];
 	console.log(data);
-	
+
 	var valid = [];
 	var invalid = [];
 
@@ -350,8 +355,8 @@ function validEquations(data) {
 	if (target != null) {
 		equations = equations.filter((equation) => {
 			try {
-				return eval(equation) == target // jshint ignore:line
-			} catch(e) {
+				return eval(equation) == target;
+			} catch (e) {
 				return false;
 			}
 		});
@@ -364,19 +369,19 @@ function getAllEquations(data) {
 	var operators = ['+', '-', '*'];
 	var equations = [];
 
-	if(!Array.isArray(data)) data = [data];
+	if (!Array.isArray(data)) data = [data];
 
-	for(let equation of data) {
+	for (let equation of data) {
 		let start = 0;
-		for(let i = 0; i < equation.length - 1; ++i){
-			if(operators.includes(equation[i])) start = i;
+		for (let i = 0; i < equation.length - 1; ++i) {
+			if (operators.includes(equation[i])) start = i;
 		}
 
-		for(let i = start; i < equation.length - 1; ++i){
+		for (let i = start; i < equation.length - 1; ++i) {
 			let isBetweenNumbers = (!isNaN(equation[i]) && !isNaN(equation[i + 1]));
 
-			if (isBetweenNumbers ) {
-				for(let operator of operators) {
+			if (isBetweenNumbers) {
+				for (let operator of operators) {
 					let newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length);
 					equations.push(newEquation);
 				}
@@ -445,17 +450,17 @@ function isValidOctet(val) {
 }
 
 function mergeOverlappingIntervals(data) {
-	data.sort((a,b) => a[0] - b[0]);
+	data.sort((a, b) => a[0] - b[0]);
 
 	var needsMerging = true;
 
-	for(let i = 0; i < data.length - 1; ++i) {
-		while(data[i][1] >= data[i + 1][0]) {
+	for (let i = 0; i < data.length - 1; ++i) {
+		while (data[i][1] >= data[i + 1][0]) {
 			console.log(data);
-			data[i][1] = Math.max(data[i][1], data[i+1][1]);
-			data.splice(i+1, 1);
+			data[i][1] = Math.max(data[i][1], data[i + 1][1]);
+			data.splice(i + 1, 1);
 
-			if(data.length == 1) break;
+			if (data.length == 1) break;
 		}
 	}
 
@@ -463,11 +468,11 @@ function mergeOverlappingIntervals(data) {
 }
 
 function arrayJumping(data) {
-	if(data.length == 1) return 1;
+	if (data.length == 1) return 1;
 
 	var jumps = data[0];
 
-	for(let i = 1; i <= jumps; ++i) {
+	for (let i = 1; i <= jumps; ++i) {
 		var jumpTest = arrayJumping(data.slice(i, data.length));
 		if (jumpTest == 1) return 1;
 	}
