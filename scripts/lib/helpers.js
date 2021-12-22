@@ -1,5 +1,9 @@
 /** @param {NS} ns **/
 
+import {
+    key
+} from "../scripts/OAuth.js";
+
 export function deepScan(ns, start, source = "") {
     ns.disableLog('ALL');
 

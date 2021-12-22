@@ -1,10 +1,6 @@
 /** @param {NS} ns **/
 
 import {
-	key
-} from "../scripts/OAuth.js";
-
-import {
 	getURL
 } from "../scripts/lib/helpers.js";
 
