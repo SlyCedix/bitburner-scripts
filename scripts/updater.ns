@@ -1,10 +1,12 @@
 /** @param {NS} ns **/
 
-const fetcherURL = "https://raw.githubusercontent.com/SlyCedix/bitburner-scripts/main/scripts/fetcher.ns"
-const fetcherName = "/scripts/fetcher.ns"
+const repo = "SlyCedix/bitburner-scripts"
+const branch = "main"
+const filename = '/scripts/fetcher.ns'
+const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 
 export async function main(ns) {
-    ns.scriptKill(fetcherName, ns.getHostname())
-    var status = await ns.wget(fetcherURL, fetcherName);
-	ns.run(fetcherName);
+    ns.scriptKill(filename);
+    var status = await ns.wget(rawURL, filename);
+	ns.run(filename);
 }

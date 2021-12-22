@@ -1,70 +1,78 @@
 /** @param {NS} ns **/
-const repo = "SlyCedix/bitburner-scripts"
+import { key } from "/scripts/OAuth.js"
 
-const treeRoot = `https://api.github.com/repos/${repo}/git/trees/HEAD`
+const repo = "SlyCedix/bitburner-scripts"
+const branch = "main"
+const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`
+const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`
+
+const treeFile = 'tree.txt'
 
 export async function main(ns) {
-	if(ns.fileExists("tree.txt")) {
-		var treeFile = JSON.parse(ns.read('tree.txt'));
-		var currentSha = treeFile.sha;
-		ns.run('/scripts/main.ns');
+	if(ns.fileExists(treeFile)) {
+		var oldTree = JSON.parse(ns.read(treeFile));
 	} else {
-		var currentSha = "";
+		var oldTree = [];
 	}
 
-    while(true) {
-		if(await ns.wget(treeRoot,'tree.txt')) {
-			treeFile = JSON.parse(ns.read('tree.txt'));
-			if(treeFile.sha != currentSha) {
-				currentSha = treeFile.sha;
-				ns.tprint(`INFO: Downloading scripts at ${currentSha}`)
-				var urls = await getUrls(ns, treeFile.tree);
+	while(true) {
+		ns.tprint(oldTree);
 
-				var processes = ns.ps();
+		let treeFetch = (await fetch(treeURL, {
+			method: 'GET',
+			headers: [['Authorization', `token ${key}`], ['Content-Type', 'application/json']]
+		}).then( response => {
+			if (response.status === 200) {
+				return response.json();
+			} else {
+				ns.tprint(`ERROR: Failed to fetch contents from ${contentsURL}`);
+			}
+		})).tree;
 
-				processes.forEach((script) => {
-					if(script.filename != ns.getScriptName()) {
-						ns.scriptKill(script.filename, ns.getHostname());
-					}
+		let toUpdate = treeFetch.filter( (entry) => {
+			return !oldTree.find(node => node.sha == entry.sha)
+				&& entry.path.includes('.ns');
+		})
+
+		let runUpdater = false;
+
+		for (let treeEntry of toUpdate) {
+			let path = `/${treeEntry.path}`
+
+			if (path == ns.getScriptName()) {
+				runUpdater = true;
+			} else {
+				let processes = ns.ps().filter((process) => {
+					return process.filename == path;
 				});
 
-				for(let url of urls) {
-					var status = await ns.wget(url[1],`/${url[0]}`);
-					if(status) {
-						ns.tprint(`SUCCESS: Downloaded ${url[0]}`);
-					} else {
-						ns.tprint(`ERROR: Failed to download ${url[0]} from ${url[1]}`);
-					}
+				if(processes.length > 0) {
+					ns.scriptKill(path);
 				}
 
-				ns.run('/scripts/updater.ns');
-				return;
+				let status = await ns.wget(rawURL + path, path);
+				
+				if(status) {
+					ns.tprint(`SUCCESS: Downloaded ${path}`);
+				} else {
+					ns.tprint(`ERROR: Failed to download ${path} from ${rawURL + path}`);
+				}
+
+				for(let process of processes) {
+					ns.run(process.filename, process.threads, process.args)
+				}
 			}
 		}
+
+		if(toUpdate.length > 0) {
+			await ns.write('tree.txt', JSON.stringify(treeFetch), 'w');
+		}
+
+		if(runUpdater) {
+			ns.run('/scripts/updater.ns');
+			return;
+		}
+
 		await ns.sleep(10000);
 	}
-}
-
-async function getUrls(ns, tree, dir = "") {
-	var urls = []
-
-	for(let node of tree) {
-		if(dir.length > 0) var fullPath = `${dir}/${node.path}`
-		else var fullPath = `${node.path}`
-
-		
-		if(node.type == "tree") {
-			var status = await ns.wget(node.url, 'tmp.txt');
-			if(status) {
-				var newTree = JSON.parse(ns.read('tmp.txt'));
-				urls = urls.concat(await getUrls(ns, newTree["tree"], fullPath));
-			} else {
-				ns.tprint(`ERROR: Could not fetch ${node.url}`);
-			}
-		} else if (node["type"] == "blob" && fullPath.includes(".ns")) {
-			urls.push([fullPath, `https://raw.githubusercontent.com/${repo}/main/${fullPath}`])
-		}
-	}
-
-	return urls;
 }
