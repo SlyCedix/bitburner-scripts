@@ -1,6 +1,7 @@
 {
 	"ns-template": {
 		"scope": "javascript",
+		"prefix" : ["template"],
 		"body": [
 			"/** @param {NS} ns **/",
 			"",

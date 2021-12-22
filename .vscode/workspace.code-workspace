@@ -3,11 +3,6 @@
 		"path": ".."
 	}],
 	"settings": {
-		// Make .git appear for hooks
-		"files.exclude": {
-			"**/.git": false
-		},
-
 		// Linter Settings
 		"typescript.validate.enable": false,
 		"javascript.validate.enable": false,
@@ -17,6 +12,8 @@
 		},
 
 		"editor.defaultFormatter": "HookyQR.beautify",
-		"editor.formatOnSave": true
+		"editor.formatOnSave": true,
+
+		"beautify.ignore": ".vscode/**"
 	}
 }
