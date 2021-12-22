@@ -37,9 +37,9 @@ export class Contracts {
 						case "Subarray with Maximum Sum":
 							this.attemptContract(maxSubarraySum, contract, server, contractData);
 							break;
-						case "Find All Valid Math Expressions":
-							this.attemptContract(validEquations, contract, server, contractData, true);
-							break;
+						// case "Find All Valid Math Expressions":
+						// 	this.attemptContract(validEquations, contract, server, contractData, true);
+						// 	break;
 						case "Algorithmic Stock Trader I":
 							this.attemptContract(algorithmicStockTrader1, contract, server, contractData);
 							break;
