@@ -198,3 +198,24 @@ export function formatRAM(ns, n) {
     if (n < 1e12) return ns.nFormat(n / 1e9, "0.00") + "EB";
     return ns.nFormat(n, "0.00") + "GB";
 }
+
+export async function getURL(url, json = false) {
+    var fetchHeaders = [
+        ['Authorization', `token ${key}`]
+    ];
+
+    if (json) fetchHeaders.push(['Content-Type', 'application/json']);
+    else fetchHeaders.push(['Content-Type', 'text/plain']);
+
+    return fetch(url, {
+        method: 'GET',
+        headers: fetchHeaders
+    }).then(response => {
+        if (response.status === 200) {
+            if (json) return response.json();
+            else return response.text();
+        } else {
+            return false;
+        }
+    });
+}
