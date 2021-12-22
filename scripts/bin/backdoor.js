@@ -3,7 +3,7 @@
 import {
 	findServer,
 	runTerminalCommand
-} from "../../scripts/lib/helpers.jss";
+} from "../../scripts/lib/helpers.js";
 
 export async function main(ns) {
 	if (ns.args.length != 1) {
