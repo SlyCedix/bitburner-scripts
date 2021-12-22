@@ -4,6 +4,10 @@ import {
 	key
 } from "../scripts/OAuth.js";
 
+import {
+	getURL
+} from "../scripts/lib/helpers.js";
+
 const repo = "SlyCedix/bitburner-scripts";
 const branch = "main";
 const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
@@ -51,7 +55,8 @@ export async function main(ns) {
 				}
 
 				let status = await getURL(rawURL + path);
-				status.replaceAll(/(\.\.\/)(\.\.\/)*/g, "/"); // Resolves relative filepaths
+				if (status) status = status.replaceAll(/(\.\.\/)(\.\.\/)*/g, "/"); // Resolves relative filepaths
+
 				let currFile = ns.read(path);
 
 				if (status === currFile && oldTree.length > 0) {
@@ -83,25 +88,4 @@ export async function main(ns) {
 		await ns.sleep(10);
 		await sleep;
 	}
-}
-
-async function getURL(url, json = false) {
-	var fetchHeaders = [
-		['Authorization', `token ${key}`]
-	];
-
-	if (json) fetchHeaders.push(['Content-Type', 'application/json']);
-	else fetchHeaders.push(['Content-Type', 'text/plain']);
-
-	return fetch(url, {
-		method: 'GET',
-		headers: fetchHeaders
-	}).then(response => {
-		if (response.status === 200) {
-			if (json) return response.json();
-			else return response.text();
-		} else {
-			return false;
-		}
-	});
 }
