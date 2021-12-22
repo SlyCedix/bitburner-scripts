@@ -37,9 +37,9 @@ export class Contracts {
 						case "Subarray with Maximum Sum":
 							this.attemptContract(maxSubarraySum, contract, server, contractData);
 							break;
-						// case "Find All Valid Math Expressions":
-						// 	this.attemptContract(validEquations, contract, server, contractData, true);
-						// 	break;
+						case "Find All Valid Math Expressions":
+							this.attemptContract(validEquations, contract, server, contractData, true);
+							break;
 						case "Algorithmic Stock Trader I":
 							this.attemptContract(algorithmicStockTrader1, contract, server, contractData);
 							break;
@@ -360,32 +360,36 @@ function getAllEquations(data) {
 	var operators = ['+', '-', '*'];
 	var equations = [];
 
-	console.log(data);
+	if(!Array.isArray(data)) data = [data];
 
-	for (let i = 0; i < operators.length; ++i) {
-		var str = data.toString();
+	for(let equation of data) {
+		let start = 0;
+		for(let i = 0; i < equation.length - 1; ++i){
+			if(operators.includes(equation[i])) start = i;
+		}
 
-		for (let j = 0; j < str.length - 1; ++j) {
-			var isBetweenNumbers = (!isNaN(str[j]) && !isNaN(str[j + 1]));
-			var isNotZero = (str[j + 1] != 0);
+		for(let i = start; i < equation.length - 1; ++i){
+			let isBetweenNumbers = (!isNaN(equation[i]) && !isNaN(equation[i + 1]));
+			let isNotZero = (equation[i + 1] != 0);
+			
+			let isLoneZero = false;
 
-			var isLoneZero = false;
-			if (j < str.length - 2) isLoneZero = (str[j + 1] == 0 && isNaN(str[j + 2]));
-			if (j == str.length - 2 && str[j + 1] == 0) isLoneZero = true;
+			if (i < equation.length - 2) isLoneZero = (equation[i + 1] == 0 && isNaN(equation[i + 2]));
+			if (i == equation.length - 2) isLoneZero = equation[i + 1] == 0;
+			
 			if (isBetweenNumbers && (isLoneZero || isNotZero)) {
-				var equation = str.slice(0, j + 1) + operators[i] + str.slice(j + 1, str.length);
-				equations.push(equation);
+				for(let operator of operators) {
+					let newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length);
+					equations.push(newEquation);
+				}
 			}
 		}
-		if (equations.length == 0) return [];
 	}
 
-	var newEquations = [];
-	for (let i = 0; i < equations.length; ++i) {
-		newEquations = newEquations.concat(getAllEquations(equations[i]));
-	}
+	if (equations.length == 0) return [];
 
-	equations = equations.concat(newEquations);
+	console.log(equations);
+	equations = equations.concat(getAllEquations(equations));
 
 	equations = equations.filter((eq, idx) => {
 		return equations.indexOf(eq) == idx;
