@@ -4,7 +4,7 @@ import { getText } from './lib/helpers'
 
 const repo = 'SlyCedix/bitburner-scripts'
 const branch = 'main'
-const filename = '../scripts/fetcher.js'
+const filename = '/dist/fetcher.js'
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 
 export async function main(ns : NS) : Promise<void> {

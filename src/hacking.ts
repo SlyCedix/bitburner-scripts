@@ -10,9 +10,9 @@ import {
 	getNextHackingLevel
 } from "./lib/helpers"
 
-const weakenScript = "../scripts/hacking/weaken.script"
-const growScript = "../scripts/hacking/grow.script"
-const hackScript = "../scripts/hacking/hack.script"
+const weakenScript = "/scripts/hacking/weaken.script"
+const growScript = "/scripts/hacking/grow.script"
+const hackScript = "/scripts/hacking/hack.script"
 
 const bbBaseGrowth = 1.03
 const bbMaxGrowth = 1.0035
