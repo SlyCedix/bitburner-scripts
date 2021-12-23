@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 
-import { NS } from "../bitburner/src/ScriptEditor/NetscriptDefinitions.js"
+import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions.js'
 import {
 	findBestServer,
 	buyServer,
@@ -8,11 +8,11 @@ import {
 	rootAll,
 	getPortFunctions,
 	getNextHackingLevel
-} from "./lib/helpers"
+} from './lib/helpers'
 
-const weakenScript = "/scripts/hacking/weaken.script"
-const growScript = "/scripts/hacking/grow.script"
-const hackScript = "/scripts/hacking/hack.script"
+const weakenScript = '/scripts/hacking/weaken.script'
+const growScript = '/scripts/hacking/grow.script'
+const hackScript = '/scripts/hacking/hack.script'
 
 const bbBaseGrowth = 1.03
 const bbMaxGrowth = 1.0035
@@ -31,7 +31,7 @@ class Bot {
     hackRam : number
 
 	constructor(ns : NS, target : string, server : string, buffer = 0.0, weakenOnly = false) {
-		ns.disableLog("ALL")
+		ns.disableLog('ALL')
 
 		this.ns = ns
 		this.target = target
@@ -174,7 +174,7 @@ export class Botnet {
 	}
 
 	async init() : Promise<void> {
-		this.ns.disableLog("ALL")
+		this.ns.disableLog('ALL')
 
 		this.portFunctions = getPortFunctions(this.ns)
 		this.nextHackingLevel = getNextHackingLevel(this.ns)
@@ -253,9 +253,9 @@ export class Botnet {
 	}
 
 	initUI() : void {
-		this.createDisplay("Security")
-		this.createDisplay("Money")
-		this.createDisplay("Target")
+		this.createDisplay('Security')
+		this.createDisplay('Money')
+		this.createDisplay('Target')
 	}
 
 	updateUI() : void {
@@ -263,7 +263,7 @@ export class Botnet {
 
 		const securityLevel = this.ns.getServerSecurityLevel(this.target)
 
-		const doc = eval("document")
+		const doc = eval('document')
 
 		doc.getElementById('Target-hook-1').innerHTML = this.target
 		doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a')
@@ -271,7 +271,7 @@ export class Botnet {
 	}
 
 	createDisplay(name : string) : void {
-		const doc = eval("document")
+		const doc = eval('document')
 		const display = doc.getElementById(name + '-hook-0')
 
 		if (typeof (display) == 'undefined' || display == null) {

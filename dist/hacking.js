@@ -1,8 +1,8 @@
 /** @param {NS} ns **/
-import { findBestServer, buyServer, deepScan, rootAll, getPortFunctions, getNextHackingLevel } from "./lib/helpers";
-const weakenScript = "/scripts/hacking/weaken.script";
-const growScript = "/scripts/hacking/grow.script";
-const hackScript = "/scripts/hacking/hack.script";
+import { findBestServer, buyServer, deepScan, rootAll, getPortFunctions, getNextHackingLevel } from './lib/helpers';
+const weakenScript = '/scripts/hacking/weaken.script';
+const growScript = '/scripts/hacking/grow.script';
+const hackScript = '/scripts/hacking/hack.script';
 const bbBaseGrowth = 1.03;
 const bbMaxGrowth = 1.0035;
 const fundPct = 0.9;
@@ -18,7 +18,7 @@ class Bot {
     growRam;
     hackRam;
     constructor(ns, target, server, buffer = 0.0, weakenOnly = false) {
-        ns.disableLog("ALL");
+        ns.disableLog('ALL');
         this.ns = ns;
         this.target = target;
         this.server = server;
@@ -132,7 +132,7 @@ export class Botnet {
         this.leveling = leveling;
     }
     async init() {
-        this.ns.disableLog("ALL");
+        this.ns.disableLog('ALL');
         this.portFunctions = getPortFunctions(this.ns);
         this.nextHackingLevel = getNextHackingLevel(this.ns);
         rootAll(this.ns);
@@ -198,20 +198,20 @@ export class Botnet {
         this.updateUI();
     }
     initUI() {
-        this.createDisplay("Security");
-        this.createDisplay("Money");
-        this.createDisplay("Target");
+        this.createDisplay('Security');
+        this.createDisplay('Money');
+        this.createDisplay('Target');
     }
     updateUI() {
         const moneyAvailable = this.ns.getServerMoneyAvailable(this.target);
         const securityLevel = this.ns.getServerSecurityLevel(this.target);
-        const doc = eval("document");
+        const doc = eval('document');
         doc.getElementById('Target-hook-1').innerHTML = this.target;
         doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a');
         doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0');
     }
     createDisplay(name) {
-        const doc = eval("document");
+        const doc = eval('document');
         const display = doc.getElementById(name + '-hook-0');
         if (typeof (display) == 'undefined' || display == null) {
             const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement;
