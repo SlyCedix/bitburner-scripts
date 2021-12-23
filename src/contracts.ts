@@ -28,9 +28,8 @@ export class Contracts {
 
 				const contractType = this.ns.codingcontract.getContractType(contract, server)
 				const contractData = this.ns.codingcontract.getData(contract, server)
-				const numTries = this.ns.codingcontract.getNumTriesRemaining(contract, server)
 
-				if (numTries > 2 && !this.failed.includes(contract)) {
+				if (!this.failed.includes(contract)) {
 					switch (contractType) {
 						case 'Find Largest Prime Factor':
 							this.attemptContract(largestPrimeFactor, contract, server, contractData)
