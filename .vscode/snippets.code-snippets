@@ -3,7 +3,7 @@
 		"scope": "typescript",
 		"prefix" : ["template"],
 		"body": [
-			"import { NS } from \"../NetscriptDefinitions\";",
+			"import { NS } from \"../NetscriptDefinitions\"",
 			"",
 			"export async function main(ns : NS) : Promise<void> {",
 			"\t",
