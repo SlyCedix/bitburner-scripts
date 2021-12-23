@@ -1,4 +1,4 @@
-import { getServersWithContracts } from '../lib/helpers';
+import { getServersWithContracts } from '/lib/helpers.js';
 export async function main(ns) {
     const servers = await getServersWithContracts(ns);
     if (servers.length > 0)

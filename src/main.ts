@@ -1,8 +1,8 @@
 import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { Hacknet } from './hacknet'
-import { Botnet } from './hacking'
-import { Contracts } from './contracts'
+import { Hacknet } from '/hacknet.js'
+import { Botnet } from '/hacking.js'
+import { Contracts } from '/contracts.js'
 
 export async function main(ns : NS) : Promise<null> {
 	const botnet = new Botnet(ns, ns.args[0] == 'level')

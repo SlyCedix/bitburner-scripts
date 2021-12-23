@@ -1,6 +1,6 @@
 import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { getServersWithoutBackdoor } from '../lib/helpers'
+import { getServersWithoutBackdoor } from '/lib/helpers.js'
 
 export async function main(ns : NS) : Promise<void>{
     const servers = await getServersWithoutBackdoor(ns)

@@ -4,6 +4,7 @@
     "types.d.ts",
     "src/**/*",
   ],
+
   "compilerOptions": {
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -13,6 +14,11 @@
     "target": "esnext",
     "rootDir": "src/",
     "outDir": "dist/",
+    "baseUrl": "src/",
+    "paths": {
+			"/*.js": [ "*" ]
+		},
+    
     "sourceMap": false,
     "strict": true,
   }

@@ -1,4 +1,4 @@
-import { scpAll } from '../lib/helpers';
+import { scpAll } from '/lib/helpers.js';
 export async function main(ns) {
     await scpAll(ns, ns.args[0].toString());
 }

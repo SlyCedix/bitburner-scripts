@@ -1,4 +1,4 @@
-import { findServer } from '../lib/helpers';
+import { findServer } from '/lib/helpers.js';
 export async function main(ns) {
     ns.tprint(await findServer(ns, ns.args[0].toString()));
 }

@@ -1,7 +1,7 @@
 import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
 import { ServerData } from '../../types'
 
-import { findServer, runTerminalCommand } from '../lib/helpers'
+import { findServer, runTerminalCommand } from '/lib/helpers.js'
 
 export async function main(ns : NS) : Promise<void> {
 	if (ns.args.length != 1) {

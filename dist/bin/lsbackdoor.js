@@ -1,4 +1,4 @@
-import { getServersWithoutBackdoor } from '../lib/helpers';
+import { getServersWithoutBackdoor } from '/lib/helpers.js';
 export async function main(ns) {
     const servers = await getServersWithoutBackdoor(ns);
     if (servers.length > 0)

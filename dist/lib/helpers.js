@@ -1,4 +1,4 @@
-import { key } from '../OAuth';
+import { key } from '/OAuth.js';
 export function deepScan(ns, start, source = '') {
     ns.disableLog('ALL');
     const hostnames = ns.scan(start).filter(name => name != source);

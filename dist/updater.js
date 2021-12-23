@@ -1,4 +1,4 @@
-import { getText, fixImports } from './lib/helpers';
+import { getText } from '/lib/helpers.js';
 const repo = 'SlyCedix/bitburner-scripts';
 const branch = 'typescript';
 const filename = '/dist/fetcher.js';
@@ -6,9 +6,7 @@ const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`;
 export async function main(ns) {
     // Ensures script can be overwritten
     ns.scriptKill(filename, ns.getHostname());
-    let status = await getText(rawURL);
-    if (status)
-        status = fixImports(status);
+    const status = await getText(rawURL);
     const currFile = ns.read(filename);
     if (status === currFile) {
         ns.tprint(`INFO: Tried to download ${filename}, got same file as existing...retrying`);

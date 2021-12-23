@@ -8,7 +8,7 @@ import {
 	rootAll,
 	getPortFunctions,
 	getNextHackingLevel
-} from './lib/helpers'
+} from '/lib/helpers.js'
 
 const weakenScript = '/scripts/hacking/weaken.script'
 const growScript = '/scripts/hacking/grow.script'
@@ -233,17 +233,8 @@ export class Botnet {
 			}
 		}
 
-		const boughtServer = buyServer(this.ns)
-		if (boughtServer) {
-			this.bots = this.bots.filter((bot) => {
-				return bot.server != boughtServer
-			})
-
-			const bot = new Bot(this.ns, this.target, boughtServer.toString(), 0, this.leveling)
-			this.bots.push(bot)
-			await bot.init()
-		}
-
+		buyServer(this.ns)
+		
 		for (let i = 0; i < this.bots.length; ++i) {
 			await this.bots[i].update()
 			await this.ns.sleep(25)

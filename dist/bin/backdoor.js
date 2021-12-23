@@ -1,4 +1,4 @@
-import { findServer, runTerminalCommand } from '../lib/helpers';
+import { findServer, runTerminalCommand } from '/lib/helpers.js';
 export async function main(ns) {
     if (ns.args.length != 1) {
         ns.tprint('ERROR: Incorrect usage of connect command. Usage: backdoor [ip/hostname]');

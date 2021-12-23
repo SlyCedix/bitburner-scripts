@@ -1,6 +1,6 @@
 import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { getServersWithContracts } from './lib/helpers'
+import { getServersWithContracts } from '/lib/helpers.js'
 
 export class Contracts {
 	failed : string[]

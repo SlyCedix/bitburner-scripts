@@ -1,7 +1,7 @@
 import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
 import { ServerData } from '../../types'
 
-import { scpAll } from '../lib/helpers'
+import { scpAll } from '/lib/helpers.js'
 
 export async function main(ns : NS) : Promise<void>{
 	await scpAll(ns, ns.args[0].toString())

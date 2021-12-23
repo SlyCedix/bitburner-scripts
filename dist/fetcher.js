@@ -1,4 +1,4 @@
-import { fixImports, getJSON, getText } from './lib/helpers';
+import { getJSON, getText } from '/lib/helpers.js';
 const repo = 'SlyCedix/bitburner-scripts';
 const branch = 'typescript';
 const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
@@ -38,9 +38,7 @@ export async function main(ns) {
                 if (processes.length > 0) {
                     ns.scriptKill(path, ns.getHostname());
                 }
-                let status = await getText(rawURL + path);
-                if (status)
-                    status = fixImports(status);
+                const status = await getText(rawURL + path);
                 const currFile = ns.read(path);
                 if (status === currFile && oldTree.length > 0) {
                     ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
@@ -69,17 +67,4 @@ export async function main(ns) {
         await ns.sleep(10);
         await sleep;
     }
-}
-class TreeRoot {
-    sha = '';
-    url = '';
-    tree = [];
-    truncated = '';
-}
-class TreeBranch {
-    path = '';
-    mode = '';
-    type = '';
-    sha = '';
-    url = '';
 }

@@ -1,6 +1,6 @@
 import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { key } from '../OAuth'
+import { key } from '/OAuth.js'
 
 export function deepScan(ns : NS, start : string, source = '') : string[] {
     ns.disableLog('ALL')

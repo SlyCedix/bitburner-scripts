@@ -1,6 +1,7 @@
 import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { TreeRoot } from '../types'
 
-import { fixImports, getJSON, getText } from './lib/helpers'
+import { getJSON, getText } from '/lib/helpers.js'
 
 const repo = 'SlyCedix/bitburner-scripts'
 const branch = 'typescript'
@@ -48,9 +49,7 @@ export async function main(ns : NS) : Promise<void> {
 					ns.scriptKill(path, ns.getHostname())
 				}
 
-				let status = await getText(rawURL + path)
-				if(status) status = fixImports(status)
-
+				const status = await getText(rawURL + path)
 				const currFile = ns.read(path)
 
 				if (status === currFile && oldTree.length > 0) {
@@ -82,19 +81,4 @@ export async function main(ns : NS) : Promise<void> {
 		await ns.sleep(10)
 		await sleep
 	}
-}
-
-class TreeRoot {
-	sha = ''
-	url = ''
-	tree : Array<TreeBranch> = []
-	truncated = ''
-}
-
-class TreeBranch {
-	path = ''
-	mode = ''
-	type = ''
-	sha = ''
-	url = ''
 }
