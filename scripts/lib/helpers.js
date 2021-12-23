@@ -221,5 +221,5 @@ export async function getURL(url, json = false) {
         } else {
             return false;
         }
-    });
+    }).catch(() => {});
 }
