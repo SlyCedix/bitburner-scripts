@@ -4,7 +4,7 @@ import { TreeRoot } from '../types'
 import { getJSON, getText } from '/lib/helpers.js'
 
 const repo = 'SlyCedix/bitburner-scripts'
-const branch = 'typescript'
+const branch = 'main'
 const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`
 
@@ -74,7 +74,7 @@ export async function main(ns : NS) : Promise<void> {
 		}
 
 		if (runUpdater) {
-			ns.run('/dist/updater.js')
+			ns.run('/updater.js')
 			return
 		}
 

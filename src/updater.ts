@@ -2,8 +2,8 @@ import { NS } from '../NetscriptDefinitions'
 import { getText } from '/lib/helpers.js'
 
 const repo = 'SlyCedix/bitburner-scripts'
-const branch = 'typescript'
-const filename = '/dist/fetcher.js'
+const branch = 'main'
+const filename = '/fetcher.js'
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 
 export async function main(ns : NS) : Promise<void> {
