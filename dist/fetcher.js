@@ -1,6 +1,6 @@
 import { getJSON, getText } from './lib/helpers';
 const repo = 'SlyCedix/bitburner-scripts';
-const branch = 'main';
+const branch = 'typescript';
 const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`;
 const treeFile = 'tree.txt';
