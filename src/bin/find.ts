@@ -4,7 +4,7 @@ import { ServerData } from '../../types'
 import { findServer } from '../lib/helpers'
 
 export async function main(ns : NS) : Promise<void> {
-    ns.tprint(await findServer(ns, ns.args[0]))
+    ns.tprint(await findServer(ns, ns.args[0].toString()))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

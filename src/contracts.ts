@@ -11,12 +11,12 @@ export class Contracts {
 		this.ns = ns
 	}
 
-	async init() : Promise<null> {
+	async init() : Promise<void> {
 		this.ns.disableLog('ALL')
 		this.ns.print('INFO: Contracts Initialized')
 	}
 
-	async update() : Promise<null> {
+	async update() : Promise<void> {
 		const servers = getServersWithContracts(this.ns)
 
 		for (let i = 0; i < servers.length; ++i) {
@@ -90,7 +90,8 @@ export class Contracts {
 		}
 	}
 
-	attemptContract(solver : function, contract : string, server : string, data : Array<any>, format = false) : void{
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	attemptContract(solver : Function, contract : string, server : string, data : Array<any>, format = false) : void{
 		let solution = solver(data)
 		if (format) solution = formatOutput(solution)
 

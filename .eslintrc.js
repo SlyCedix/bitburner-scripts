@@ -297,7 +297,7 @@ module.exports = {
     "require-jsdoc": ["off"],
     "require-yield": ["error"],
     "rest-spread-spacing": ["error", "never"],
-    semi: ["off"],
+    semi: ["warn", "never"],
     "semi-spacing": ["off"],
     "semi-style": ["error", "last"],
     "sort-imports": ["off"],

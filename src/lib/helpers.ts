@@ -100,7 +100,7 @@ export async function scpAll(ns : NS, filename = 'home') : Promise<void> {
     }
 }
 
-export function getPortFunctions(ns : NS) : Array<function> {
+export function getPortFunctions(ns : NS) : Array<any> {
     ns.disableLog('ALL')
 
     const portFunctions = []
@@ -217,7 +217,7 @@ export async function getText(url : string) : Promise<string | void> {
     }).catch(() => { return })
 }
 
-export async function getJSON(url : string) : Promise<JSON> {
+export async function getJSON<T>(url : string) : Promise<T> {
     const fetchHeaders = [
         ['Authorization', `token ${key}`],
         ['Content-Type', 'application/json']
@@ -228,9 +228,9 @@ export async function getJSON(url : string) : Promise<JSON> {
         headers: fetchHeaders
     }).then(response => {
         if (response.status === 200) {
-            return response.json()
+            return response.json() as Promise<T>
         } else {
             return
         }
-    }).catch(() => { return })
+    }).catch(() => { return }) as Promise<T>
 }

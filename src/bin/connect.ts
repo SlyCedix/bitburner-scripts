@@ -7,7 +7,7 @@ export async function main(ns : NS) : Promise<void> {
 	if (ns.args.length != 1) {
 		ns.tprint('ERROR: Incorrect usage of connect command. Usage: connect [ip/hostname]')
 	} else {
-		const connectString = await findServer(ns, ns.args[0])
+		const connectString = await findServer(ns, ns.args[0].toString())
 
 		if (connectString.length > 0) {
 			runTerminalCommand(connectString)

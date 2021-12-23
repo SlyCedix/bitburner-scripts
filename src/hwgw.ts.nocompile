@@ -113,13 +113,13 @@ export class Botnet {
         return false
     }
 
-    initUI() : null{
+    initUI() : void {
         this.createDisplay('Security')
         this.createDisplay('Money')
         this.createDisplay('Target')
     }
 
-    updateUI() : null{
+    updateUI() : void {
         const moneyAvailable = this.ns.getServerMoneyAvailable(this.target)
 
         const securityLevel = this.ns.getServerSecurityLevel(this.target)
@@ -131,7 +131,7 @@ export class Botnet {
         doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0')
     }
 
-    createDisplay(name : string) : null {
+    createDisplay(name : string) : void {
         const doc = eval('document')
         const display = doc.getElementById(name + '-hook-0')
 
