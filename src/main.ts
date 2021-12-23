@@ -1,8 +1,8 @@
 import { NS } from '../NetscriptDefinitions'
 
-import { Hacknet } from '/hacknet.js'
-import { Botnet } from '/hacking.js'
-import { Contracts } from '/contracts.js'
+import { Hacknet } from 'hacknet.js'
+import { Botnet } from 'hacking.js'
+import { Contracts } from 'contracts.js'
 
 export async function main(ns : NS) : Promise<null> {
 	const botnet = new Botnet(ns, ns.args[0] == 'level')
