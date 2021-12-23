@@ -201,5 +201,5 @@ export async function getJSON(url) {
     }).catch(() => { return; });
 }
 export function fixImports(script) {
-    return script.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js');
+    return script.replaceAll(/from ['"]((\.*)\/)*/g, 'from \'/').replaceAll(/from ['"](.*(\w)*)['"]/g, 'from \'$1.js\'');
 }
