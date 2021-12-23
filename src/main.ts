@@ -1,4 +1,4 @@
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../NetscriptDefinitions'
 
 import { Hacknet } from '/hacknet.js'
 import { Botnet } from '/hacking.js'

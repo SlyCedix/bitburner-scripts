@@ -1,4 +1,4 @@
-import { Player, Server } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { Player, Server } from '../../NetscriptDefinitions'
 
 const ServerBaseGrowthRate = 1.03
 const ServerMaxGrowthRate = 1.0035

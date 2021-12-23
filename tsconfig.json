@@ -1,25 +1,24 @@
 {
   "include": [
-    "bitburner/src/ScriptEditor/NetscriptDefinitions.d.ts",
-    "types.d.ts",
+    "NetscriptDefinitions.d.ts",
     "src/**/*",
   ],
 
   "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "esModuleInterop": true,
-    "target": "esnext",
+    "sourceMap": false,
+    "strict": true,
+
     "rootDir": "src/",
     "outDir": "dist/",
     "baseUrl": "src/",
     "paths": {
 			"/*.js": [ "*" ]
-		},
-    
-    "sourceMap": false,
-    "strict": true,
+		}
   }
 }

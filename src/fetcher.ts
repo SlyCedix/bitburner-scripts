@@ -1,4 +1,4 @@
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../NetscriptDefinitions'
 import { TreeRoot } from '../types'
 
 import { getJSON, getText } from '/lib/helpers.js'

@@ -1,5 +1,4 @@
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
-
+import { NS } from '../NetscriptDefinitions'
 import { getText } from '/lib/helpers.js'
 
 const repo = 'SlyCedix/bitburner-scripts'

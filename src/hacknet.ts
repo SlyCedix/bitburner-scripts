@@ -1,4 +1,4 @@
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../NetscriptDefinitions'
 
 const costThreshold = 50000
 export class Hacknet {

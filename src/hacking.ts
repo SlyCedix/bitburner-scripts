@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions.js'
+import { NS } from '../NetscriptDefinitions'
 import {
 	findBestServer,
 	buyServer,

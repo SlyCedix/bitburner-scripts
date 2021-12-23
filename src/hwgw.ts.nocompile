@@ -1,4 +1,4 @@
-import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../NetscriptDefinitions'
 
 import { HackingFormulas } from './lib/formulas'
 import { getPortFunctions, getNextHackingLevel } from './lib/helpers.js'

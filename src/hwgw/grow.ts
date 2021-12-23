@@ -1,4 +1,4 @@
-import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../../NetscriptDefinitions'
 
 export async function main(ns : NS) : Promise<void> {
     while (true) {

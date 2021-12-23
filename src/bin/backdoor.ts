@@ -1,4 +1,4 @@
-import { NS } from '../../bitburner/src/ScriptEditor/NetscriptDefinitions'
+import { NS } from '../../NetscriptDefinitions'
 import { ServerData } from '../../types'
 
 import { findServer, runTerminalCommand } from '/lib/helpers.js'
