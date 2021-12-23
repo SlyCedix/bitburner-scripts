@@ -15,7 +15,7 @@ export async function main(ns : NS) : Promise<void> {
         for(const file of files ) {
             const contents = ns.read(file)
             const hash = getHash(contents)
-
+            
             if(hash != hashes[file]) {
                 ns.tprint(`INFO: Detected change in ${file}`)
 
@@ -24,8 +24,8 @@ export async function main(ns : NS) : Promise<void> {
                 })
 
                 for(const process of processes) {
+                    ns.tprint(`INFO: Restarting ${process.filename} ${process.args} -t ${process.threads}`)
                     if(process.filename != ns.getScriptName()) {
-                        ns.tprint(`INFO: Restarting ${process.filename} ${process.args} -t ${process.threads}`)
                         ns.kill(process.pid, ns.getHostname())
                         ns.run(process.filename, process.threads, ...process.args)
                     } else {
