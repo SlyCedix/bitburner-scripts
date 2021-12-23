@@ -1,6 +1,6 @@
 import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { getJSON, getText } from './lib/helpers'
+import { fixImports, getJSON, getText } from './lib/helpers'
 
 const repo = 'SlyCedix/bitburner-scripts'
 const branch = 'typescript'
@@ -49,7 +49,7 @@ export async function main(ns : NS) : Promise<void> {
 				}
 
 				let status = await getText(rawURL + path)
-				if(status) status = status.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js') // Resolves relative filepaths
+				if(status) status = fixImports(status)
 
 				const currFile = ns.read(path)
 

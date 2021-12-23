@@ -1,4 +1,4 @@
-import { getText } from './lib/helpers';
+import { getText, fixImports } from './lib/helpers';
 const repo = 'SlyCedix/bitburner-scripts';
 const branch = 'main';
 const filename = '/dist/fetcher.js';
@@ -8,7 +8,7 @@ export async function main(ns) {
     ns.scriptKill(filename, ns.getHostname());
     let status = await getText(rawURL);
     if (status)
-        status = status.replaceAll(/(\.\.\/)(\.\.\/)*/g, '/');
+        status = fixImports(status);
     const currFile = ns.read(filename);
     if (status === currFile) {
         ns.tprint(`INFO: Tried to download ${filename}, got same file as existing...retrying`);

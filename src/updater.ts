@@ -1,6 +1,6 @@
 import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
 
-import { getText } from './lib/helpers'
+import { getText, fixImports } from './lib/helpers'
 
 const repo = 'SlyCedix/bitburner-scripts'
 const branch = 'main'
@@ -12,7 +12,7 @@ export async function main(ns : NS) : Promise<void> {
     ns.scriptKill(filename, ns.getHostname())
     
     let status = await getText(rawURL)
-    if (status) status = status.replaceAll(/(\.\.\/)(\.\.\/)*/g, '/') 
+    if (status) status = fixImports(status)
 
     const currFile = ns.read(filename)
     if (status === currFile) {

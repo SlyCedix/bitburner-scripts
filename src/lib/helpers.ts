@@ -234,3 +234,7 @@ export async function getJSON<T>(url : string) : Promise<T> {
         }
     }).catch(() => { return }) as Promise<T>
 }
+
+export function fixImports(script : string) : string{ 
+    return script.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js')
+}

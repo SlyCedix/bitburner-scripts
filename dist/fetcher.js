@@ -1,4 +1,4 @@
-import { getJSON, getText } from './lib/helpers';
+import { fixImports, getJSON, getText } from './lib/helpers';
 const repo = 'SlyCedix/bitburner-scripts';
 const branch = 'typescript';
 const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
@@ -40,7 +40,7 @@ export async function main(ns) {
                 }
                 let status = await getText(rawURL + path);
                 if (status)
-                    status = status.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js'); // Resolves relative filepaths
+                    status = fixImports(status);
                 const currFile = ns.read(path);
                 if (status === currFile && oldTree.length > 0) {
                     ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);
