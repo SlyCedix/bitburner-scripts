@@ -40,7 +40,7 @@ export async function main(ns) {
                 }
                 let status = await getText(rawURL + path);
                 if (status)
-                    status = status.replaceAll(/(\.)*\//g, '/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js'); // Resolves relative filepaths
+                    status = status.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js'); // Resolves relative filepaths
                 const currFile = ns.read(path);
                 if (status === currFile && oldTree.length > 0) {
                     ns.tprint(`INFO: Tried to download ${path}, got same file as existing`);

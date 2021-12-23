@@ -49,7 +49,7 @@ export async function main(ns : NS) : Promise<void> {
 				}
 
 				let status = await getText(rawURL + path)
-				if (status) status = status.replaceAll(/(\.)*\//g, '/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js') // Resolves relative filepaths
+				if(status) status = status.replaceAll(/from '(\.)*\//g, 'from \'/dist/').replaceAll(/(from '\/dist\/(\w*\/)*(\w)*)/g, '$1.js') // Resolves relative filepaths
 
 				const currFile = ns.read(path)
 
