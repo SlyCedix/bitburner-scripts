@@ -3,7 +3,7 @@ import { NS } from '../bitburner/src/ScriptEditor/NetscriptDefinitions'
 import { getText, fixImports } from './lib/helpers'
 
 const repo = 'SlyCedix/bitburner-scripts'
-const branch = 'main'
+const branch = 'typescript'
 const filename = '/dist/fetcher.js'
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}${filename}`
 

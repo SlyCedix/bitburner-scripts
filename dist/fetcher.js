@@ -5,7 +5,7 @@ const treeURL = `https://api.github.com/repos/${repo}/git/trees/${branch}?recurs
 const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`;
 const treeFile = 'tree.txt';
 export async function main(ns) {
-    let oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : {};
+    let oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : [];
     while (true) {
         const sleep = ns.asleep(10000);
         const treeFetch = (await getJSON(treeURL)).tree;
@@ -63,7 +63,7 @@ export async function main(ns) {
             oldTree = treeFetch;
         }
         if (runUpdater) {
-            ns.run('/scripts/updater.js');
+            ns.run('/dist/updater.js');
             return;
         }
         await ns.sleep(10);

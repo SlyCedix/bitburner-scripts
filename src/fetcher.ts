@@ -10,7 +10,7 @@ const rawURL = `https://raw.githubusercontent.com/${repo}/${branch}`
 const treeFile = 'tree.txt'
 
 export async function main(ns : NS) : Promise<void> {
-	let oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : {}
+	let oldTree = ns.fileExists(treeFile) ? JSON.parse(ns.read(treeFile)) : []
 
 	while (true) {
 		const sleep = ns.asleep(10000)
@@ -75,7 +75,7 @@ export async function main(ns : NS) : Promise<void> {
 		}
 
 		if (runUpdater) {
-			ns.run('/scripts/updater.js')
+			ns.run('/dist/updater.js')
 			return
 		}
 
