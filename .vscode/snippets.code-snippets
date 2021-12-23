@@ -1,13 +1,24 @@
 {
 	"ns-template": {
-		"scope": "javascript",
+		"scope": "typescript",
 		"prefix" : ["template"],
 		"body": [
-			"/** @param {NS} ns **/",
+			"import { NS } from \"../bitburner/src/ScriptEditor/NetscriptDefinitions\";",
 			"",
-			"export async function main(ns) {",
-			"",
+			"export async function main(ns : NS) : Promise<void> {",
+			"\t",
 			"}"
 		]
-	}
+	},
+
+	"autocomplete": {
+		"prefix": "autocomplete",
+		"body": [
+		  "// eslint-disable-next-line @typescript-eslint/no-unused-vars",
+		  "export function autocomplete(data : ServerData, args : string[]) : string[] {",
+		  "\treturn [...data.servers]",
+		  "}"
+		],
+		"description": "autocomplete"
+	  }
 }

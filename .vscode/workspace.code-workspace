@@ -6,14 +6,11 @@
 		// Linter Settings
 		"typescript.validate.enable": false,
 		"javascript.validate.enable": false,
-		"jshint.options": {
-			"esversion": 8,
-			"evil": true
-		},
 
-		"editor.defaultFormatter": "HookyQR.beautify",
-		"editor.formatOnSave": true,
+		"eslint.validate": ["typescript", "typescriptreact"],
+		"eslint.workingDirectories": ["./src"],
+		"editor.codeActionsOnSave": {"source.fixAll.eslint": true},
 
-		"beautify.ignore": ".vscode/**"
+		"bitburner.scriptRoot": "./dist/"
 	}
 }

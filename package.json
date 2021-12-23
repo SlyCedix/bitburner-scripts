@@ -1,0 +1,33 @@
+{
+  "name": "bitburner-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npx tsc -w",
+    "serve": "npx supervisor -w dist dist/server.js",
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SlyCedix/bitburner-scripts.git"
+  },
+  "author": "SlyCedix",
+  "bugs": {
+    "url": "https://github.com/SlyCedix/bitburner-scripts/issues"
+  },
+  "homepage": "https://github.com/SlyCedix/bitburner-scripts#readme",
+  "dependencies": {
+    "koa": "^2.13.1"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.4",
+    "@types/node": "^16.4.3",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
+    "@typescript-eslint/parser": "^4.28.4",
+    "eslint": "^7.31.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.3.5"
+  }
+}
