@@ -75,7 +75,7 @@ export class Contracts {
 							this.attemptContract(sanitizeParenthesis, contract, server, contractData, true)
 							break
 						case 'Merge Overlapping Intervals':
-							this.attemptContract(mergeOverlappingIntervals, contract, server, contractData, true)
+							this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
 							break
 						case 'Array Jumping Game':
 							this.attemptContract(arrayJumping, contract, server, contractData)
@@ -469,7 +469,7 @@ function arrayJumping(data : number[]) : number {
 
 	const jumps = data[0]
 
-	for (let i = 1; i <= jumps; ++i) {
+	for (let i = jumps; i >= 1; --i) {
 		const jumpTest = arrayJumping(data.slice(i, data.length))
 		if (jumpTest == 1) return 1
 	}

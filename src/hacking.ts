@@ -10,9 +10,9 @@ import {
 	getNextHackingLevel
 } from '/lib/helpers.js'
 
-const weakenScript = '/scripts/hacking/weaken.script'
-const growScript = '/scripts/hacking/grow.script'
-const hackScript = '/scripts/hacking/hack.script'
+const weakenScript = '/hwgw/weaken.js'
+const growScript = '/hwgw/grow.js'
+const hackScript = '/hwgw/hack.js'
 
 const bbBaseGrowth = 1.03
 const bbMaxGrowth = 1.0035
@@ -66,7 +66,7 @@ class Bot {
         let hackT : number
         let weakenT : number
         let growT : number
-        let usedRam : number
+        let ramNeeded : number
 
 		switch (this.status) {
 			case 0:
@@ -84,10 +84,10 @@ class Bot {
 				hackT = Math.floor(fundPct / this.hackPct)
 				growT = Math.ceil(Math.log(1 / (1 - fundPct)) / Math.log(this.growPct)) // jshint ignore:line
 				weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05) // jshint ignore:line
-				usedRam = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam)
-
-				if (usedRam > freeRam) {
-					const scaleFactor = freeRam / freeRam
+				ramNeeded = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam)
+				
+				if (ramNeeded > freeRam) {
+					const scaleFactor = freeRam / ramNeeded
 					hackT = Math.floor(hackT * scaleFactor)
 					growT = Math.floor(growT * scaleFactor)
 					weakenT = Math.floor(weakenT * scaleFactor)
@@ -180,16 +180,12 @@ export class Botnet {
 		this.nextHackingLevel = getNextHackingLevel(this.ns)
 		rootAll(this.ns)
 
-		if (this.leveling) {
-			this.target = 'joesguns'
-		} else {
-			this.target = findBestServer(this.ns)
-		}
+		this.target = this.leveling ? 'joesguns' : findBestServer(this.ns)
 
 		this.servers = (deepScan(this.ns, this.ns.getHostname())).filter((hostname) => {
 			return this.ns.hasRootAccess(hostname)
 		})
-
+		
 		this.bots = []
 
 		for (let i = 0; i < this.servers.length; ++i) {
@@ -197,10 +193,9 @@ export class Botnet {
 			const bot = new Bot(this.ns, this.target, this.servers[i], 0, this.leveling)
 			this.bots.push(bot)
 			await bot.init()
-			await this.ns.sleep(25)
+			await this.ns.sleep(10)
 		}
 
-		this.servers.push('home')
 		const bot = new Bot(this.ns, this.target, 'home', 8, this.leveling)
 		this.bots.push(bot)
 		await bot.init()
@@ -214,7 +209,7 @@ export class Botnet {
 		const newPortFunctions = getPortFunctions(this.ns)
 
 		if (newPortFunctions.length > this.portFunctions.length ||
-			this.ns.getHackingLevel() > this.nextHackingLevel) {
+			this.ns.getHackingLevel() >= this.nextHackingLevel) {
 			this.portFunctions = newPortFunctions
 			this.nextHackingLevel = this.ns.getHackingLevel()
 			rootAll(this.ns)
@@ -224,20 +219,26 @@ export class Botnet {
 			const newBest = findBestServer(this.ns)
 			if (newBest != this.target) {
 				this.target = newBest
-				this.bots.forEach((bot) => {
-					if (bot.target != bot.server) {
-						if (bot.server != 'home') this.ns.killall(bot.server)
-						bot.target = newBest
-					}
-				})
+				for(const bot of this.bots ) {
+					bot.target = newBest
+				}
 			}
 		}
 
-		buyServer(this.ns)
+		const boughtServer = buyServer(this.ns)
 		
-		for (let i = 0; i < this.bots.length; ++i) {
-			await this.bots[i].update()
-			await this.ns.sleep(25)
+		if(boughtServer) {
+			this.bots = this.bots.filter((bot : Bot)=> {
+				return bot.server != boughtServer
+			})
+			const bot = new Bot(this.ns, this.target, boughtServer as string, 0, this.leveling)
+			this.bots.push(bot)
+			await bot.init()
+		}
+
+		for(const bot of this.bots) {
+			await bot.update()
+			await this.ns.sleep(10)
 		}
 
 		this.updateUI()
