@@ -73,9 +73,9 @@ export class Contracts {
 						case 'Sanitize Parentheses in Expression':
 							this.attemptContract(sanitizeParenthesis, contract, server, contractData, true)
 							break
-						// case 'Merge Overlapping Intervals':
-						// 	this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
-						// 	break
+						case 'Merge Overlapping Intervals':
+							this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
+							break
 						case 'Array Jumping Game':
 							this.attemptContract(arrayJumping, contract, server, contractData)
 							break
@@ -446,17 +446,18 @@ function generateIPAddresses(data: string): string[] {
 function isValidOctet(val: string): boolean {
 	return Number(val) > 0 && Number(val) < 256
 }
-//TOFIX
+
 function mergeOverlappingIntervals(data: number[][]): number[][] {
 	data.sort((a, b) => a[0] - b[0])
 
 	for (let i = 0; i < data.length - 1; ++i) {
+		console.log(data)
 		while (data[i][1] >= data[i + 1][0]) {
 			console.log(data)
 			data[i][1] = Math.max(data[i][1], data[i + 1][1])
 			data.splice(i + 1, 1)
 
-			if (data.length == 1) break
+			if (i >= data.length - 1) break
 		}
 	}
 
