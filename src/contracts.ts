@@ -81,7 +81,7 @@ export class Contracts {
 							break
 						default:
 							this.failed.push(contract)
-							this.ns.tprint(`ERROR: No solver for ${contractType} on ${server} found`)
+							this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
 							break
 					}
 				}
@@ -96,7 +96,7 @@ export class Contracts {
 
 		if (!this.ns.codingcontract.attempt(solution, contract, server)) {
 			this.failed.push(contract)
-			this.ns.tprint(`ERROR: Failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`)
+			this.ns.tprintf(`ERROR: Failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`)
 		}
 	}
 }
