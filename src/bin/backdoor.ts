@@ -4,14 +4,19 @@ import { findServer, runTerminalCommand } from '/lib/helpers.js'
 
 export async function main(ns: NS): Promise<void> {
 	if (ns.args.length != 1) {
-		ns.tprint('ERROR: Incorrect usage of connect command. Usage: backdoor [ip/hostname]')
+		ns.tprintf('ERROR: Incorrect usage of connect command. Usage: backdoor [ip/hostname]')
 	} else {
-		const connectString = await findServer(ns, ns.args[0] as string)
+		const connections = await findServer(ns, ns.args[0] as string)
+		let connectString = 'home; '
+
+		for (const connection of connections) {
+			if (connection != 'home') connectString += `connect ${connection}; `
+		}
 
 		if (connectString.length > 0) {
 			runTerminalCommand(connectString + '; backdoor')
 		} else {
-			ns.tprint(`ERROR: Host ${ns.args[0]} not found.`)
+			ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
 		}
 	}
 }

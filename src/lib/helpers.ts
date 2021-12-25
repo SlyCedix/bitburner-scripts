@@ -155,26 +155,24 @@ export function getServersWithContracts(ns: NS): string[] {
     return hostnames
 }
 
-export function findServer(ns: NS, target: string, start = 'home', source = ''): string {
+export function findServer(ns: NS, target: string, start = 'home', source = ''): string[] {
     const hostnames = ns.scan(start).filter((hostname) => {
         return hostname != source
     })
 
     if (hostnames.includes(target)) {
-        if (start != 'home') return `connect ${start}; connect ${target}`
-        return `home; connect ${target}`
+        return [start, target]
     }
 
     for (let i = 0; i < hostnames.length; ++i) {
         const connection = findServer(ns, target, hostnames[i], start)
 
         if (connection.length > 0) {
-            if (start == 'home') return `home; ${connection}`
-            else return `connect ${start}; ${connection}`
+            return [start, ...connection]
         }
     }
 
-    return ''
+    return []
 }
 
 export function runTerminalCommand(command: string): void {
