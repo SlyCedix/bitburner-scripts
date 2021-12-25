@@ -18,7 +18,7 @@ export function findBestServer(ns: NS): string {
 
     let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
-        return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) < ns.getHackingLevel()
+        return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()
     })
 
     hostnames.sort((a, b) => {
