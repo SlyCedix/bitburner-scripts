@@ -1,4 +1,4 @@
-import { NS, ProcessInfo } from "../NetscriptDefinitions"
+import { NS, ProcessInfo } from '../NetscriptDefinitions'
 
 export async function main(ns : NS) : Promise<void> {
     const hashes : any = {}
@@ -15,7 +15,7 @@ export async function main(ns : NS) : Promise<void> {
         for(const file of files ) {
             const contents = ns.read(file)
             const hash = getHash(contents)
-            
+           
             if(hash != hashes[file]) {
                 ns.tprint(`INFO: Detected change in ${file}`)
 
@@ -42,5 +42,5 @@ export async function main(ns : NS) : Promise<void> {
 }
 
 function getHash(input : string) : number {
-    return input.split("").reduce( (a, b) => ((a << 5) - 1) + b.charCodeAt(0)|0, 0)
+    return input.split('').reduce( (a, b) => ((a << 5) - 1) + b.charCodeAt(0)|0, 0)
 }
