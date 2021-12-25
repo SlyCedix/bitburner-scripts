@@ -1,5 +1,5 @@
 import { NS } from '../../NetscriptDefinitions'
 
 export async function main(ns : NS) : Promise<void> {
-    await ns.hack(ns.args[0].toString())
+    await ns.hack(ns.args[0] as string)
 }
