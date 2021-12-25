@@ -4,7 +4,11 @@
     "javascript.validate.enable": false,
     "eslint.validate": ["typescript", "typescriptreact"],
     "eslint.workingDirectories": ["./src"],
-    "editor.codeActionsOnSave": {"source.fixAll.eslint": true},
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true,
+        "source.organizeImports": true
+    },
+    "editor.formatOnSave": true,
 
     // Bitburner Extension Settings
     "bitburner.scriptRoot": "./dist/",
@@ -19,5 +23,5 @@
             "pattern": "**/*.ts", 
             "snippet": "ns-template"
         },
-    ],
+    ]
 }
