@@ -3,3 +3,4 @@ dist/
 package-lock.json
 OAuth.js
 OAuth.ts
+NetscriptDefinitions.d.ts
