@@ -54,6 +54,13 @@ class Bot {
 	}
 
 	async update(): Promise<void> {
+		if (this.target != this.server &&
+			this.ns.getServerMaxMoney(this.server) > 0 &&
+			this.ns.getHackingLevel() > this.ns.getServerRequiredHackingLevel(this.server)) {
+			this.target = this.server
+			this.weakenOnly = false
+		}
+
 		const totalRam = this.ns.getServerRam(this.server)
 		const freeRam = totalRam[0] - totalRam[1] - this.buffer
 		const maxWeaken = Math.floor(freeRam / this.weakenRam)
