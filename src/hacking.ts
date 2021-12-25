@@ -188,16 +188,16 @@ export class Botnet {
 		this.bots = []
 
 		for (let i = 0; i < this.servers.length; ++i) {
-			if (this.servers[i] != 'home') this.ns.killall(this.servers[i])
-			const bot = new Bot(this.ns, this.target, this.servers[i], 0, this.leveling)
+			let buffer = 16
+			if (this.servers[i] != 'home') {
+				this.ns.killall(this.servers[i])
+				buffer = 0
+			}
+			const bot = new Bot(this.ns, this.target, this.servers[i], buffer, this.leveling)
 			this.bots.push(bot)
 			await bot.init()
 			await this.ns.sleep(10)
 		}
-
-		const bot = new Bot(this.ns, this.target, 'home', 8, this.leveling)
-		this.bots.push(bot)
-		await bot.init()
 
 		this.ns.print(`INFO: Botnet initialized (attacking ${this.target})`)
 
