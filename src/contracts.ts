@@ -1,22 +1,22 @@
 import { NS } from '../NetscriptDefinitions'
-
 import { getServersWithContracts } from '/lib/helpers.js'
 
-export class Contracts {
-	failed : string[]
-	ns : NS
 
-	constructor(ns : NS) {
+export class Contracts {
+	failed: string[]
+	ns: NS
+
+	constructor(ns: NS) {
 		this.failed = []
 		this.ns = ns
 	}
 
-	async init() : Promise<void> {
+	async init(): Promise<void> {
 		this.ns.disableLog('ALL')
 		this.ns.print('INFO: Contracts Initialized')
 	}
 
-	async update() : Promise<void> {
+	async update(): Promise<void> {
 		const servers = getServersWithContracts(this.ns)
 
 		for (let i = 0; i < servers.length; ++i) {
@@ -73,9 +73,9 @@ export class Contracts {
 						case 'Sanitize Parentheses in Expression':
 							this.attemptContract(sanitizeParenthesis, contract, server, contractData, true)
 							break
-						case 'Merge Overlapping Intervals':
-							this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
-							break
+						// case 'Merge Overlapping Intervals':
+						// 	this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
+						// 	break
 						case 'Array Jumping Game':
 							this.attemptContract(arrayJumping, contract, server, contractData)
 							break
@@ -90,7 +90,7 @@ export class Contracts {
 	}
 
 	// eslint-disable-next-line @typescript-eslint/ban-types
-	attemptContract(solver : Function, contract : string, server : string, data : Array<any>, format = false) : void{
+	attemptContract(solver: Function, contract: string, server: string, data: Array<any>, format = false): void {
 		let solution = solver(data)
 		if (format) solution = formatOutput(solution)
 
@@ -101,11 +101,11 @@ export class Contracts {
 	}
 }
 
-function formatOutput(output : any) : string {
+function formatOutput(output: any): string {
 	return `[${output.toString().replaceAll(',', ', ')}]`
 }
 
-function spiralizeMatrix(data : Array<Array<number>>) : Array<number> {
+function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
 	const width = data[0].length
 	const height = data.length
 
@@ -148,16 +148,16 @@ function spiralizeMatrix(data : Array<Array<number>>) : Array<number> {
 	return output
 }
 
-function uniquePaths1(data : Array<number>) : number {
+function uniquePaths1(data: Array<number>): number {
 	const newData = new Array(data[0]).fill(new Array(data[1]).fill(0))
 	return uniquePaths(newData)
 }
 
-function uniquePaths2(data: Array<Array<number>>) : number {
+function uniquePaths2(data: Array<Array<number>>): number {
 	return uniquePaths(data)
 }
 
-function uniquePaths(data : Array<Array<number>>) : number {
+function uniquePaths(data: Array<Array<number>>): number {
 	if (data.length == 1 && data[0].length == 1) return 1
 	if (data[0][0] == 1) return 0
 
@@ -183,27 +183,27 @@ function uniquePaths(data : Array<Array<number>>) : number {
 	return sum
 }
 
-function algorithmicStockTrader1(data : Array<number>) : number {
+function algorithmicStockTrader1(data: Array<number>): number {
 	const transactions = allTransactions(data)
 	return maximizeProfit(transactions, 1)
 }
 
-function algorithmicStockTrader2(data : Array<number>) : number  {
+function algorithmicStockTrader2(data: Array<number>): number {
 	const transactions = allTransactions(data)
 	return maximizeProfit(transactions)
 }
 
-function algorithmicStockTrader3(data : Array<number>) : number  {
+function algorithmicStockTrader3(data: Array<number>): number {
 	const transactions = allTransactions(data)
 	return maximizeProfit(transactions, 2)
 }
 
-function algorithmicStockTrader4(data : Array<any>) : number  {
+function algorithmicStockTrader4(data: Array<any>): number {
 	const transactions = allTransactions(data[1])
 	return maximizeProfit(transactions, data[0])
 }
 
-function allTransactions(days : Array<number>) : Array<Array<number>> {
+function allTransactions(days: Array<number>): Array<Array<number>> {
 	const transactions = []
 
 	for (let i = 0; i < days.length; ++i) {
@@ -218,7 +218,7 @@ function allTransactions(days : Array<number>) : Array<Array<number>> {
 	return transactions
 }
 
-function maximizeProfit(transactions : Array<any>, n = -1) : number {
+function maximizeProfit(transactions: Array<any>, n = -1): number {
 	let maxProfit = 0
 
 	if (n == 0) return 0
@@ -244,12 +244,12 @@ function maximizeProfit(transactions : Array<any>, n = -1) : number {
 	return maxProfit
 }
 
-function sanitizeParenthesis(data : string | string[]) : string[] {
+function sanitizeParenthesis(data: string | string[]): string[] {
 	if (!Array.isArray(data)) data = [data]
 	console.log(data)
 
-	let valid : string[] = []
-	let invalid : string[] = []
+	let valid: string[] = []
+	let invalid: string[] = []
 
 	for (let i = 0; i < data.length; ++i) {
 		for (let j = 1; j <= data[i].length; ++j) {
@@ -277,7 +277,7 @@ function sanitizeParenthesis(data : string | string[]) : string[] {
 	}
 }
 
-function isValidParenthesis(checkStr : string) : boolean {
+function isValidParenthesis(checkStr: string): boolean {
 	let paren = 0
 
 	for (let i = 0; i < checkStr.length; ++i) {
@@ -290,11 +290,11 @@ function isValidParenthesis(checkStr : string) : boolean {
 	return paren == 0
 }
 
-function isParenthesis(char : string) : boolean {
+function isParenthesis(char: string): boolean {
 	return char == '(' || char == ')'
 }
 
-function largestPrimeFactor(data : number, start = 2) : number {
+function largestPrimeFactor(data: number, start = 2): number {
 	for (let i = start; i < Math.sqrt(data); i++) {
 		if (isPrime(i) && data % i == 0) return largestPrimeFactor(data / i, i)
 	}
@@ -302,7 +302,7 @@ function largestPrimeFactor(data : number, start = 2) : number {
 	return data
 }
 
-function isPrime(n : number) : boolean {
+function isPrime(n: number): boolean {
 	if (n < 2) return false
 
 	for (let i = 2; i < Math.sqrt(n); ++i) {
@@ -312,7 +312,7 @@ function isPrime(n : number) : boolean {
 	return true
 }
 
-function pyramidSum(data : Array<Array<number>>, sum = 0) : number{
+function pyramidSum(data: Array<Array<number>>, sum = 0): number {
 	sum += data[0][0]
 	if (data.length == 1) return sum
 
@@ -331,7 +331,7 @@ function pyramidSum(data : Array<Array<number>>, sum = 0) : number{
 	return Math.min(leftSum, rightSum)
 }
 
-function maxSubarraySum(data : Array<number>) : number {
+function maxSubarraySum(data: Array<number>): number {
 	let maxSum = Number.MIN_VALUE
 
 	for (let i = 0; i < data.length; ++i) {
@@ -344,9 +344,9 @@ function maxSubarraySum(data : Array<number>) : number {
 	return maxSum
 }
 
-function validEquations(data : Array<any>) : string[] {
-	const	target : number= data[1]
-	const	newData : string = data[0]
+function validEquations(data: Array<any>): string[] {
+	const target: number = data[1]
+	const newData: string = data[0]
 
 	let equations = getAllEquations(newData)
 
@@ -363,7 +363,7 @@ function validEquations(data : Array<any>) : string[] {
 	return equations
 }
 
-function getAllEquations(data : string | string[]) : string[] {
+function getAllEquations(data: string | string[]): string[] {
 	const operators = ['+', '-', '*']
 	let equations = []
 
@@ -395,7 +395,7 @@ function getAllEquations(data : string | string[]) : string[] {
 	return equations
 }
 
-function waysToSum(data : number, max = -1) : number{
+function waysToSum(data: number, max = -1): number {
 	if (max == -1) max = data - 1
 	if (data == 0) return 1
 
@@ -408,7 +408,7 @@ function waysToSum(data : number, max = -1) : number{
 	return sum
 }
 
-function generateIPAddresses(data : string) : string[] {
+function generateIPAddresses(data: string): string[] {
 	const dataAddress = data.split('.')
 	if (dataAddress.length == 4) return [data]
 	const lastSet = dataAddress[dataAddress.length - 1]
@@ -434,7 +434,7 @@ function generateIPAddresses(data : string) : string[] {
 		return (last.length / (5 - splitAddress.length)) <= 3
 	})
 
-	let validAddresses : string[] = []
+	let validAddresses: string[] = []
 
 	for (let i = 0; i < addresses.length; ++i) {
 		validAddresses = validAddresses.concat(generateIPAddresses(addresses[i]))
@@ -443,11 +443,11 @@ function generateIPAddresses(data : string) : string[] {
 	return validAddresses
 }
 
-function isValidOctet(val : string) : boolean {
+function isValidOctet(val: string): boolean {
 	return Number(val) > 0 && Number(val) < 256
 }
-
-function mergeOverlappingIntervals(data : number[][]) : number[][] {
+//TOFIX
+function mergeOverlappingIntervals(data: number[][]): number[][] {
 	data.sort((a, b) => a[0] - b[0])
 
 	for (let i = 0; i < data.length - 1; ++i) {
@@ -463,7 +463,7 @@ function mergeOverlappingIntervals(data : number[][]) : number[][] {
 	return data
 }
 
-function arrayJumping(data : number[]) : number {
+function arrayJumping(data: number[]): number {
 	if (data.length == 1) return 1
 
 	const jumps = data[0]

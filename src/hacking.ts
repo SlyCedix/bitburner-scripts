@@ -2,11 +2,8 @@
 
 import { NS } from '../NetscriptDefinitions'
 import {
-	findBestServer,
 	buyServer,
-	deepScan,
-	rootAll,
-	getPortFunctions
+	deepScan, findBestServer, getPortFunctions, rootAll
 } from '/lib/helpers.js'
 
 const weakenScript = '/hwgw/weaken.js'
@@ -17,19 +14,19 @@ const bbBaseGrowth = 1.03
 const bbMaxGrowth = 1.0035
 const fundPct = 0.9
 class Bot {
-    ns : NS
-    target : string
-    server : string
-    buffer : number
-    weakenOnly : boolean
+	ns: NS
+	target: string
+	server: string
+	buffer: number
+	weakenOnly: boolean
 
-    reqHackSkill : number
-    hackDiff : number
-    weakenRam : number
-    growRam : number
-    hackRam : number
+	reqHackSkill: number
+	hackDiff: number
+	weakenRam: number
+	growRam: number
+	hackRam: number
 
-	constructor(ns : NS, target : string, server : string, buffer = 0.0, weakenOnly = false) {
+	constructor(ns: NS, target: string, server: string, buffer = 0.0, weakenOnly = false) {
 		ns.disableLog('ALL')
 
 		this.ns = ns
@@ -50,7 +47,7 @@ class Bot {
 		this.hackRam = ns.getScriptRam(hackScript)
 	}
 
-	async init() : Promise<void> {
+	async init(): Promise<void> {
 		const files = [weakenScript, growScript, hackScript]
 
 		await this.ns.scp(files, 'home', this.server)
@@ -58,14 +55,14 @@ class Bot {
 		this.ns.print(`INFO: Bot initialized (${this.server} attacking ${this.target})`)
 	}
 
-	async update() : Promise<void> {
+	async update(): Promise<void> {
 		const totalRam = this.ns.getServerRam(this.server)
 		const freeRam = totalRam[0] - totalRam[1] - this.buffer
 		const maxWeaken = Math.floor(freeRam / this.weakenRam)
-        let hackT : number
-        let weakenT : number
-        let growT : number
-        let ramNeeded : number
+		let hackT: number
+		let weakenT: number
+		let growT: number
+		let ramNeeded: number
 
 		switch (this.status) {
 			case 0:
@@ -84,7 +81,7 @@ class Bot {
 				growT = Math.ceil(Math.log(1 / (1 - fundPct)) / Math.log(this.growPct)) // jshint ignore:line
 				weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05) // jshint ignore:line
 				ramNeeded = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam)
-				
+
 				if (ramNeeded > freeRam) {
 					const scaleFactor = freeRam / ramNeeded
 					hackT = Math.floor(hackT * scaleFactor)
@@ -102,9 +99,9 @@ class Bot {
 		}
 	}
 
-	get hackPct() : number {
-        const hackSkill = this.ns.getHackingLevel()
-        const hackMults = this.ns.getHackingMultipliers()
+	get hackPct(): number {
+		const hackSkill = this.ns.getHackingLevel()
+		const hackMults = this.ns.getHackingMultipliers()
 
 		let hackPct = (100 - this.hackDiff) / 100
 		hackPct *= (1 + hackSkill - this.reqHackSkill) / hackSkill
@@ -114,10 +111,10 @@ class Bot {
 		return hackPct
 	}
 
-	get growPct() : number {
+	get growPct(): number {
 		const growRate = Math.min((1 + ((bbBaseGrowth - 1) / this.hackDiff)), bbMaxGrowth)
-        const hackMults = this.ns.getHackingMultipliers()
-        const serverGrowth = this.ns.getServerGrowth(this.server)
+		const hackMults = this.ns.getHackingMultipliers()
+		const serverGrowth = this.ns.getServerGrowth(this.server)
 		let growPct = serverGrowth / 100
 		growPct *= hackMults.growth
 		growPct = Math.pow(growRate, growPct)
@@ -125,7 +122,7 @@ class Bot {
 		return growPct
 	}
 
-	get status() : number {
+	get status(): number {
 		if (this.ns.getServerMaxMoney(this.target) == 0) {
 			return -1
 		}
@@ -139,7 +136,7 @@ class Bot {
 		return 2
 	}
 
-	runScript(script : string, threadCount : number) : void {
+	runScript(script: string, threadCount: number): void {
 		const totalRam = this.ns.getServerRam(this.server)
 		const freeRam = totalRam[0] - totalRam[1]
 
@@ -156,22 +153,22 @@ class Bot {
 }
 
 export class Botnet {
-    ns : NS
-    leveling : boolean
+	ns: NS
+	leveling: boolean
 
-    portFunctions : Array<any> = []
+	portFunctions: Array<any> = []
 
-    target = ''
-    servers : Array<string> = []
+	target = ''
+	servers: Array<string> = []
 
-    bots : Array<Bot> = []
+	bots: Array<Bot> = []
 
-	constructor(ns : NS, leveling = false) {
+	constructor(ns: NS, leveling = false) {
 		this.ns = ns
 		this.leveling = leveling
 	}
 
-	async init() : Promise<void> {
+	async init(): Promise<void> {
 		this.ns.disableLog('ALL')
 
 		this.portFunctions = getPortFunctions(this.ns)
@@ -182,7 +179,7 @@ export class Botnet {
 		this.servers = (deepScan(this.ns)).filter((hostname) => {
 			return this.ns.hasRootAccess(hostname)
 		})
-		
+
 		this.bots = []
 
 		for (let i = 0; i < this.servers.length; ++i) {
@@ -202,7 +199,7 @@ export class Botnet {
 		this.initUI()
 	}
 
-	async update() : Promise<void> {
+	async update(): Promise<void> {
 		const newPortFunctions = getPortFunctions(this.ns)
 
 		if (newPortFunctions.length > this.portFunctions.length) {
@@ -214,16 +211,16 @@ export class Botnet {
 			const newBest = findBestServer(this.ns)
 			if (newBest != this.target) {
 				this.target = newBest
-				for(const bot of this.bots ) {
+				for (const bot of this.bots) {
 					bot.target = newBest
 				}
 			}
 		}
 
 		const boughtServer = buyServer(this.ns)
-		
-		if(boughtServer) {
-			this.bots = this.bots.filter((bot : Bot)=> {
+
+		if (boughtServer) {
+			this.bots = this.bots.filter((bot: Bot) => {
 				return bot.server != boughtServer
 			})
 			const bot = new Bot(this.ns, this.target, boughtServer as string, 0, this.leveling)
@@ -231,7 +228,7 @@ export class Botnet {
 			await bot.init()
 		}
 
-		for(const bot of this.bots) {
+		for (const bot of this.bots) {
 			await bot.update()
 			await this.ns.sleep(10)
 		}
@@ -239,13 +236,13 @@ export class Botnet {
 		this.updateUI()
 	}
 
-	initUI() : void {
+	initUI(): void {
 		this.createDisplay('Security')
 		this.createDisplay('Money')
 		this.createDisplay('Target')
 	}
 
-	updateUI() : void {
+	updateUI(): void {
 		const moneyAvailable = this.ns.getServerMoneyAvailable(this.target)
 
 		const securityLevel = this.ns.getServerSecurityLevel(this.target)
@@ -257,7 +254,7 @@ export class Botnet {
 		doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0')
 	}
 
-	createDisplay(name : string) : void {
+	createDisplay(name: string): void {
 		const doc = eval('document')
 		const display = doc.getElementById(name + '-hook-0')
 

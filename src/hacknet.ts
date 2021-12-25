@@ -2,19 +2,19 @@ import { NS } from '../NetscriptDefinitions'
 
 const costThreshold = 50000
 export class Hacknet {
-	ns : NS
+	ns: NS
 
-	constructor(ns : NS) {
+	constructor(ns: NS) {
 		ns.disableLog('ALL')
 
 		this.ns = ns
 	}
 
-	async init() : Promise<void> {
+	async init(): Promise<void> {
 		this.ns.print('INFO: Hacknet initialized')
 	}
 
-	async update() : Promise<void> {
+	async update(): Promise<void> {
 		let maxCost = Math.min(this.totalProduction * 30,
 			this.ns.getServerMoneyAvailable('home') * 0.1)
 
@@ -46,7 +46,7 @@ export class Hacknet {
 		}
 	}
 
-	get totalProduction() : number {
+	get totalProduction(): number {
 		let sum = 0
 
 		for (let i = 0; i < this.ns.hacknet.numNodes(); ++i) {
