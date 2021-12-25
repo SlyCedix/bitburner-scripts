@@ -1,26 +1,26 @@
+import { key } from 'OAuth.js'
 import { NS } from '../../NetscriptDefinitions'
 
-import { key } from 'OAuth.js'
 
-export function deepScan(ns : NS) : string[] {
+export function deepScan(ns: NS): string[] {
     ns.disableLog('ALL')
     const hostnames = ['home']
 
-    for(const hostname of hostnames) {
+    for (const hostname of hostnames) {
         hostnames.push(...ns.scan(hostname).filter(host => !hostnames.includes(host)))
     }
 
     return hostnames
 }
 
-export function findBestServer(ns : NS) : string {
+export function findBestServer(ns: NS): string {
     ns.disableLog('ALL')
 
     let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
         return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) < ns.getHackingLevel()
     })
-    
+
     hostnames.sort((a, b) => {
         return getHackProduction(ns, b) - getHackProduction(ns, a)
     })
@@ -28,13 +28,13 @@ export function findBestServer(ns : NS) : string {
     return hostnames[0]
 }
 
-function getHackProduction(ns : NS, hostname : string) : number{
+function getHackProduction(ns: NS, hostname: string): number {
     const hackProduction = ns.getServerMaxMoney(hostname) * ns.getServerGrowth(hostname)
 
     return hackProduction
 }
 
-export function getNextHackingLevel(ns : NS) : number {
+export function getNextHackingLevel(ns: NS): number {
     ns.disableLog('ALL')
 
     let hostnames = deepScan(ns)
@@ -53,7 +53,7 @@ export function getNextHackingLevel(ns : NS) : number {
 
 let pServLevel = 3
 
-export function buyServer(ns : NS) : string | boolean {
+export function buyServer(ns: NS): string | boolean {
     ns.disableLog('ALL')
 
     const pServs = ns.getPurchasedServers()
@@ -89,7 +89,7 @@ export function buyServer(ns : NS) : string | boolean {
     return false
 }
 
-export async function scpAll(ns : NS, filename = 'home') : Promise<void> {
+export async function scpAll(ns: NS, filename = 'home'): Promise<void> {
     ns.disableLog('ALL')
 
     const hostnames = deepScan(ns)
@@ -99,7 +99,7 @@ export async function scpAll(ns : NS, filename = 'home') : Promise<void> {
     }
 }
 
-export function getPortFunctions(ns : NS) : Array<any> {
+export function getPortFunctions(ns: NS): Array<any> {
     ns.disableLog('ALL')
 
     const portFunctions = []
@@ -113,7 +113,7 @@ export function getPortFunctions(ns : NS) : Array<any> {
     return portFunctions
 }
 
-export function rootAll(ns : NS) : void {
+export function rootAll(ns: NS): void {
     const portFunctions = getPortFunctions(ns)
 
     // Gets all hostnames accessible on the network
@@ -134,7 +134,7 @@ export function rootAll(ns : NS) : void {
     })
 }
 
-export function getServersWithoutBackdoor(ns : NS) : string[] {
+export function getServersWithoutBackdoor(ns: NS): string[] {
     let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
         return (!ns.getServer(hostname).backdoorInstalled &&
@@ -146,16 +146,16 @@ export function getServersWithoutBackdoor(ns : NS) : string[] {
     return hostnames
 }
 
-export function getServersWithContracts(ns : NS) : string[] {
+export function getServersWithContracts(ns: NS): string[] {
     let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
-        return ns.ls(hostname, 'contract').length > 0
+        return ns.ls(hostname, '.cct').length > 0
     })
 
     return hostnames
 }
 
-export function findServer(ns : NS, target : string, start = 'home', source = '') : string {
+export function findServer(ns: NS, target: string, start = 'home', source = ''): string {
     const hostnames = ns.scan(start).filter((hostname) => {
         return hostname != source
     })
@@ -177,7 +177,7 @@ export function findServer(ns : NS, target : string, start = 'home', source = ''
     return ''
 }
 
-export function runTerminalCommand(command : string) : void {
+export function runTerminalCommand(command: string): void {
     const terminalInput = eval('document').getElementById('terminal-input')
     terminalInput.value = command
     const handler = Object.keys(terminalInput)[1]
@@ -190,7 +190,7 @@ export function runTerminalCommand(command : string) : void {
     })
 }
 
-export function formatRAM(ns : NS, n : number) : string {
+export function formatRAM(ns: NS, n: number): string {
     if (n < 1e3) return ns.nFormat(n, '0.00') + 'GB'
     if (n < 1e6) return ns.nFormat(n / 1e3, '0.00') + 'TB'
     if (n < 1e9) return ns.nFormat(n / 1e6, '0.00') + 'PB'
@@ -198,7 +198,7 @@ export function formatRAM(ns : NS, n : number) : string {
     return ns.nFormat(n, '0.00') + 'GB'
 }
 
-export async function getText(url : string) : Promise<string | void> {
+export async function getText(url: string): Promise<string | void> {
     const fetchHeaders = [
         ['Authorization', `token ${key}`],
         ['Content-Type', 'text/plain']
@@ -216,7 +216,7 @@ export async function getText(url : string) : Promise<string | void> {
     }).catch(() => { return })
 }
 
-export async function getJSON<T>(url : string) : Promise<T> {
+export async function getJSON<T>(url: string): Promise<T> {
     const fetchHeaders = [
         ['Authorization', `token ${key}`],
         ['Content-Type', 'application/json']
@@ -234,6 +234,6 @@ export async function getJSON<T>(url : string) : Promise<T> {
     }).catch(() => { return }) as Promise<T>
 }
 
-export function fixImports(script : string) : string{ 
+export function fixImports(script: string): string {
     return script.replaceAll(/from ['"]((\.*)\/)*/g, 'from \'/').replaceAll(/from ['"](.*(\w)*)['"]/g, 'from \'$1.js\'')
 }
