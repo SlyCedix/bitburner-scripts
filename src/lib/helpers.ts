@@ -2,24 +2,21 @@ import { NS } from '../../NetscriptDefinitions'
 
 import { key } from 'OAuth.js'
 
-export function deepScan(ns : NS, start : string, source = '') : string[] {
+export function deepScan(ns : NS) : string[] {
     ns.disableLog('ALL')
+    const hostnames = ['home']
 
-    const hostnames = ns.scan(start).filter(name => name != source)
-
-    let newNames : string[] = []
-    for (const hostname of hostnames) {
-        const scan = deepScan(ns, hostname, start)
-        newNames = newNames.concat(scan)
+    for(const hostname of hostnames) {
+        hostnames.push(...ns.scan(hostname).filter(host => !hostnames.includes(host)))
     }
 
-    return hostnames.concat(newNames)
+    return hostnames
 }
 
 export function findBestServer(ns : NS) : string {
     ns.disableLog('ALL')
 
-    let hostnames = deepScan(ns, 'home')
+    let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
         return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) < ns.getHackingLevel()
     })
@@ -40,7 +37,7 @@ function getHackProduction(ns : NS, hostname : string) : number{
 export function getNextHackingLevel(ns : NS) : number {
     ns.disableLog('ALL')
 
-    let hostnames = deepScan(ns, 'home')
+    let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) =>
         (ns.getServerRequiredHackingLevel(hostname) > ns.getHackingLevel()))
     let lowest = Number.MAX_VALUE
@@ -95,7 +92,7 @@ export function buyServer(ns : NS) : string | boolean {
 export async function scpAll(ns : NS, filename = 'home') : Promise<void> {
     ns.disableLog('ALL')
 
-    const hostnames = deepScan(ns, 'home')
+    const hostnames = deepScan(ns)
 
     for (let i = 0; i < hostnames.length; ++i) {
         await ns.scp(filename, 'home', hostnames[i])
@@ -120,7 +117,7 @@ export function rootAll(ns : NS) : void {
     const portFunctions = getPortFunctions(ns)
 
     // Gets all hostnames accessible on the network
-    const hostnames = deepScan(ns, 'home')
+    const hostnames = deepScan(ns)
 
     // Checks which hostnames can be rooted, but are not
     const needRoot = hostnames.filter((hostname) => {
@@ -138,7 +135,7 @@ export function rootAll(ns : NS) : void {
 }
 
 export function getServersWithoutBackdoor(ns : NS) : string[] {
-    let hostnames = deepScan(ns, 'home')
+    let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
         return (!ns.getServer(hostname).backdoorInstalled &&
             ns.hasRootAccess(hostname) &&
@@ -150,7 +147,7 @@ export function getServersWithoutBackdoor(ns : NS) : string[] {
 }
 
 export function getServersWithContracts(ns : NS) : string[] {
-    let hostnames = deepScan(ns, 'home')
+    let hostnames = deepScan(ns)
     hostnames = hostnames.filter((hostname) => {
         return ns.ls(hostname, 'contract').length > 0
     })

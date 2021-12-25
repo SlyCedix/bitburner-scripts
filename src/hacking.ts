@@ -179,7 +179,7 @@ export class Botnet {
 
 		this.target = this.leveling ? 'joesguns' : findBestServer(this.ns)
 
-		this.servers = (deepScan(this.ns, this.ns.getHostname())).filter((hostname) => {
+		this.servers = (deepScan(this.ns)).filter((hostname) => {
 			return this.ns.hasRootAccess(hostname)
 		})
 		
