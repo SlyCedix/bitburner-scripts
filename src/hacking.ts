@@ -1,5 +1,3 @@
-/** @param {NS} ns **/
-
 import { NS } from '../NetscriptDefinitions'
 import {
 	buyServer,
