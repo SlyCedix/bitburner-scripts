@@ -410,7 +410,10 @@ function waysToSum(data: number, max = -1): number {
 
 function generateIPAddresses(data: string): string[] {
 	const dataAddress = data.split('.')
-	if (dataAddress.length == 4) return [data]
+	if (dataAddress.length == 4) {
+		if (isValidOctet(dataAddress[3])) return [data]
+		return []
+	}
 	const lastSet = dataAddress[dataAddress.length - 1]
 
 	let addresses = []
