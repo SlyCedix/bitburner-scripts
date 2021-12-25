@@ -6,8 +6,7 @@ import {
 	buyServer,
 	deepScan,
 	rootAll,
-	getPortFunctions,
-	getNextHackingLevel
+	getPortFunctions
 } from '/lib/helpers.js'
 
 const weakenScript = '/hwgw/weaken.js'
@@ -39,7 +38,7 @@ class Bot {
 		this.buffer = buffer
 		this.weakenOnly = weakenOnly
 
-		if (ns.getServerMaxMoney(server) > 0) {
+		if (ns.getServerMaxMoney(server) > 0 && ns.getHackingLevel() > ns.getServerRequiredHackingLevel(server)) {
 			this.target = server
 			this.weakenOnly = false
 		}
@@ -161,7 +160,6 @@ export class Botnet {
     leveling : boolean
 
     portFunctions : Array<any> = []
-    nextHackingLevel = 0
 
     target = ''
     servers : Array<string> = []
@@ -177,7 +175,6 @@ export class Botnet {
 		this.ns.disableLog('ALL')
 
 		this.portFunctions = getPortFunctions(this.ns)
-		this.nextHackingLevel = getNextHackingLevel(this.ns)
 		rootAll(this.ns)
 
 		this.target = this.leveling ? 'joesguns' : findBestServer(this.ns)
@@ -208,10 +205,8 @@ export class Botnet {
 	async update() : Promise<void> {
 		const newPortFunctions = getPortFunctions(this.ns)
 
-		if (newPortFunctions.length > this.portFunctions.length ||
-			this.ns.getHackingLevel() >= this.nextHackingLevel) {
+		if (newPortFunctions.length > this.portFunctions.length) {
 			this.portFunctions = newPortFunctions
-			this.nextHackingLevel = this.ns.getHackingLevel()
 			rootAll(this.ns)
 		}
 

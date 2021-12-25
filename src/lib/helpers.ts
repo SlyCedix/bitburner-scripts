@@ -20,8 +20,10 @@ export function findBestServer(ns : NS) : string {
     ns.disableLog('ALL')
 
     let hostnames = deepScan(ns, 'home')
-    hostnames = hostnames.filter((hostname) => ns.hasRootAccess(hostname))
-
+    hostnames = hostnames.filter((hostname) => {
+        return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) < ns.getHackingLevel()
+    })
+    
     hostnames.sort((a, b) => {
         return getHackProduction(ns, b) - getHackProduction(ns, a)
     })
@@ -123,8 +125,7 @@ export function rootAll(ns : NS) : void {
     // Checks which hostnames can be rooted, but are not
     const needRoot = hostnames.filter((hostname) => {
         return !ns.hasRootAccess(hostname) &&
-            (ns.getServerNumPortsRequired(hostname) <= portFunctions.length) &&
-            (ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel())
+            (ns.getServerNumPortsRequired(hostname) <= portFunctions.length)
     })
 
     // Roots those servers
@@ -141,7 +142,8 @@ export function getServersWithoutBackdoor(ns : NS) : string[] {
     hostnames = hostnames.filter((hostname) => {
         return (!ns.getServer(hostname).backdoorInstalled &&
             ns.hasRootAccess(hostname) &&
-            !ns.getPurchasedServers().includes(hostname))
+            !ns.getPurchasedServers().includes(hostname) &&
+            ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(hostname))
     })
 
     return hostnames
