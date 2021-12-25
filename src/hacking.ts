@@ -78,8 +78,8 @@ class Bot {
 
 			case 2:
 				hackT = Math.floor(fundPct / this.hackPct)
-				growT = Math.ceil(Math.log(1 / (1 - fundPct)) / Math.log(this.growPct)) // jshint ignore:line
-				weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05) // jshint ignore:line
+				growT = Math.ceil(Math.log(1 / (1 - fundPct)) / Math.log(this.growPct))
+				weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05)
 				ramNeeded = Math.ceil(hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam)
 
 				if (ramNeeded > freeRam) {

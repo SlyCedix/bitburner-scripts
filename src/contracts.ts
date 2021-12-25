@@ -228,7 +228,7 @@ function maximizeProfit(transactions: Array<any>, n = -1): number {
 		let profit = transactions[i][2]
 		if (profit <= 0) continue
 
-		const testTransactions = transactions.filter((transaction) => { // jshint ignore:line
+		const testTransactions = transactions.filter((transaction) => {
 			return transaction[0] > transactions[i][1]
 		})
 
