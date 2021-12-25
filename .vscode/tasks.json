@@ -1,6 +1,5 @@
 {
     "version": "2.0.0",
-
     "tasks": [
         {
             "type": "npm",
@@ -13,8 +12,9 @@
                 "reveal": "always",
                 "panel": "new"
             },
-            "runOptions": { "runOn": "folderOpen" }
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
         }
     ]
-
 }

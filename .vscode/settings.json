@@ -2,25 +2,27 @@
     // Linter Settings
     "typescript.validate.enable": false,
     "javascript.validate.enable": false,
-    "eslint.validate": ["typescript", "typescriptreact"],
-    "eslint.workingDirectories": ["./src"],
+    "eslint.validate": [
+        "typescript",
+        "typescriptreact"
+    ],
+    "eslint.workingDirectories": [
+        "./src"
+    ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true,
         "source.organizeImports": true
     },
     "editor.formatOnSave": true,
-
     // Bitburner Extension Settings
     "bitburner.scriptRoot": "./dist/",
     "bitburner.fileWatcher.enable": true,
-
     // Autosave Settings
     "files.autoSave": "off",
-
     // Autosnippet settings
     "autoSnippet.snippets": [
         {
-            "pattern": "**/*.ts", 
+            "pattern": "**/*.ts",
             "snippet": "ns-template"
         },
     ]
