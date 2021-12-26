@@ -93,10 +93,12 @@ export class Contracts {
 	attemptContract(solver: Function, contract: string, server: string, data: Array<any>, format = false): void {
 		let solution = solver(data)
 		if (format) solution = formatOutput(solution)
-
-		if (!this.ns.codingcontract.attempt(solution, contract, server)) {
+		const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
+		if (reward == '') {
 			this.failed.push(contract)
 			this.ns.tprintf(`ERROR: Failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`)
+		} else {
+			this.ns.tprintf(`SUCCESS: ${reward}`)
 		}
 	}
 }
