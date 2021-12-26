@@ -14,7 +14,7 @@ export async function main(ns: NS): Promise<void> {
 		}
 
 		if (connectString.length > 0) {
-			runTerminalCommand(connectString + '; backdoor')
+			runTerminalCommand(connectString + 'backdoor')
 		} else {
 			ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
 		}
