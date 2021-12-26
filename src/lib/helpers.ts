@@ -113,7 +113,7 @@ export function getPortFunctions(ns: NS): Array<any> {
     return portFunctions
 }
 
-export function rootAll(ns: NS): void {
+export function rootAll(ns: NS): string[] {
     const portFunctions = getPortFunctions(ns)
 
     // Gets all hostnames accessible on the network
@@ -132,6 +132,8 @@ export function rootAll(ns: NS): void {
         })
         ns.nuke(hostname)
     })
+
+    return needRoot
 }
 
 export function getServersWithoutBackdoor(ns: NS): string[] {
@@ -139,8 +141,9 @@ export function getServersWithoutBackdoor(ns: NS): string[] {
     hostnames = hostnames.filter((hostname) => {
         return (!ns.getServer(hostname).backdoorInstalled &&
             ns.hasRootAccess(hostname) &&
+            ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(hostname) &&
             !ns.getPurchasedServers().includes(hostname) &&
-            ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(hostname))
+            hostname != 'home')
     })
 
     return hostnames

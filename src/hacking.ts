@@ -4,9 +4,9 @@ import {
 	deepScan, findBestServer, getPortFunctions, rootAll
 } from '/lib/helpers.js'
 
-const weakenScript = '/hwgw/weaken.js'
-const growScript = '/hwgw/grow.js'
-const hackScript = '/hwgw/hack.js'
+const weakenScript = '/hack/weaken.js'
+const growScript = '/hack/grow.js'
+const hackScript = '/hack/hack.js'
 
 const bbBaseGrowth = 1.03
 const bbMaxGrowth = 1.0035
@@ -24,7 +24,7 @@ class Bot {
 	growRam: number
 	hackRam: number
 
-	constructor(ns: NS, target: string, server: string, buffer = 0.0, weakenOnly = false) {
+	constructor(ns: NS, server: string, target = 'n00dles', buffer = 0.0, weakenOnly = false) {
 		ns.disableLog('ALL')
 
 		this.ns = ns
@@ -37,6 +37,7 @@ class Bot {
 			this.target = server
 			this.weakenOnly = false
 		}
+
 		this.reqHackSkill = ns.getServerRequiredHackingLevel(target)
 		this.hackDiff = ns.getServerMinSecurityLevel(target)
 
@@ -193,7 +194,7 @@ export class Botnet {
 				this.ns.killall(this.servers[i])
 				buffer = 0
 			}
-			const bot = new Bot(this.ns, this.target, this.servers[i], buffer, this.leveling)
+			const bot = new Bot(this.ns, this.servers[i], this.target, buffer, this.leveling)
 			this.bots.push(bot)
 			await bot.init()
 			await this.ns.sleep(10)
@@ -228,7 +229,7 @@ export class Botnet {
 			this.bots = this.bots.filter((bot: Bot) => {
 				return bot.server != boughtServer
 			})
-			const bot = new Bot(this.ns, this.target, boughtServer as string, 0, this.leveling)
+			const bot = new Bot(this.ns, boughtServer as string, this.target, 0, this.leveling)
 			this.bots.push(bot)
 			await bot.init()
 		}
