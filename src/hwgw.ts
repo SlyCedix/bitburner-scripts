@@ -1,4 +1,4 @@
-import { NS } from '../NetscriptDefinitions'
+import { NS, Server } from '../NetscriptDefinitions'
 import { ActionTimes, HackRatios } from '../types'
 import { HackingFormulas } from './lib/formulas'
 import { buyServer, deepScan, findBestServer, getPortFunctions, rootAll } from '/lib/helpers.js'
@@ -58,8 +58,8 @@ export class Bot {
     async update(): Promise<void> {
         const ratios = this.ratios  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
         const timeB = 15
-
-        if (ratios.weakT > 0) {
+        
+        if (ratios.weakT + ratios.growT + ratios.weak2T + ratios.hackT > 0 ) {
             console.debug(ratios)
             console.debug(this.server)
 
@@ -72,6 +72,57 @@ export class Bot {
         }
     }
 
+
+    simulateHack(serverData: Server, maxThreads: number, take = 1): [number, Server] {
+        const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
+        const hackT = Math.floor(take / hackAmount)
+        if (hackT > maxThreads) {
+            return [-1, serverData]
+        } else {
+            serverData.moneyAvailable -= take * serverData.moneyMax
+            if(serverData.moneyAvailable <= 0) serverData.moneyAvailable = 0
+            serverData.hackDifficulty += hackT * HackSecurityEffect
+            return [hackT, serverData]
+        }
+    }
+
+    simulateWeaken(serverData: Server, maxThreads: number): [number, Server]  {
+        const weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
+        if (weakT > maxThreads) {
+            return [-1, serverData]
+        } else {
+            serverData.hackDifficulty = serverData.minDifficulty
+            return [weakT, serverData]
+        }
+    }
+
+    simulateGrowth(serverData: Server, maxThreads: number): [number, Server]  {
+        if (serverData.moneyAvailable <= 0) serverData.moneyAvailable = 1
+        if (maxThreads == Infinity) maxThreads = 1000
+        else if((serverData.moneyMax / serverData.moneyAvailable) > 
+            HackingFormulas.growPercent(serverData, maxThreads, this.ns.getPlayer(),
+                                        this.ns.getServer(this.server).cpuCores)) return [-1, serverData]
+
+        let growT = 0
+        
+        let step = Math.floor(maxThreads / 10)
+        if (step <= 0) step = 1
+
+        while (growT < maxThreads) {
+            growT += step
+            serverData.moneyAvailable += step
+            serverData.hackDifficulty += step * GrowSecurityEffect
+            serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, step, this.ns.getPlayer(),
+                this.ns.getServer(this.server).cpuCores)
+            if (serverData.moneyAvailable >= serverData.moneyMax) {
+                serverData.moneyAvailable = serverData.moneyMax
+                return [growT, serverData]
+            }
+        }
+
+        return [-1, serverData]
+    }
+
     get ratios(): HackRatios {
         let hackRatios = {
             hackT: 0,
@@ -80,45 +131,30 @@ export class Bot {
             weak2T: 0
         }
 
-        const serverData = this.ns.getServer(this.target)
+        let serverData = this.ns.getServer(this.target)
         const freeRam = this.ns.getServerMaxRam(this.server) - this.ns.getServerUsedRam(this.server) - this.buffer
-
-        if (freeRam < 8) return hackRatios
 
         // Adjustments for when server is not at best values
         if (serverData.moneyAvailable == 0) serverData.moneyAvailable = 1
         if ((serverData.minDifficulty != serverData.hackDifficulty || serverData.moneyAvailable != serverData.moneyMax) && !prepped[this.server]) {
             prepped[this.server] = true
-            hackRatios.weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
-            serverData.hackDifficulty = serverData.minDifficulty
 
+            let sim = this.simulateWeaken(serverData, Infinity)
+            hackRatios.weakT = sim[0]
+            serverData = sim[1]
             let totalRam = hackRatios.weakT * this.weakRam
 
-            if (serverData.moneyAvailable <= 0) serverData.moneyAvailable = 1
-            const approxStep = 5
-            // Grow - Underapproximates growth, over approximates threads
-            while (serverData.moneyAvailable != serverData.moneyMax) {
-                hackRatios.growT += approxStep
-                serverData.moneyAvailable += approxStep
-                serverData.hackDifficulty += approxStep * GrowSecurityEffect
-                serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(),
-                    this.ns.getServer(this.server).cpuCores)
-                if (serverData.moneyAvailable >= serverData.moneyMax) {
-                    serverData.moneyAvailable = serverData.moneyMax
-                }
+            sim = this.simulateGrowth(serverData, Infinity)
+            hackRatios.growT = sim[0]
+            serverData = sim[1]
+            totalRam += hackRatios.growT * this.growRam
 
-                totalRam += approxStep * this.growRam
-                if (totalRam > freeRam) break
-                console.debug(`Post: ${serverData.moneyAvailable} ${serverData.moneyMax}`)
-            }
-
-            hackRatios.weak2T = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
-            serverData.hackDifficulty = serverData.minDifficulty
-
+            sim = this.simulateWeaken(serverData, Infinity)
+            hackRatios.weak2T = sim[0]
+            serverData = sim[1]
             totalRam = + hackRatios.weak2T * this.weakRam
 
             if (totalRam > freeRam) {
-                prepped[this.server] = false
                 const ramFactor = freeRam / totalRam
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
                 hackRatios.growT = Math.floor(hackRatios.growT * ramFactor)
@@ -132,8 +168,8 @@ export class Bot {
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        const maxMoneyPerHack = Math.floor(freeRam / this.hackRam) * hackAmount
-        const increment = maxMoneyPerHack / 10
+        const maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, 1)
+        const increment = maxMoneyPerHack / 50
 
         // Calculate thread ratios
         for (let i = maxMoneyPerHack; i > 0; i -= increment) {
@@ -148,46 +184,42 @@ export class Bot {
             serverData.hackDifficulty = serverData.minDifficulty
 
             // Hack
-            hackRatios.hackT = Math.floor(i / hackAmount)
-            serverData.moneyAvailable -= i * serverData.moneyMax
-            serverData.hackDifficulty += hackRatios.hackT * HackSecurityEffect
-
+            let maxT = Math.floor(freeRam / this.hackRam)
+            let sim = this.simulateHack(serverData, maxT, i)
+            hackRatios.hackT = sim[0]
+            serverData = sim[1]
+            
+            if (hackRatios.hackT == -1) continue
+            if (hackRatios.hackT == 0) break
             let totalRam = hackRatios.hackT * this.hackRam
-            if (totalRam > freeRam) continue
-            if (serverData.moneyAvailable <= 0) continue
 
             // First Weaken
-            hackRatios.weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
-            serverData.hackDifficulty = serverData.minDifficulty
-
+            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
+            sim = this.simulateWeaken(serverData, maxT)
+            hackRatios.weakT = sim[0]
+            serverData = sim[1]
+           
+            if (hackRatios.weakT == -1) continue
             totalRam += hackRatios.weakT * this.weakRam
-            if (totalRam > freeRam) continue
 
-            const approxStep = 5
-            // Grow - Underapproximates growth, over approximates threads
-            while (serverData.moneyAvailable != serverData.moneyMax) {
-                hackRatios.growT += approxStep
-                serverData.hackDifficulty += approxStep * GrowSecurityEffect
-                serverData.moneyAvailable += 5
-                serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(),
-                    this.ns.getServer(this.server).cpuCores)
-                if (serverData.moneyAvailable >= serverData.moneyMax) {
-                    serverData.moneyAvailable = serverData.moneyMax
-                }
-
-                totalRam += approxStep * this.growRam
-                if (totalRam > freeRam) break
-                console.debug(`Post: ${serverData.moneyAvailable} ${serverData.moneyMax}`)
-            }
-
-            if (totalRam > freeRam) continue
+            //Grow
+            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
+            sim = this.simulateGrowth(serverData, maxT)
+            hackRatios.growT = sim[0]
+            serverData = sim[1]
+            
+            if (hackRatios.growT == -1) continue
+            totalRam += hackRatios.growT * this.growRam
 
             // Second weaken
-            hackRatios.weak2T = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
-            serverData.hackDifficulty = serverData.minDifficulty
+            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
+            sim = this.simulateWeaken(serverData, maxT)
+            hackRatios.weak2T = sim[0]
+            serverData = sim[1]
 
-            totalRam += hackRatios.weak2T * this.weakRam
-            if (totalRam <= freeRam) return hackRatios
+            if (hackRatios.weak2T == -1) continue
+
+            return hackRatios
         }
 
         return {
