@@ -5,17 +5,15 @@ export interface ServerData {
 	flags: string[];
 }
 
-export interface TreeRoot {
-	sha : string;
-	url : string;
-	tree : Array<TreeBranch>;
-	truncated : string;
+export interface ActionTimes {
+	hack: number;
+	weaken: number;
+	grow: number;
 }
 
-export interface TreeBranch {
-	path : string;
-	mode : string;
-	type : string;
-	sha : string;
-	url : string;
+export interface HackRatios {
+	weakT: number;
+	hackT: number;
+	growT: number;
+	weak2T: number;
 }

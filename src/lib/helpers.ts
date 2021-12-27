@@ -29,7 +29,8 @@ export function findBestServer(ns: NS): string {
 }
 
 function getHackProduction(ns: NS, hostname: string): number {
-    const hackProduction = ns.getServerMaxMoney(hostname) * ns.getServerGrowth(hostname)
+    const hackProduction = ns.getServerMaxMoney(hostname) /
+        (200 + (ns.getServerMinSecurityLevel(hostname) * ns.getServerRequiredHackingLevel(hostname))) * ns.getServerGrowth(hostname)
 
     return hackProduction
 }

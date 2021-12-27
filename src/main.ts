@@ -1,9 +1,9 @@
 import { Contracts } from 'contracts.js'
-import { Botnet } from 'hacking.js'
 import { Hacknet } from 'hacknet.js'
+import { Botnet } from 'hwgw.js'
 import { NS } from '../NetscriptDefinitions'
 
-export async function main(ns: NS): Promise<null> {
+export async function main(ns: NS): Promise<void> {
 	const botnet = new Botnet(ns, ns.args[0] == 'level')
 	await botnet.init()
 
@@ -14,7 +14,7 @@ export async function main(ns: NS): Promise<null> {
 	await contracts.init()
 
 	while (true) {
-		const sleep = ns.asleep(5000)
+		const sleep = ns.asleep(100)
 
 		await hacknet.update()
 		await botnet.update()
@@ -22,4 +22,4 @@ export async function main(ns: NS): Promise<null> {
 		await ns.sleep(10)
 		await sleep
 	}
-}
+} //
