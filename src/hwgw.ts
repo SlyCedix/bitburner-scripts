@@ -3,6 +3,7 @@ import { ActionTimes, HackRatios } from '../types'
 import { HackingFormulas } from './lib/formulas'
 import { buyServer, deepScan, findBestServer, getPortFunctions, rootAll } from '/lib/helpers.js'
 
+const prepped: any = {}
 
 const hackScript = '/hwgw/hack.js'
 const growScript = '/hwgw/grow.js'
@@ -56,14 +57,17 @@ export class Bot {
 
     async update(): Promise<void> {
         const ratios = this.ratios  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
+        const timeB = 15
 
         if (ratios.weakT > 0) {
-            const timeB = 250
+            console.debug(ratios)
+            console.debug(this.server)
 
             if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, this.target, 0, this.uuid)
             if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, this.target, this.times.weaken - this.times.grow + timeB, this.uuid)
             if (ratios.weak2T > 0) this._prevBatch = this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, 2 * timeB, this.uuid)
             if (ratios.hackT > 0) this.ns.exec(hackScript, this.server, ratios.hackT, this.target, this.times.weaken - this.times.hack - timeB, this.uuid)
+
             await this.ns.sleep(timeB * 5)
         }
     }
@@ -79,29 +83,42 @@ export class Bot {
         const serverData = this.ns.getServer(this.target)
         const freeRam = this.ns.getServerMaxRam(this.server) - this.ns.getServerUsedRam(this.server) - this.buffer
 
+        if (freeRam < 8) return hackRatios
+
         // Adjustments for when server is not at best values
         if (serverData.moneyAvailable == 0) serverData.moneyAvailable = 1
-        if (serverData.minDifficulty != serverData.hackDifficulty) {
+        if ((serverData.minDifficulty != serverData.hackDifficulty || serverData.moneyAvailable != serverData.moneyMax) && !prepped[this.server]) {
+            prepped[this.server] = true
             hackRatios.weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
             serverData.hackDifficulty = serverData.minDifficulty
 
+            let totalRam = hackRatios.weakT * this.weakRam
+
+            if (serverData.moneyAvailable <= 0) serverData.moneyAvailable = 1
             const approxStep = 5
             // Grow - Underapproximates growth, over approximates threads
             while (serverData.moneyAvailable != serverData.moneyMax) {
                 hackRatios.growT += approxStep
+                serverData.moneyAvailable += approxStep
                 serverData.hackDifficulty += approxStep * GrowSecurityEffect
-                serverData.moneyAvailable *= 1 + HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(), this.ns.getServer(this.server).cpuCores)
+                serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(),
+                    this.ns.getServer(this.server).cpuCores)
                 if (serverData.moneyAvailable >= serverData.moneyMax) {
                     serverData.moneyAvailable = serverData.moneyMax
                 }
+
+                totalRam += approxStep * this.growRam
+                if (totalRam > freeRam) break
+                console.debug(`Post: ${serverData.moneyAvailable} ${serverData.moneyMax}`)
             }
 
-            hackRatios.weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
+            hackRatios.weak2T = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
             serverData.hackDifficulty = serverData.minDifficulty
 
-            const totalRam = hackRatios.growT * this.growRam + (hackRatios.weakT + hackRatios.weak2T) * this.weakRam
+            totalRam = + hackRatios.weak2T * this.weakRam
 
             if (totalRam > freeRam) {
+                prepped[this.server] = false
                 const ramFactor = freeRam / totalRam
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
                 hackRatios.growT = Math.floor(hackRatios.growT * ramFactor)
@@ -137,6 +154,7 @@ export class Bot {
 
             let totalRam = hackRatios.hackT * this.hackRam
             if (totalRam > freeRam) continue
+            if (serverData.moneyAvailable <= 0) continue
 
             // First Weaken
             hackRatios.weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
@@ -150,14 +168,18 @@ export class Bot {
             while (serverData.moneyAvailable != serverData.moneyMax) {
                 hackRatios.growT += approxStep
                 serverData.hackDifficulty += approxStep * GrowSecurityEffect
-                serverData.moneyAvailable *= 1 + HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(),
+                serverData.moneyAvailable += 5
+                serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, 5, this.ns.getPlayer(),
                     this.ns.getServer(this.server).cpuCores)
                 if (serverData.moneyAvailable >= serverData.moneyMax) {
                     serverData.moneyAvailable = serverData.moneyMax
                 }
+
+                totalRam += approxStep * this.growRam
+                if (totalRam > freeRam) break
+                console.debug(`Post: ${serverData.moneyAvailable} ${serverData.moneyMax}`)
             }
 
-            totalRam += hackRatios.growT * this.growRam
             if (totalRam > freeRam) continue
 
             // Second weaken
@@ -219,13 +241,13 @@ export class Botnet {
 
         this.bots = []
 
-        for (let i = 0; i < this.servers.length; ++i) {
+        for (const server of this.servers) {
             let buffer = 16
-            if (this.servers[i] != 'home') {
-                this.ns.killall(this.servers[i])
+            if (server != 'home') {
+                this.ns.killall(server)
                 buffer = 0
             }
-            const bot = new Bot(this.ns, this.servers[i], this.target, this.leveling, buffer)
+            const bot = new Bot(this.ns, server, this.target, this.leveling, buffer)
             this.bots.push(bot)
             await bot.init()
             await this.ns.sleep(10)
@@ -274,7 +296,6 @@ export class Botnet {
 
         for (const bot of this.bots) {
             await bot.update()
-            await this.ns.sleep(10)
         }
 
         this.updateUI()
