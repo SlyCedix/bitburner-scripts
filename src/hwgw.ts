@@ -56,19 +56,26 @@ export class Bot {
     }
 
     async update(): Promise<void> {
-        const ratios = this.ratios  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
-        const timeB = 15
-        
-        if (ratios.weakT + ratios.growT + ratios.weak2T + ratios.hackT > 0 ) {
-            console.debug(ratios)
-            console.debug(this.server)
-
-            if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, this.target, 0, this.uuid)
-            if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, this.target, this.times.weaken - this.times.grow + timeB, this.uuid)
-            if (ratios.weak2T > 0) this._prevBatch = this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, 2 * timeB, this.uuid)
-            if (ratios.hackT > 0) this.ns.exec(hackScript, this.server, ratios.hackT, this.target, this.times.weaken - this.times.hack - timeB, this.uuid)
-
-            await this.ns.sleep(timeB * 5)
+        const ps = this.ns.ps(this.server).filter((p) => {
+            return p.filename == weakScript
+        })
+        if(ps.length == 0) {
+            const ratios = this.ratios  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
+            const timeB = 15
+            
+            if (ratios.weakT + ratios.growT + ratios.weak2T + ratios.hackT > 0 ) {
+                const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + ratios.growT * this.growRam + ratios.hackT * this.hackRam
+                while(this.ns.getServer(this.server).maxRam - this.ns.getServer(this.server).ramUsed >= totalRam) {
+                    if (ratios.hackT > 0) this.ns.exec(hackScript, this.server, ratios.hackT, this.target, this.times.weaken - this.times.hack, this.uuid)
+                    await this.ns.sleep(timeB)
+                    if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, this.target, 0, this.uuid)
+                    await this.ns.sleep(timeB)
+                    if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, this.target, this.times.weaken - this.times.grow, this.uuid)
+                    await this.ns.sleep(timeB)
+                    if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, 0, this.uuid)
+                    await this.ns.sleep(timeB)
+                }
+            }
         }
     }
 
@@ -98,25 +105,26 @@ export class Bot {
 
     simulateGrowth(serverData: Server, maxThreads: number): [number, Server]  {
         if (serverData.moneyAvailable <= 0) serverData.moneyAvailable = 1
-        if (maxThreads == Infinity) maxThreads = 1000
+        if (maxThreads == Infinity) maxThreads = Math.floor(2**30 / this.growRam)
         else if((serverData.moneyMax / serverData.moneyAvailable) > 
             HackingFormulas.growPercent(serverData, maxThreads, this.ns.getPlayer(),
                                         this.ns.getServer(this.server).cpuCores)) return [-1, serverData]
 
         let growT = 0
         
-        let step = Math.floor(maxThreads / 10)
+        let step = Math.floor(maxThreads / 100)
         if (step <= 0) step = 1
 
+        const newServer = JSON.parse(JSON.stringify(serverData))
         while (growT < maxThreads) {
             growT += step
-            serverData.moneyAvailable += step
-            serverData.hackDifficulty += step * GrowSecurityEffect
-            serverData.moneyAvailable *= HackingFormulas.growPercent(serverData, step, this.ns.getPlayer(),
+            newServer.moneyAvailable += step
+            newServer.hackDifficulty += step * GrowSecurityEffect
+            newServer.moneyAvailable *= HackingFormulas.growPercent(newServer, step, this.ns.getPlayer(),
                 this.ns.getServer(this.server).cpuCores)
-            if (serverData.moneyAvailable >= serverData.moneyMax) {
-                serverData.moneyAvailable = serverData.moneyMax
-                return [growT, serverData]
+            if (newServer.moneyAvailable >= newServer.moneyMax) {
+                newServer.moneyAvailable = newServer.moneyMax
+                return [growT, newServer]
             }
         }
 
@@ -136,8 +144,12 @@ export class Bot {
 
         // Adjustments for when server is not at best values
         if (serverData.moneyAvailable == 0) serverData.moneyAvailable = 1
-        if ((serverData.minDifficulty != serverData.hackDifficulty || serverData.moneyAvailable != serverData.moneyMax) && !prepped[this.server]) {
-            prepped[this.server] = true
+        if ((serverData.minDifficulty != serverData.hackDifficulty ||
+            serverData.moneyAvailable != serverData.moneyMax) &&
+            !prepped[this.target]) {
+                
+            console.debug(`Prepping: ${this.target}`)
+            prepped[this.target] = true
 
             let sim = this.simulateWeaken(serverData, Infinity)
             hackRatios.weakT = sim[0]
@@ -152,10 +164,12 @@ export class Bot {
             sim = this.simulateWeaken(serverData, Infinity)
             hackRatios.weak2T = sim[0]
             serverData = sim[1]
-            totalRam = + hackRatios.weak2T * this.weakRam
+            totalRam += hackRatios.weak2T * this.weakRam
 
             if (totalRam > freeRam) {
+                prepped[this.target] = false
                 const ramFactor = freeRam / totalRam
+                console.debug(ramFactor)
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
                 hackRatios.growT = Math.floor(hackRatios.growT * ramFactor)
                 hackRatios.weak2T = Math.floor(hackRatios.weak2T * ramFactor)
