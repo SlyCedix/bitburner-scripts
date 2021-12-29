@@ -1,6 +1,14 @@
 import { NS } from '../NetscriptDefinitions'
 import { getServersWithContracts } from '/lib/helpers.js'
 
+export async function main(ns : NS) : Promise<void> {
+    const contracts = new Contracts(ns)
+
+    while(true) {
+        await contracts.update() 
+        await ns.sleep(10)
+    }
+}
 
 export class Contracts {
 	failed: string[]

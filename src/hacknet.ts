@@ -1,5 +1,14 @@
 import { NS } from '../NetscriptDefinitions'
 
+export async function main(ns : NS) : Promise<void> {
+    const hacknet = new Hacknet(ns)
+
+    while(true) {
+        await hacknet.update() 
+        await ns.sleep(10)
+    }
+}
+
 const costThreshold = 50000
 export class Hacknet {
 	ns: NS

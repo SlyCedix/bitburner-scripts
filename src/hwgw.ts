@@ -3,6 +3,16 @@ import { ActionTimes, HackRatios } from '../types'
 import { HackingFormulas } from './lib/formulas'
 import { buyServer, deepScan, findBestServer, getPortFunctions, rootAll } from '/lib/helpers.js'
 
+
+export async function main(ns : NS) : Promise<void> {
+    const botnet = new Botnet(ns)
+
+    while(true) {
+        await botnet.update() 
+        await ns.sleep(10)
+    }
+}
+
 const prepped: any = {}
 
 const hackScript = '/hwgw/hack.js'
