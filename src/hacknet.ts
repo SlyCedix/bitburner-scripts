@@ -2,7 +2,7 @@ import { NS } from '../NetscriptDefinitions'
 
 export async function main(ns : NS) : Promise<void> {
     const hacknet = new Hacknet(ns)
-
+    hacknet.init()
     while(true) {
         await hacknet.update() 
         await ns.sleep(10)

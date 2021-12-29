@@ -6,7 +6,8 @@ import { buyServer, deepScan, findBestServer, getPortFunctions, rootAll } from '
 
 export async function main(ns : NS) : Promise<void> {
     const botnet = new Botnet(ns)
-
+    botnet.init()
+    
     while(true) {
         await botnet.update() 
         await ns.sleep(10)

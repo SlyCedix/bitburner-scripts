@@ -3,6 +3,7 @@ import { getServersWithContracts } from '/lib/helpers.js'
 
 export async function main(ns : NS) : Promise<void> {
     const contracts = new Contracts(ns)
+    contracts.init()
 
     while(true) {
         await contracts.update() 
