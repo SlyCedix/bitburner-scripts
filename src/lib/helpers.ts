@@ -14,8 +14,9 @@ export function deepScan(ns: NS): string[] {
 
 export function findBestServer(ns: NS): string {
     const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
+    if(servers.length == 0) servers.push('n00dles', 'foodnstuff')
     const data : ServerPerformance[] = []
-
+    
     for (const target of servers) {
         const server = ns.getServer(target)
         const difficulty = server.minDifficulty
@@ -71,7 +72,7 @@ export function upgradeAllServers(ns: NS): boolean {
             }
             ns.purchaseServer(pserv, 2**maxBuyableRam)
 
-            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam << 20, '0.00b')}`)
+            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam * (1 << 10), '0.00ib')}`)
         }
         return true
     } else {
