@@ -1,7 +1,7 @@
 import { NS, Server } from '../NetscriptDefinitions'
 import { ActionTimes, HackRatios } from '../types'
 import { HackingFormulas } from './lib/formulas'
-import { buyServer, deepScan, findBestServer, getPortFunctions, rootAll } from '/lib/helpers.js'
+import { deepScan, findBestServer, getPortFunctions, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 
 export async function main(ns : NS) : Promise<void> {
@@ -193,7 +193,7 @@ export class Bot {
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        const maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, 1)
+        const maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .5)
         const increment = maxMoneyPerHack / 50
 
         // Calculate thread ratios
@@ -339,19 +339,18 @@ export class Botnet {
             }
         }
 
-        const boughtServer = buyServer(this.ns)
+        if(upgradeAllServers(this.ns)) {
+            const pservs = this.ns.getPurchasedServers()
+            this.bots = this.bots.filter(bot => pservs.includes(bot.server))
 
-
-        if (boughtServer) {
-            this.bots = this.bots.filter((bot: Bot) => {
-                return bot.server != boughtServer
-            })
-            const bot = new Bot(this.ns, boughtServer as string, this.target, this.leveling, 0)
-            this.bots.push(bot)
-            await bot.init()
+            for(const pserv of pservs) {
+                const bot = new Bot(this.ns, pserv, this.target, this.leveling, 0)
+                this.bots.push(bot)
+                await bot.init()
+            }
         }
 
-        for (const bot of this.bots) {
+        for(const bot of this.bots) {
             await bot.update()
         }
 
