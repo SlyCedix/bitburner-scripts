@@ -1,6 +1,5 @@
-import { key } from 'OAuth.js'
 import { NS } from '../../NetscriptDefinitions'
-
+import { ServerPerformance } from '/../types.js'
 
 export function deepScan(ns: NS): string[] {
     ns.disableLog('ALL')
@@ -14,25 +13,20 @@ export function deepScan(ns: NS): string[] {
 }
 
 export function findBestServer(ns: NS): string {
-    ns.disableLog('ALL')
+    const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
+    const data : ServerPerformance[] = []
 
-    let hostnames = deepScan(ns)
-    hostnames = hostnames.filter((hostname) => {
-        return ns.hasRootAccess(hostname) && ns.getServerRequiredHackingLevel(hostname) <= ns.getHackingLevel()
-    })
+    for (const target of servers) {
+        const server = ns.getServer(target)
+        const difficulty = server.minDifficulty
+        const ht_mul = 2.5 * server.requiredHackingSkill * difficulty + 500
+        const raw = server.moneyMax * server.serverGrowth
+        data.push({hostname: target, preformance: (raw / ht_mul / 1e7)})
+    }
 
-    hostnames.sort((a, b) => {
-        return getHackProduction(ns, b) - getHackProduction(ns, a)
-    })
+    data.sort((a,b)=>b.preformance - a.preformance)
 
-    return hostnames[0]
-}
-
-function getHackProduction(ns: NS, hostname: string): number {
-    const hackProduction = ns.getServerMaxMoney(hostname) /
-        (200 + (ns.getServerMinSecurityLevel(hostname) * ns.getServerRequiredHackingLevel(hostname))) * ns.getServerGrowth(hostname)
-
-    return hackProduction
+    return data[0].hostname
 }
 
 export function getNextHackingLevel(ns: NS): number {
@@ -52,8 +46,41 @@ export function getNextHackingLevel(ns: NS): number {
     return lowest
 }
 
-let pServLevel = 3
+export function upgradeAllServers(ns: NS): boolean {
+    ns.disableLog('ALL')
+    
+    const pservs : string[] = ns.getPurchasedServers()
+    if(pservs.length == 0) {
+        for(let i = 0; i < ns.getPurchasedServerLimit(); ++i) {
+            pservs.push(`pserv-${i}`)
+        }
+    }
 
+    const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
+
+    const costPerGig = 55000 * ns.getPurchasedServerLimit()
+    const maxBuyableRam = Math.min(20, Math.floor(Math.log2(ns.getServerMoneyAvailable('home') / costPerGig)))
+
+    if(maxBuyableRam < 6) return false
+
+    if(maxBuyableRam > currRam) {
+        for(const pserv of pservs) {
+            if(ns.serverExists(pserv)) {
+                ns.killall(pserv)
+                ns.deleteServer(pserv)
+            }
+            ns.purchaseServer(pserv, 2**maxBuyableRam)
+
+            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam << 20, '0.00b')}`)
+        }
+        return true
+    } else {
+        return false
+    }
+}
+
+
+let pServLevel = 3
 export function buyServer(ns: NS): string | boolean {
     ns.disableLog('ALL')
 
@@ -198,44 +225,4 @@ export function formatRAM(ns: NS, n: number): string {
     if (n < 1e9) return ns.nFormat(n / 1e6, '0.00') + 'PB'
     if (n < 1e12) return ns.nFormat(n / 1e9, '0.00') + 'EB'
     return ns.nFormat(n, '0.00') + 'GB'
-}
-
-export async function getText(url: string): Promise<string | void> {
-    const fetchHeaders = [
-        ['Authorization', `token ${key}`],
-        ['Content-Type', 'text/plain']
-    ]
-
-    return fetch(url, {
-        method: 'GET',
-        headers: fetchHeaders
-    }).then(response => {
-        if (response.status === 200) {
-            return response.text()
-        } else {
-            return ''
-        }
-    }).catch(() => { return })
-}
-
-export async function getJSON<T>(url: string): Promise<T> {
-    const fetchHeaders = [
-        ['Authorization', `token ${key}`],
-        ['Content-Type', 'application/json']
-    ]
-
-    return fetch(url, {
-        method: 'GET',
-        headers: fetchHeaders
-    }).then(response => {
-        if (response.status === 200) {
-            return response.json() as Promise<T>
-        } else {
-            return
-        }
-    }).catch(() => { return }) as Promise<T>
-}
-
-export function fixImports(script: string): string {
-    return script.replaceAll(/from ['"]((\.*)\/)*/g, 'from \'/').replaceAll(/from ['"](.*(\w)*)['"]/g, 'from \'$1.js\'')
 }

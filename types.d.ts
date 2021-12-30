@@ -17,3 +17,8 @@ export interface HackRatios {
   growT: number;
   weak2T: number;
 }
+
+export interface ServerPerformance {
+  hostname : string;
+  preformance : number;
+}
