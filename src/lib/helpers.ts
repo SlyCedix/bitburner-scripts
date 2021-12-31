@@ -12,7 +12,7 @@ export function deepScan(ns: NS): string[] {
     return hostnames
 }
 
-export function findBestServer(ns: NS): string {
+export function rankServers(ns: NS): ServerPerformance[] {
     const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
     if(servers.length == 0) servers.push('n00dles', 'foodnstuff')
     const data : ServerPerformance[] = []
@@ -27,7 +27,11 @@ export function findBestServer(ns: NS): string {
 
     data.sort((a,b)=>b.preformance - a.preformance)
 
-    return data[0].hostname
+    return data
+}
+
+export function findBestServer(ns: NS): string {
+    return rankServers(ns)[0].hostname
 }
 
 export function getNextHackingLevel(ns: NS): number {
@@ -72,7 +76,7 @@ export function upgradeAllServers(ns: NS): boolean {
             }
             ns.purchaseServer(pserv, 2**maxBuyableRam)
 
-            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam * (1 << 10), '0.00ib')}`)
+            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam, '0.00ib')}`)
         }
         return true
     } else {
