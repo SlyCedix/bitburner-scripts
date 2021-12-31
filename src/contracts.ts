@@ -374,13 +374,11 @@ function validEquations(data: Array<any>): string[] {
   return equations
 }
 
-function getAllEquations(data: string | string[]): string[] {
+function getAllEquations(data: string): string[] {
   const operators = ['+', '-', '*']
-  let equations = []
+  const equations = [data]
 
-  if (!Array.isArray(data)) data = [data]
-
-  for (const equation of data) {
+  for (const equation of equations) {
     let start = 0
     for (let i = 0; i < equation.length - 1; ++i) {
       if (operators.includes(equation[i])) start = i
@@ -397,10 +395,6 @@ function getAllEquations(data: string | string[]): string[] {
       }
     }
   }
-
-  if (equations.length == 0) return []
-
-  equations = equations.concat(getAllEquations(equations))
 
   console.log(equations)
   return equations
