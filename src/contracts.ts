@@ -11,6 +11,25 @@ export async function main(ns : NS) : Promise<void> {
     }
 }
 
+const contractFunctions = {
+  'Algorithmic Stock Trader I': algorithmicStockTrader1,
+  'Algorithmic Stock Trader II': algorithmicStockTrader2,
+  'Algorithmic Stock Trader III': algorithmicStockTrader3,
+  'Algorithmic Stock Trader IV': algorithmicStockTrader4,
+  'Array Jumping Game': arrayJumping,
+  'Find Largest Prime Factor': largestPrimeFactor,
+  'Merge Overlapping Intervals': mergeOverlappingIntervals,
+  'Minimum Path Sum in a Triangle': pyramidSum,
+  'Subarray with Maximum Sum': maxSubarraySum,
+  'Total Ways to Sum': waysToSum,
+  'Unique Paths in a Grid I': uniquePaths1,
+  'Unique Paths in a Grid II': uniquePaths2,
+  'Find All Valid Math Expressions': (data : any[]) => formatOutput(validEquations(data)),
+  'Generate IP Addresses': (data : string) => formatOutput(generateIPAddresses(data)),
+  'Sanitize Parentheses in Expression': (data: string | string[]) => formatOutput(sanitizeParenthesis(data)),
+  'Spiralize Matrix': (data : number[][]) => formatOutput(spiralizeMatrix(data))
+}
+
 export class Contracts {
   failed: string[]
   ns: NS
@@ -38,60 +57,12 @@ export class Contracts {
         const contractType = this.ns.codingcontract.getContractType(contract, server)
         const contractData = this.ns.codingcontract.getData(contract, server)
 
+
         if (!this.failed.includes(contract)) {
-          switch (contractType) {
-            case 'Find Largest Prime Factor':
-              this.attemptContract(largestPrimeFactor, contract, server, contractData)
-              break
-            case 'Minimum Path Sum in a Triangle':
-              this.attemptContract(pyramidSum, contract, server, contractData)
-              break
-            case 'Subarray with Maximum Sum':
-              this.attemptContract(maxSubarraySum, contract, server, contractData)
-              break
-            case 'Find All Valid Math Expressions':
-              this.attemptContract(validEquations, contract, server, contractData, true)
-              break
-            case 'Algorithmic Stock Trader I':
-              this.attemptContract(algorithmicStockTrader1, contract, server, contractData)
-              break
-            case 'Algorithmic Stock Trader II':
-              this.attemptContract(algorithmicStockTrader2, contract, server, contractData)
-              break
-            case 'Algorithmic Stock Trader III':
-              this.attemptContract(algorithmicStockTrader3, contract, server, contractData)
-              break
-            case 'Algorithmic Stock Trader IV':
-              this.attemptContract(algorithmicStockTrader4, contract, server, contractData)
-              break
-            case 'Total Ways to Sum':
-              this.attemptContract(waysToSum, contract, server, contractData)
-              break
-            case 'Spiralize Matrix':
-              this.attemptContract(spiralizeMatrix, contract, server, contractData, true)
-              break
-            case 'Generate IP Addresses':
-              this.attemptContract(generateIPAddresses, contract, server, contractData, true)
-              break
-            case 'Unique Paths in a Grid I':
-              this.attemptContract(uniquePaths1, contract, server, contractData)
-              break
-            case 'Unique Paths in a Grid II':
-              this.attemptContract(uniquePaths2, contract, server, contractData)
-              break
-            case 'Sanitize Parentheses in Expression':
-              this.attemptContract(sanitizeParenthesis, contract, server, contractData, true)
-              break
-            case 'Merge Overlapping Intervals':
-              this.attemptContract(mergeOverlappingIntervals, contract, server, contractData)
-              break
-            case 'Array Jumping Game':
-              this.attemptContract(arrayJumping, contract, server, contractData)
-              break
-            default:
-              this.failed.push(contract)
-              this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
-              break
+          if(contractFunctions.hasOwnProperty(contractType)) {
+            this.attemptContract(contractFunctions[contractType as keyof typeof contractFunctions], contract, server, contractData)
+          } else {
+            this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
           }
         }
       }
@@ -110,88 +81,6 @@ export class Contracts {
       this.ns.tprintf(`SUCCESS: ${reward}`)
     }
   }
-}
-
-function formatOutput(output: any): string {
-  return `[${output.toString().replaceAll(',', ', ')}]`
-}
-
-function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
-  const width = data[0].length
-  const height = data.length
-
-  console.log(data)
-
-  let output = []
-
-  for (let i = 0; i < width; ++i) {
-    output.push(data[0][i])
-  }
-
-  if (height > 1) {
-    for (let i = 1; i < height; ++i) {
-      output.push(data[i][width - 1])
-    }
-    if (width > 1) {
-      for (let i = width - 2; i >= 0; --i) {
-        output.push(data[height - 1][i])
-      }
-
-      for (let i = height - 2; i >= 1; --i) {
-        output.push(data[i][0])
-      }
-    }
-  }
-
-  const newdata = JSON.parse(JSON.stringify(data))
-  newdata.splice(height - 1, 1)
-  newdata.splice(0, 1)
-
-  for (let i = 0; i < newdata.length; ++i) {
-    newdata[i].splice(width - 1, 1)
-    newdata[i].splice(0, 1)
-  }
-
-  if (newdata.length > 0 && newdata[0].length > 0) {
-    output = output.concat(spiralizeMatrix(newdata))
-  }
-
-  return output
-}
-
-function uniquePaths1(data: Array<number>): number {
-  const newData = new Array(data[0]).fill(new Array(data[1]).fill(0))
-  return uniquePaths(newData)
-}
-
-function uniquePaths2(data: Array<Array<number>>): number {
-  return uniquePaths(data)
-}
-
-function uniquePaths(data: Array<Array<number>>): number {
-  if (data.length == 1 && data[0].length == 1) return 1
-  if (data[0][0] == 1) return 0
-
-  let sum = 0
-
-  if (data.length > 1) {
-    const downField = JSON.parse(JSON.stringify(data))
-    downField.splice(0, 1)
-
-    sum += uniquePaths(downField)
-  }
-
-  if (data[0].length > 1) {
-    const upField = JSON.parse(JSON.stringify(data))
-
-    for (let i = 0; i < data.length; ++i) {
-      upField[i].splice(0, 1)
-    }
-
-    sum += uniquePaths(upField)
-  }
-
-  return sum
 }
 
 function algorithmicStockTrader1(data: Array<number>): number {
@@ -255,57 +144,30 @@ function maximizeProfit(transactions: Array<any>, n = -1): number {
   return maxProfit
 }
 
-function sanitizeParenthesis(data: string | string[]): string[] {
-  if (!Array.isArray(data)) data = [data]
-  console.log(data)
+function arrayJumping(data: number[]): number {
+  if (data.length == 1) return 1
 
-  let valid: string[] = []
-  let invalid: string[] = []
+  const jumps = data[0]
 
-  for (let i = 0; i < data.length; ++i) {
-    for (let j = 1; j <= data[i].length; ++j) {
-      if (isParenthesis(data[i][j - 1])) {
-        const newStr = data[i].slice(0, j - 1) + data[i].slice(j, data[i].length)
-
-        if (isValidParenthesis(newStr)) valid.push(newStr)
-        else invalid.push(newStr)
-      }
-    }
+  for (let i = jumps; i >= 1; --i) {
+    const jumpTest = arrayJumping(data.slice(i, data.length))
+    if (jumpTest == 1) return 1
   }
 
-  valid = valid.filter((c, idx) => {
-    return valid.indexOf(c) === idx
-  })
-
-  invalid = invalid.filter((c, idx) => {
-    return invalid.indexOf(c) === idx
-  })
-
-  if (valid.length > 0) {
-    return valid
-  } else {
-    return sanitizeParenthesis(invalid)
-  }
-}
-
-function isValidParenthesis(checkStr: string): boolean {
-  let paren = 0
-
-  for (let i = 0; i < checkStr.length; ++i) {
-    if (checkStr[i] == '(') paren++
-    else if (checkStr[i] == ')') paren--
-
-    if (paren < 0) return false
-  }
-
-  return paren == 0
-}
-
-function isParenthesis(char: string): boolean {
-  return char == '(' || char == ')'
+  return 0
 }
 
 function largestPrimeFactor(data: number, start = 2): number {
+  const isPrime = (n: number): boolean => {
+    if (n < 2) return false
+  
+    for (let i = 2; i < Math.sqrt(n); ++i) {
+      if (n % i == 0) return false
+    }
+  
+    return true
+  }
+
   for (let i = start; i < Math.sqrt(data); i++) {
     if (isPrime(i) && data % i == 0) return largestPrimeFactor(data / i, i)
   }
@@ -313,14 +175,21 @@ function largestPrimeFactor(data: number, start = 2): number {
   return data
 }
 
-function isPrime(n: number): boolean {
-  if (n < 2) return false
+function mergeOverlappingIntervals(data: number[][]): number[][] {
+  data.sort((a, b) => a[0] - b[0])
 
-  for (let i = 2; i < Math.sqrt(n); ++i) {
-    if (n % i == 0) return false
+  for (let i = 0; i < data.length - 1; ++i) {
+    console.log(data)
+    while (data[i][1] >= data[i + 1][0]) {
+      console.log(data)
+      data[i][1] = Math.max(data[i][1], data[i + 1][1])
+      data.splice(i + 1, 1)
+
+      if (i >= data.length - 1) break
+    }
   }
 
-  return true
+  return data
 }
 
 function pyramidSum(data: Array<Array<number>>, sum = 0): number {
@@ -355,51 +224,6 @@ function maxSubarraySum(data: Array<number>): number {
   return maxSum
 }
 
-function validEquations(data: Array<any>): string[] {
-  const target: number = data[1]
-  const newData: string = data[0]
-
-  let equations = getAllEquations(newData)
-
-  if (target != null) {
-    equations = equations.filter((equation) => {
-      try {
-        return eval(equation) == target
-      } catch (e) {
-        return false
-      }
-    })
-  }
-
-  return equations
-}
-
-function getAllEquations(data: string): string[] {
-  const operators = ['+', '-', '*']
-  const equations = [data]
-
-  for (const equation of equations) {
-    let start = 0
-    for (let i = 0; i < equation.length - 1; ++i) {
-      if (operators.includes(equation[i])) start = i
-    }
-
-    for (let i = start; i < equation.length - 1; ++i) {
-      const isBetweenNumbers = (!isNaN(Number(equation[i])) && !isNaN(Number(equation[i + 1])))
-
-      if (isBetweenNumbers) {
-        for (const operator of operators) {
-          const newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length)
-          equations.push(newEquation)
-        }
-      }
-    }
-  }
-
-  console.log(equations)
-  return equations
-}
-
 function waysToSum(data: number, max = -1): number {
   if (max == -1) max = data - 1
   if (data == 0) return 1
@@ -413,7 +237,89 @@ function waysToSum(data: number, max = -1): number {
   return sum
 }
 
+function uniquePaths1(data: Array<number>): number {
+  const newData = new Array(data[0]).fill(new Array(data[1]).fill(0))
+  return uniquePaths(newData)
+}
+
+function uniquePaths2(data: Array<Array<number>>): number {
+  return uniquePaths(data)
+}
+
+function uniquePaths(data: Array<Array<number>>): number {
+  if (data.length == 1 && data[0].length == 1) return 1
+  if (data[0][0] == 1) return 0
+
+  let sum = 0
+
+  if (data.length > 1) {
+    const downField = JSON.parse(JSON.stringify(data))
+    downField.splice(0, 1)
+
+    sum += uniquePaths(downField)
+  }
+
+  if (data[0].length > 1) {
+    const upField = JSON.parse(JSON.stringify(data))
+
+    for (let i = 0; i < data.length; ++i) {
+      upField[i].splice(0, 1)
+    }
+
+    sum += uniquePaths(upField)
+  }
+
+  return sum
+}
+
+function validEquations(data: Array<any>): string[] {
+  const target: number = data[1]
+  const newData: string = data[0]
+
+  const getAllEquations = (data: string): string[] => {
+    const operators = ['+', '-', '*']
+    const equations = [data]
+  
+    for (const equation of equations) {
+      let start = 0
+      for (let i = 0; i < equation.length - 1; ++i) {
+        if (operators.includes(equation[i])) start = i
+      }
+  
+      for (let i = start; i < equation.length - 1; ++i) {
+        const isBetweenNumbers = (!isNaN(Number(equation[i])) && !isNaN(Number(equation[i + 1])))
+  
+        if (isBetweenNumbers) {
+          for (const operator of operators) {
+            const newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length)
+            equations.push(newEquation)
+          }
+        }
+      }
+    }
+  
+    console.log(equations)
+    return equations
+  }
+
+  let equations = getAllEquations(newData)
+
+  if (target != null) {
+    equations = equations.filter((equation) => {
+      try {
+        return eval(equation) == target
+      } catch (e) {
+        return false
+      }
+    })
+  }
+  
+  return equations
+}
+
 function generateIPAddresses(data: string): string[] {
+  const isValidOctet = (val: string): boolean => Number(val) > 0 && Number(val) < 256
+  
   const dataAddress = data.split('.')
   if (dataAddress.length == 4) {
     if (isValidOctet(dataAddress[3])) return [data]
@@ -451,36 +357,97 @@ function generateIPAddresses(data: string): string[] {
   return validAddresses
 }
 
-function isValidOctet(val: string): boolean {
-  return Number(val) > 0 && Number(val) < 256
-}
+function sanitizeParenthesis(data: string | string[]): string[] {
+  const isValidParenthesis = (checkStr: string): boolean => {
+    let paren = 0
+  
+    for (let i = 0; i < checkStr.length; ++i) {
+      if (checkStr[i] == '(') paren++
+      else if (checkStr[i] == ')') paren--
+  
+      if (paren < 0) return false
+    }
+  
+    return paren == 0
+  }
 
-function mergeOverlappingIntervals(data: number[][]): number[][] {
-  data.sort((a, b) => a[0] - b[0])
+  const isParenthesis = (char: string): boolean => char == '(' || char == ')'
 
-  for (let i = 0; i < data.length - 1; ++i) {
-    console.log(data)
-    while (data[i][1] >= data[i + 1][0]) {
-      console.log(data)
-      data[i][1] = Math.max(data[i][1], data[i + 1][1])
-      data.splice(i + 1, 1)
+  if (!Array.isArray(data)) data = [data]
+  console.log(data)
 
-      if (i >= data.length - 1) break
+  let valid: string[] = []
+  let invalid: string[] = []
+
+  for (let i = 0; i < data.length; ++i) {
+    for (let j = 1; j <= data[i].length; ++j) {
+      if (isParenthesis(data[i][j - 1])) {
+        const newStr = data[i].slice(0, j - 1) + data[i].slice(j, data[i].length)
+
+        if (isValidParenthesis(newStr)) valid.push(newStr)
+        else invalid.push(newStr)
+      }
     }
   }
 
-  return data
+  valid = valid.filter((c, idx) => {
+    return valid.indexOf(c) === idx
+  })
+
+  invalid = invalid.filter((c, idx) => {
+    return invalid.indexOf(c) === idx
+  })
+
+  if (valid.length > 0) {
+    return valid
+  } else {
+    return sanitizeParenthesis(invalid)
+  }
 }
 
-function arrayJumping(data: number[]): number {
-  if (data.length == 1) return 1
+function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
+  const width = data[0].length
+  const height = data.length
 
-  const jumps = data[0]
+  console.log(data)
 
-  for (let i = jumps; i >= 1; --i) {
-    const jumpTest = arrayJumping(data.slice(i, data.length))
-    if (jumpTest == 1) return 1
+  let output = []
+
+  for (let i = 0; i < width; ++i) {
+    output.push(data[0][i])
   }
 
-  return 0
+  if (height > 1) {
+    for (let i = 1; i < height; ++i) {
+      output.push(data[i][width - 1])
+    }
+    if (width > 1) {
+      for (let i = width - 2; i >= 0; --i) {
+        output.push(data[height - 1][i])
+      }
+
+      for (let i = height - 2; i >= 1; --i) {
+        output.push(data[i][0])
+      }
+    }
+  }
+
+  const newdata = JSON.parse(JSON.stringify(data))
+  newdata.splice(height - 1, 1)
+  newdata.splice(0, 1)
+
+  for (let i = 0; i < newdata.length; ++i) {
+    newdata[i].splice(width - 1, 1)
+    newdata[i].splice(0, 1)
+  }
+
+  if (newdata.length > 0 && newdata[0].length > 0) {
+    output = output.concat(spiralizeMatrix(newdata))
+  }
+
+  return output
+}
+
+function formatOutput(output: any): string {
+  return `[${output.toString().replaceAll(',', ', ')}]`
 }
