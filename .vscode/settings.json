@@ -25,5 +25,16 @@
             "pattern": "**/*.ts",
             "snippet": "ns-template"
         },
-    ]
+    ],
+    "actionButtons": {
+        "loadNpmCommands": true,
+        "commands": [
+            {
+               "name": "Push",
+               "useVsCodeApi": true,
+               "command": "ext.bitburner-connector.pushAllFiles"
+            }
+        ]
+    }
+
 }
