@@ -4,10 +4,21 @@ import {
   deepScan, findBestServer, getPortFunctions, rootAll
 } from '/lib/helpers.js'
 
+let hooks : Array<Node> = []
+
 export async function main(ns : NS) : Promise<void> {
   const botnet = new Botnet(ns)
   await botnet.init()
   
+  ns.atExit(() => { 
+    console.debug(hooks)
+    for(const hook of hooks) {
+      // @ts-ignore
+      hook.parentElement.removeChild(hook)
+    }
+    hooks = []
+  })
+
   while(true) {
       await botnet.update() 
       await ns.sleep(10)
@@ -283,7 +294,10 @@ export class Botnet {
       clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
       clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
 
-      extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
+      hooks.push(extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling))
+    } else {
+      hooks.push(display.parentElement.parentElement)
     }
+    console.debug(hooks)
   }
 }
