@@ -14,6 +14,7 @@ export function deepScan(ns: NS): string[] {
 
 export function rankServers(ns: NS): ServerPerformance[] {
     const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
+                                .filter(x=>ns.getServer(x).hasAdminRights)
     if(servers.length == 0) servers.push('n00dles', 'foodnstuff')
     const data : ServerPerformance[] = []
     
@@ -75,15 +76,13 @@ export function upgradeAllServers(ns: NS): boolean {
                 ns.deleteServer(pserv)
             }
             ns.purchaseServer(pserv, 2**maxBuyableRam)
-
-            ns.toast(`Upgraded servers ${ns.nFormat(2**maxBuyableRam, '0.00ib')}`)
         }
+        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**maxBuyableRam * 1024**3)}`)
         return true
     } else {
         return false
     }
 }
-
 
 let pServLevel = 3
 export function buyServer(ns: NS): string | boolean {
@@ -225,9 +224,35 @@ export function runTerminalCommand(command: string): void {
 }
 
 export function formatRAM(ns: NS, n: number): string {
-    if (n < 1e3) return ns.nFormat(n, '0.00') + 'GB'
-    if (n < 1e6) return ns.nFormat(n / 1e3, '0.00') + 'TB'
-    if (n < 1e9) return ns.nFormat(n / 1e6, '0.00') + 'PB'
-    if (n < 1e12) return ns.nFormat(n / 1e9, '0.00') + 'EB'
-    return ns.nFormat(n, '0.00') + 'GB'
+    return ns.nFormat(n * 1024**3, '0.00ib')
+}
+
+export function formatMoney(ns : NS, n: number): string {
+    return ns.nFormat(n, '$0.00a')
+}
+
+export async function backdoorAll(ns: NS): Promise<number> {
+    const servers = getServersWithoutBackdoor(ns)
+    let count = 0
+
+    for(const server of servers) {
+        const path = findServer(ns, server, ns.getCurrentServer())
+        for(const node of path) {
+            ns.connect(node)
+        }
+        await ns.installBackdoor()
+        ++count
+    }
+
+    return count
+}
+
+export function connectToServer(ns: NS, target: string): boolean {
+    if(!ns.serverExists(target)) return false
+
+    const path = findServer(ns, target, ns.getCurrentServer())
+    for(const node of path) {
+        ns.connect(node)
+    }
+    return true
 }
