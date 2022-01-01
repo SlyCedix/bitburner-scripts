@@ -14,7 +14,7 @@ export function deepScan(ns: NS): string[] {
 
 export function rankServers(ns: NS): ServerPerformance[] {
     const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
-                                .filter(x=>ns.getServer(x).hasAdminRights)
+        .filter(x=>ns.getServer(x).hasAdminRights)
     if(servers.length == 0) servers.push('n00dles', 'foodnstuff')
     const data : ServerPerformance[] = []
     

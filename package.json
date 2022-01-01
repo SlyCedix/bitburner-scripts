@@ -6,6 +6,7 @@
   "scripts": {
     "watch": "npx tsc -w",
     "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
     "defs": "node ./updateDefs.js"
   },
   "repository": {

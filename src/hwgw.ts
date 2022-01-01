@@ -148,7 +148,7 @@ export class Bot {
         if (maxThreads == Infinity) maxThreads = Math.floor(2**30 / this.growRam)
         else if((serverData.moneyMax / serverData.moneyAvailable) > 
             HackingFormulas.growPercent(serverData, maxThreads, this.ns.getPlayer(),
-                                        this.ns.getServer(this.server).cpuCores)) return [-1, serverData]
+                this.ns.getServer(this.server).cpuCores)) return [-1, serverData]
 
         let growT = 0
         
