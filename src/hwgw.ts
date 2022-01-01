@@ -3,14 +3,24 @@ import { ActionTimes, HackRatios, ServerPerformance } from '../types'
 import { HackingFormulas } from './lib/formulas'
 import { deepScan, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
+let hooks : Array<Node> = []
 
 export async function main(ns : NS) : Promise<void> {
     const botnet = new Botnet(ns)
     await botnet.init()
-    
+
+    ns.atExit(() => { 
+        console.debug(hooks)
+        for(const hook of hooks) {
+            // @ts-ignore
+            hook.parentElement.removeChild(hook)
+        }
+        hooks = []
+    })
+
     while(true) {
         await botnet.update() 
-        await ns.sleep(10)
+        await ns.sleep(0)
     }
 }
 
@@ -65,31 +75,46 @@ export class Bot {
         if(ps.length == 0) {
             const ratios = await this.getRatios()  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
             const times = this.times // this one can change at runtime and it breaks things if it does
-            const timeB = 5
+            const timeB = 500
 
             let delay = 0
             
+            let target = this.target
+            if(this.target == this.server) {
+                const targetServer = this.ns.getServer(target)
+                if(!(targetServer.hasAdminRights && this.ns.getServerRequiredHackingLevel(target) <= this.ns.getHackingLevel())) {
+                    target = 'n00dles'
+                }
+            }
+
             if(ratios.hackT > 0) {
                 const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + ratios.growT * this.growRam + ratios.hackT * this.hackRam
-                while(this.freeRam >= totalRam) {
-                    if (ratios.hackT > 0) this.ns.exec(hackScript, this.server, ratios.hackT, this.target, times.weaken - times.hack + delay, this.uuid)
+                const numBatches = Math.floor(this.freeRam / totalRam)
+                // const startTime = Date.now()
+                const endTime = Date.now() + (times.weaken - times.hack) - timeB * 4
+
+                console.debug(numBatches)
+                for(let i = 0; i < numBatches; ++i) {
+                    
+                    this.ns.exec(hackScript, this.server, ratios.hackT, target, Math.floor(times.weaken - times.hack + delay), this.uuid)
                     delay += timeB
-                    if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, this.target, delay, this.uuid)
+                    this.ns.exec(weakScript, this.server, ratios.weakT, target, Math.floor(delay), this.uuid)
                     delay += timeB
-                    if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, this.target, times.weaken - times.grow + delay, this.uuid)
+                    this.ns.exec(growScript, this.server, ratios.growT, target, Math.floor(times.weaken - times.grow + delay), this.uuid)
                     delay += timeB
-                    if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, delay, this.uuid)
+                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, Math.floor(delay), this.uuid)
+                    
+                    // await this.ns.sleep(0)
+                    console.debug(endTime - Date.now() - delay)
                     delay += timeB
-                    await this.ns.sleep(timeB*4)
+                    if(Date.now() + delay > endTime) break
                 }
             } else {
-                if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, this.target, delay, this.uuid)
+                if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, target, Math.floor(delay), this.uuid)
                 delay += timeB
-                if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, this.target, times.weaken - times.grow + delay, this.uuid)
+                if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, target, Math.floor(times.weaken - times.grow + delay), this.uuid)
                 delay += timeB
-                if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, delay, this.uuid)
-                delay += timeB
-                await this.ns.sleep(timeB*3)
+                if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, target, Math.floor(delay), this.uuid)
             }
         }
     }
@@ -109,7 +134,7 @@ export class Bot {
     }
 
     simulateWeaken(serverData: Server, maxThreads: number): [number, Server]  {
-        const weakT = Math.floor((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
+        const weakT = Math.ceil((serverData.hackDifficulty - serverData.minDifficulty) / WeakSecurityEffect)
         if (weakT > maxThreads) {
             return [-1, serverData]
         } else {
@@ -127,7 +152,7 @@ export class Bot {
 
         let growT = 0
         
-        const step = 1
+        const step = 10
 
         const newServer = JSON.parse(JSON.stringify(serverData))
         while (growT < maxThreads) {
@@ -350,37 +375,38 @@ export class Botnet {
     }
 
     initUI(): void {
-        this.createDisplay('Security')
+        this.createDisplay('Exp')
         this.createDisplay('Money')
-        this.createDisplay('Target')
     }
 
     updateUI(): void {
-        const moneyAvailable = this.ns.getServerMoneyAvailable(this.targets[0].hostname)
-
-        const securityLevel = this.ns.getServerSecurityLevel(this.targets[0].hostname)
+        const runningScript = this.ns.getRunningScript()
+        const money = runningScript.onlineMoneyMade / runningScript.onlineRunningTime
+        const exp = runningScript.onlineExpGained /runningScript.onlineRunningTime
 
         const doc = eval('document')
 
-        doc.getElementById('Target-hook-1').innerHTML = this.targets[0].hostname
-        doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a')
-        doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0')
+        doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(money, '$0.00a') + '/s'
+        doc.getElementById('Exp-hook-1').innerHTML = this.ns.nFormat(exp, '0.00a') + '/s'
     }
 
     createDisplay(name: string): void {
         const doc = eval('document')
         const display = doc.getElementById(name + '-hook-0')
-
+    
         if (typeof (display) == 'undefined' || display == null) {
             const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
             const clonedRow = extraHookRow.cloneNode(true)
-
+        
             clonedRow.childNodes[0].childNodes[0].id = name + '-hook-0'
             clonedRow.childNodes[0].childNodes[0].innerHTML = name
             clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
             clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
-
-            extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
+    
+            hooks.push(extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling))
+        } else {
+            hooks.push(display.parentElement.parentElement)
         }
+        console.debug(hooks)
     }
 }
