@@ -7,7 +7,7 @@ export async function main(ns : NS) : Promise<void> {
 
     while(true) {
         await contracts.update() 
-        await ns.sleep(10)
+        await ns.sleep(60000)
     }
 }
 
@@ -60,6 +60,7 @@ export class Contracts {
 
         if (!this.failed.includes(contract)) {
           if(contractFunctions.hasOwnProperty(contractType)) {
+            console.debug(`${contractType} ${contractData}`)
             this.attemptContract(contractFunctions[contractType as keyof typeof contractFunctions], contract, server, contractData)
           } else {
             this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
@@ -70,9 +71,8 @@ export class Contracts {
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  attemptContract(solver: Function, contract: string, server: string, data: Array<any>, format = false): void {
-    let solution = solver(data)
-    if (format) solution = formatOutput(solution)
+  attemptContract(solver: Function, contract: string, server: string, data: Array<any>): void {
+    const solution = solver(data)
     const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
     if (reward == '') {
       this.failed.push(contract)
