@@ -1,6 +1,10 @@
 import { NS } from '../../NetscriptDefinitions'
 
 export async function main(ns: NS): Promise<void> {
-    await ns.sleep(ns.args[1] as number)
+    const sleep = (ms : number) : Promise<void> => {
+        return new Promise(resolve => setTimeout(resolve,ms))
+    }
+
+    await sleep(ns.args[1] as number)
     await ns.weaken(ns.args[0] as string)
 }
