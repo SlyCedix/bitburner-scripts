@@ -236,10 +236,7 @@ export async function backdoorAll(ns: NS): Promise<number> {
     let count = 0
 
     for(const server of servers) {
-        const path = findServer(ns, server, ns.getCurrentServer())
-        for(const node of path) {
-            ns.connect(node)
-        }
+        connectToServer(ns, server)
         await ns.installBackdoor()
         ++count
     }
@@ -255,4 +252,59 @@ export function connectToServer(ns: NS, target: string): boolean {
         ns.connect(node)
     }
     return true
+}
+
+export function getAllFactions() : string[] {
+    const factions = [
+        'CyberSec',
+        'Tian Di Hui',
+        'Netburners',
+        'Sector-12',
+        'Chongqing',
+        'New Tokyo',
+        'Ishima',
+        'Aevum',
+        'Volhaven',
+        'NiteSec',
+        'The Black Hand',
+        'BitRunners',
+        'ECorp',
+        'MegaCorp',
+        'KuaiGong International',
+        'Four Sigma',
+        'NWO',
+        'Blade Industries',
+        'OmniTek Incorporated',
+        'Bachman & Associates',
+        'Clarke Incorporated',
+        'Fulcrum Secret Technologies',
+        'Slum Snakes',
+        'Tetrads',
+        'Silhouette',
+        'Speakers for the Dead',
+        'The Dark Army',
+        'The Syndicate',
+        'The Covenant',
+        'Daedalus',
+        'Illuminati',    
+    ]
+
+    return factions
+}
+
+export function getAllAugments(ns : NS): {factions: string[]; name: string}[] {
+    const factions = getAllFactions()
+    
+    const augments: Array<{factions: string[]; name: string}> = []
+
+    for(const faction of factions) {
+        const factionAugs = ns.getAugmentationsFromFaction(faction)
+        for(const aug of factionAugs) {
+            const augMatch = augments.filter(a => a.name == aug)
+            if(augMatch.length == 0) augments.push({factions: [faction], name: aug})
+            else augMatch[0].factions.push(faction)
+        }
+    }
+
+    return augments
 }
