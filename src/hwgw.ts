@@ -1,7 +1,7 @@
 import { NS, Server } from '../NetscriptDefinitions'
 import { ActionTimes, HackRatios, ServerPerformance } from '../types'
 import { HackingFormulas } from './lib/formulas'
-import { deepScan, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
+import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 let hooks : Array<Node> = []
 
@@ -68,6 +68,8 @@ export class Bot {
     }
 
     async update(): Promise<void> {
+        if(!this.ns.serverExists(this.server)) return
+
         const ps = this.ns.ps(this.server).filter((p) => {
             return p.filename == weakScript
         })
@@ -75,7 +77,7 @@ export class Bot {
         if(ps.length == 0) {
             const ratios = await this.getRatios()  
             const times = this.times // Can change at runtime, better if constant
-            const timeB = 500
+            const timeB = 50
 
             let delay = 0
             
@@ -86,45 +88,53 @@ export class Bot {
                      this.ns.getServerRequiredHackingLevel(target) <= this.ns.getHackingLevel())) {
                     target = 'n00dles'
                 }
+            } else if(this.ns.getServerMaxMoney(target) == 0) {
+                target = 'n00dles'
             }
+
+            const startTime = performance.now()
+            const hackDelay = times.weaken - times.hack
+            const growDelay = times.weaken - times.grow
 
             if(ratios.hackT > 0) {
                 const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + 
                     ratios.growT * this.growRam +
                     ratios.hackT * this.hackRam
                 const numBatches = Math.floor(this.freeRam / totalRam)
-                // const startTime = Date.now()
-                const endTime = Date.now() + (times.weaken - times.hack) - timeB * 4
+                
+                const endTime = performance.now() + (times.weaken - times.hack) - timeB * 4
 
-                console.debug(numBatches)
                 for(let i = 0; i < numBatches; ++i) {
-                    
+                    // Deploy Hack
                     this.ns.exec(hackScript, this.server, ratios.hackT, target,
-                        Math.floor(times.weaken - times.hack + delay), this.uuid)
+                        startTime + hackDelay + delay, this.uuid)
                     delay += timeB
+                        
+                    // Deploy Weak1
                     this.ns.exec(weakScript, this.server, ratios.weakT, target, 
-                        Math.floor(delay), this.uuid)
+                        startTime + delay, this.uuid)
                     delay += timeB
-                    this.ns.exec(growScript, this.server, ratios.growT, target, 
-                        Math.floor(times.weaken - times.grow + delay), this.uuid)
-                    delay += timeB
-                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
-                        Math.floor(delay), this.uuid)
                     
-                    // await this.ns.sleep(0)
-                    console.debug(endTime - Date.now() - delay)
+                    // Deploy Grow
+                    this.ns.exec(growScript, this.server, ratios.growT, target, 
+                        startTime + growDelay + delay, this.uuid)
                     delay += timeB
-                    if(Date.now() + delay > endTime) break
+                    
+                    // Deploy Weak2
+                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
+                        startTime + delay, this.uuid)
+                    delay += timeB
+                    if(performance.now() + delay > endTime) break
                 }
             } else {
                 if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, target, 
-                    Math.floor(delay), this.uuid)
+                    startTime + delay, this.uuid)
                 delay += timeB
                 if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, target, 
-                    Math.floor(times.weaken - times.grow + delay), this.uuid)
+                    startTime + growDelay + delay, this.uuid)
                 delay += timeB
                 if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, target,
-                    Math.floor(delay), this.uuid)
+                    startTime + delay, this.uuid)
             }
         }
     }
@@ -396,7 +406,7 @@ export class Botnet {
 
         const doc = eval('document')
 
-        doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(money, '$0.00a') + '/s'
+        doc.getElementById('Money-hook-1').innerHTML = formatMoney(this.ns, money)+ '/s'
         doc.getElementById('Exp-hook-1').innerHTML = this.ns.nFormat(exp, '0.00a') + '/s'
     }
 
