@@ -73,8 +73,8 @@ export class Bot {
         })
 
         if(ps.length == 0) {
-            const ratios = await this.getRatios()  // get const version because this isn't a cheap getter and it shouldn't change at exec time (probably)
-            const times = this.times // this one can change at runtime and it breaks things if it does
+            const ratios = await this.getRatios()  
+            const times = this.times // Can change at runtime, better if constant
             const timeB = 500
 
             let delay = 0
@@ -82,13 +82,16 @@ export class Bot {
             let target = this.target
             if(this.target == this.server) {
                 const targetServer = this.ns.getServer(target)
-                if(!(targetServer.hasAdminRights && this.ns.getServerRequiredHackingLevel(target) <= this.ns.getHackingLevel())) {
+                if(!(targetServer.hasAdminRights &&
+                     this.ns.getServerRequiredHackingLevel(target) <= this.ns.getHackingLevel())) {
                     target = 'n00dles'
                 }
             }
 
             if(ratios.hackT > 0) {
-                const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + ratios.growT * this.growRam + ratios.hackT * this.hackRam
+                const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + 
+                    ratios.growT * this.growRam +
+                    ratios.hackT * this.hackRam
                 const numBatches = Math.floor(this.freeRam / totalRam)
                 // const startTime = Date.now()
                 const endTime = Date.now() + (times.weaken - times.hack) - timeB * 4
@@ -96,13 +99,17 @@ export class Bot {
                 console.debug(numBatches)
                 for(let i = 0; i < numBatches; ++i) {
                     
-                    this.ns.exec(hackScript, this.server, ratios.hackT, target, Math.floor(times.weaken - times.hack + delay), this.uuid)
+                    this.ns.exec(hackScript, this.server, ratios.hackT, target,
+                        Math.floor(times.weaken - times.hack + delay), this.uuid)
                     delay += timeB
-                    this.ns.exec(weakScript, this.server, ratios.weakT, target, Math.floor(delay), this.uuid)
+                    this.ns.exec(weakScript, this.server, ratios.weakT, target, 
+                        Math.floor(delay), this.uuid)
                     delay += timeB
-                    this.ns.exec(growScript, this.server, ratios.growT, target, Math.floor(times.weaken - times.grow + delay), this.uuid)
+                    this.ns.exec(growScript, this.server, ratios.growT, target, 
+                        Math.floor(times.weaken - times.grow + delay), this.uuid)
                     delay += timeB
-                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, Math.floor(delay), this.uuid)
+                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
+                        Math.floor(delay), this.uuid)
                     
                     // await this.ns.sleep(0)
                     console.debug(endTime - Date.now() - delay)
@@ -110,11 +117,14 @@ export class Bot {
                     if(Date.now() + delay > endTime) break
                 }
             } else {
-                if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, target, Math.floor(delay), this.uuid)
+                if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, target, 
+                    Math.floor(delay), this.uuid)
                 delay += timeB
-                if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, target, Math.floor(times.weaken - times.grow + delay), this.uuid)
+                if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, target, 
+                    Math.floor(times.weaken - times.grow + delay), this.uuid)
                 delay += timeB
-                if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, target, Math.floor(delay), this.uuid)
+                if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, target,
+                    Math.floor(delay), this.uuid)
             }
         }
     }

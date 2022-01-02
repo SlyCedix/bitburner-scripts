@@ -8,7 +8,8 @@ export async function main(ns: NS): Promise<void> {
         return
     }
 
-    connectToServer(ns, ns.args[0] as string) ? ns.tprintf(`Connected to ${ns.args[0]}`): ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
+    if(connectToServer(ns, ns.args[0] as string)) ns.tprintf(`Connected to ${ns.args[0]}`)
+    else ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -61,7 +61,8 @@ export class Contracts {
               if (!this.failed.includes(contract)) {
                   if(contractFunctions.hasOwnProperty(contractType)) {
                       console.debug(`${contractType} ${contractData}`)
-                      this.attemptContract(contractFunctions[contractType as keyof typeof contractFunctions], contract, server, contractData)
+                      // @ts-ignore 
+                      this.attemptContract(contractFunctions[contractType], contract, server, contractData) 
                   } else {
                       this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
                   }
@@ -76,7 +77,9 @@ export class Contracts {
       const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
       if (reward == '') {
           this.failed.push(contract)
-          this.ns.tprintf(`ERROR: Failed ${contract} of type ${this.ns.codingcontract.getContractType(contract, server)} with solution ${solution}`)
+          this.ns.tprintf(`ERROR: Failed ${contract} of type ` +
+            this.ns.codingcontract.getContractType(contract, server) +
+            ` with solution ${solution}`)
       } else {
           this.ns.tprintf(`SUCCESS: ${reward}`)
       }

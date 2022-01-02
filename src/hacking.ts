@@ -34,8 +34,6 @@ const HackSecurityEffect = 0.002
 const WeakSecurityEffect = 0.05
 const GrowSecurityEffect = 0.004
 
-const bbBaseGrowth = 1.03
-const bbMaxGrowth = 1.0035
 const fundPct = 0.5
 class Bot {
     ns: NS
@@ -137,7 +135,8 @@ class Bot {
     }
 
     get growPct(): number {
-        return HackingFormulas.growPercent(this.ns.getServer(this.target), 1, this.ns.getPlayer(), this.ns.getServer(this.server).cpuCores)
+        return HackingFormulas.growPercent(this.ns.getServer(this.target), 1,
+            this.ns.getPlayer(), this.ns.getServer(this.server).cpuCores)
     }
 
     get status(): number {

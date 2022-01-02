@@ -55,7 +55,7 @@ export function getNextHackingLevel(ns: NS): number {
 export function upgradeAllServers(ns: NS): boolean {
     ns.disableLog('ALL')
     
-    const pservs : string[] = ns.getPurchasedServers()
+    const pservs : string[] = ns.getPurchasedServers().sort()
     if(pservs.length == 0) {
         for(let i = 0; i < ns.getPurchasedServerLimit(); ++i) {
             pservs.push(`pserv-${i}`)
@@ -104,9 +104,9 @@ export function buyServer(ns: NS): string | boolean {
         const oldServs = pServs.filter((server) => {
             return ns.getServerMaxRam(server) < maxRam
         })
-
+        
         if (oldServs.length > 0) {
-            if (ns.getPurchasedServerCost(maxRam) < moneyAvailable * 0.1) {
+            if (ns.getPurchasedServerCost(maxRam) < moneyAvailable) {
                 ns.killall(pServs[0])
                 ns.deleteServer(pServs[0])
                 const hostname = ns.purchaseServer(pServs[0], maxRam)
@@ -117,7 +117,7 @@ export function buyServer(ns: NS): string | boolean {
             pServLevel++
         }
     }
-
+    
     return false
 }
 

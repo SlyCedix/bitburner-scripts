@@ -77,7 +77,7 @@ module.exports = {
         'lines-around-directive': ['error'],
         'lines-between-class-members': ['error'],
         'max-depth': ['off'],
-        'max-len': ['off'],
+        'max-len': ['error', {'code': 120}],
         'max-lines': ['off'],
         'max-nested-callbacks': ['error'],
         'max-params': ['off'],
