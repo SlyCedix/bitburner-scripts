@@ -110,8 +110,8 @@ class Bot {
 
         case 2:
             hackT = Math.floor(fundPct / this.hackPct)
-            growT = Math.ceil(fundPct / (Math.log(this.growPct) / Math.log(1/(1 - fundPct))))
-            weakenT = Math.ceil(((hackT * 0.002) + (growT * 0.004)) / 0.05)
+            growT = Math.ceil(Math.log(this.growPct) / Math.log(1/(1 - fundPct)))
+            weakenT = Math.ceil(((hackT * HackSecurityEffect) + (growT * GrowSecurityEffect)) / WeakSecurityEffect)
             ramNeeded = hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam
 
             if (ramNeeded > freeRam) {
@@ -144,11 +144,11 @@ class Bot {
         if (this.ns.getServerMaxMoney(this.target) == 0) {
             return -1
         }
-        if ((this.ns.getServerMinSecurityLevel(this.target) > this.ns.getServerSecurityLevel(this.target) + 2) ||
+        if ((this.ns.getServerMinSecurityLevel(this.target) < this.ns.getServerSecurityLevel(this.target)) ||
         this.weakenOnly) {
             return 0
         }
-        if (this.ns.getServerMoneyAvailable(this.target) < this.ns.getServerMaxMoney(this.target) * 0.90) {
+        if (this.ns.getServerMoneyAvailable(this.target) < this.ns.getServerMaxMoney(this.target)) {
             return 1
         }
         return 2
