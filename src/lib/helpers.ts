@@ -55,18 +55,16 @@ export function getNextHackingLevel(ns: NS): number {
 export function upgradeAllServers(ns: NS): boolean {
     ns.disableLog('ALL')
     
-    const pservs : string[] = ns.getPurchasedServers().sort()
-    if(pservs.length == 0) {
-        for(let i = 0; i < ns.getPurchasedServerLimit(); ++i) {
-            pservs.push(`pserv-${i}`)
-        }
+    const pservs : string[] = []
+    for(let i = 0; i < ns.getPurchasedServerLimit(); ++i) {
+        pservs.push(`pserv-${i}`)
     }
-
+    
     const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
 
     const costPerGig = 55000 * ns.getPurchasedServerLimit()
     const maxBuyableRam = Math.min(20, Math.floor(Math.log2(ns.getServerMoneyAvailable('home') / costPerGig)))
-
+   
     if(maxBuyableRam < 6) return false
 
     if(maxBuyableRam > currRam) {
@@ -77,7 +75,7 @@ export function upgradeAllServers(ns: NS): boolean {
             }
             ns.purchaseServer(pserv, 2**maxBuyableRam)
         }
-        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**maxBuyableRam * 1024**3)}`)
+        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**maxBuyableRam)}`)
         return true
     } else {
         return false
