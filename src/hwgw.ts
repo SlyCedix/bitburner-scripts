@@ -44,9 +44,6 @@ export class Bot {
 
     target: string
 
-    private _uuid = 0
-    private _prevBatch = 0
-
     readonly timeB = 50
 
     constructor(ns: NS, server: string, target: string, buffer = 0) {
@@ -97,16 +94,13 @@ export class Bot {
         let delay = this.timeB
         const startTime = performance.now()
         if (ratios.weakT > 0)
-            this.ns.exec(weakScript, this.server, ratios.weakT, target,
-                startTime + delay, this.uuid)
+            this.ns.exec(weakScript, this.server, ratios.weakT, target, startTime + delay)
         delay += this.timeB
         if (ratios.growT > 0)
-            this.ns.exec(growScript, this.server, ratios.growT, target,
-                startTime + growDelay + delay, this.uuid)
+            this.ns.exec(growScript, this.server, ratios.growT, target, startTime + growDelay + delay)
         delay += this.timeB
         if (ratios.weak2T > 0)
-            this.ns.exec(weakScript, this.server, ratios.weak2T, target,
-                startTime + delay, this.uuid)
+            this.ns.exec(weakScript, this.server, ratios.weak2T, target, startTime + delay)
     }
 
     private deployBatches(ratios : HackRatios) : void {
@@ -131,26 +125,23 @@ export class Bot {
             ++count
 
             // Deploy Hack
-            this.ns.exec(hackScript, this.server, ratios.hackT, target,
-                startTime + hackDelay + delay, this.uuid)
+            this.ns.exec(hackScript, this.server, ratios.hackT, target, startTime + hackDelay + delay)
             delay += this.timeB
                 
             // Deploy Weak1
-            this.ns.exec(weakScript, this.server, ratios.weakT, target, 
-                startTime + delay, this.uuid)
+            this.ns.exec(weakScript, this.server, ratios.weakT, target, startTime + delay)
             delay += this.timeB
             
             // Deploy Grow
-            this.ns.exec(growScript, this.server, ratios.growT, target, 
-                startTime + growDelay + delay, this.uuid)
+            this.ns.exec(growScript, this.server, ratios.growT, target, startTime + growDelay + delay)
             delay += this.timeB
             
             // Deploy Weak2
-            this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
-                startTime + delay, this.uuid)
+            this.ns.exec(weakScript, this.server, ratios.weak2T, target, startTime + delay)
             delay += this.timeB
             if(performance.now() + delay > endTime) break
         }
+
         this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
     }
 
@@ -252,7 +243,7 @@ export class Bot {
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .8)
+        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .99)
         let minMoneyPerHack = hackAmount
 
         let bestRatios : HackRatios = {
@@ -261,10 +252,8 @@ export class Bot {
             growT: 0,
             weak2T: 0
         }
-        let count = 0
-        while(maxMoneyPerHack - minMoneyPerHack > hackAmount) {
-            ++count
 
+        while(maxMoneyPerHack - minMoneyPerHack > hackAmount) {
             const currMoneyPerHack = (maxMoneyPerHack + minMoneyPerHack) / 2
             hackRatios = {
                 hackT: 0,
@@ -324,12 +313,19 @@ export class Bot {
                 continue
             }
             
+            totalRam += hackRatios.weak2T * this.weakRam
+
+            if(totalRam > freeRam) {
+                maxMoneyPerHack = currMoneyPerHack
+                continue
+            }
+
             bestRatios = hackRatios
             
             minMoneyPerHack = currMoneyPerHack
 
         }
-        console.debug(count)
+
         return bestRatios
     }
 
@@ -342,10 +338,6 @@ export class Bot {
             hack: HackingFormulas.hackTime(server, player),
             weaken: HackingFormulas.weakenTime(server, player),
         }
-    }
-
-    get uuid(): number {
-        return this._uuid++
     }
 
     get freeRam(): number {
