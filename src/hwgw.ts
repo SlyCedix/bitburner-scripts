@@ -6,6 +6,8 @@ import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '
 let hooks : Array<Node> = []
 
 export async function main(ns : NS) : Promise<void> {
+    ns.tail()
+
     const botnet = new Botnet(ns)
     await botnet.init()
 
@@ -45,6 +47,8 @@ export class Bot {
     private _uuid = 0
     private _prevBatch = 0
 
+    readonly timeB = 50
+
     constructor(ns: NS, server: string, target: string, buffer = 0) {
         ns.disableLog('ALL')
 
@@ -69,76 +73,86 @@ export class Bot {
 
     async update(): Promise<void> {
         if(!this.ns.serverExists(this.server)) return
-
+        if(this.ns.getServerMaxMoney(this.target) == 0) return
+        
         const ps = this.ns.ps(this.server).filter((p) => {
             return p.filename == weakScript
         })
 
         if(ps.length == 0) {
             const ratios = await this.getRatios()  
-            const times = this.times // Can change at runtime, better if constant
-            const timeB = 50
-
-            let delay = 0
-            
-            let target = this.target
-            if(this.target == this.server) {
-                const targetServer = this.ns.getServer(target)
-                if(!(targetServer.hasAdminRights &&
-                     this.ns.getServerRequiredHackingLevel(target) <= this.ns.getHackingLevel())) {
-                    target = 'n00dles'
-                }
-            } else if(this.ns.getServerMaxMoney(target) == 0) {
-                target = 'n00dles'
-            }
-
-            const startTime = performance.now()
-            const hackDelay = times.weaken - times.hack
-            const growDelay = times.weaken - times.grow
-
-            if(ratios.hackT > 0) {
-                const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + 
-                    ratios.growT * this.growRam +
-                    ratios.hackT * this.hackRam
-                const numBatches = Math.floor(this.freeRam / totalRam)
-                
-                const endTime = performance.now() + (times.weaken - times.hack) - timeB * 4
-
-                for(let i = 0; i < numBatches; ++i) {
-                    // Deploy Hack
-                    this.ns.exec(hackScript, this.server, ratios.hackT, target,
-                        startTime + hackDelay + delay, this.uuid)
-                    delay += timeB
-                        
-                    // Deploy Weak1
-                    this.ns.exec(weakScript, this.server, ratios.weakT, target, 
-                        startTime + delay, this.uuid)
-                    delay += timeB
-                    
-                    // Deploy Grow
-                    this.ns.exec(growScript, this.server, ratios.growT, target, 
-                        startTime + growDelay + delay, this.uuid)
-                    delay += timeB
-                    
-                    // Deploy Weak2
-                    this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
-                        startTime + delay, this.uuid)
-                    delay += timeB
-                    if(performance.now() + delay > endTime) break
-                }
-            } else {
-                if (ratios.weakT > 0) this.ns.exec(weakScript, this.server, ratios.weakT, target, 
-                    startTime + delay, this.uuid)
-                delay += timeB
-                if (ratios.growT > 0) this.ns.exec(growScript, this.server, ratios.growT, target, 
-                    startTime + growDelay + delay, this.uuid)
-                delay += timeB
-                if (ratios.weak2T > 0) this.ns.exec(weakScript, this.server, ratios.weak2T, target,
-                    startTime + delay, this.uuid)
-            }
+            if(ratios.hackT > 0) this.deployBatches(ratios)
+            else this.deployPrep(ratios)
         }
     }
 
+    private deployPrep(ratios: HackRatios) : void {
+        const times = this.times // Can change at runtime, better if constant
+
+        const target = this.target
+
+        const growDelay = times.weaken - times.grow
+
+        this.ns.print(`INFO: Preparing ${this.target} for batches from ${this.server}`)
+        let delay = this.timeB
+        const startTime = performance.now()
+        if (ratios.weakT > 0)
+            this.ns.exec(weakScript, this.server, ratios.weakT, target,
+                startTime + delay, this.uuid)
+        delay += this.timeB
+        if (ratios.growT > 0)
+            this.ns.exec(growScript, this.server, ratios.growT, target,
+                startTime + growDelay + delay, this.uuid)
+        delay += this.timeB
+        if (ratios.weak2T > 0)
+            this.ns.exec(weakScript, this.server, ratios.weak2T, target,
+                startTime + delay, this.uuid)
+    }
+
+    private deployBatches(ratios : HackRatios) : void {
+        const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + 
+        ratios.growT * this.growRam +
+        ratios.hackT * this.hackRam
+        const numBatches = Math.floor(this.freeRam / totalRam)
+
+        const times = this.times // Can change at runtime, better if constant
+
+        const hackDelay = times.weaken - times.hack
+        const growDelay = times.weaken - times.grow
+
+        const target = this.target
+
+        let count = 0
+
+        let delay = this.timeB
+        const startTime = performance.now()
+        const endTime = startTime + (times.weaken) - this.timeB * 4
+        for(let i = 0; i < numBatches; ++i) {
+            ++count
+
+            // Deploy Hack
+            this.ns.exec(hackScript, this.server, ratios.hackT, target,
+                startTime + hackDelay + delay, this.uuid)
+            delay += this.timeB
+                
+            // Deploy Weak1
+            this.ns.exec(weakScript, this.server, ratios.weakT, target, 
+                startTime + delay, this.uuid)
+            delay += this.timeB
+            
+            // Deploy Grow
+            this.ns.exec(growScript, this.server, ratios.growT, target, 
+                startTime + growDelay + delay, this.uuid)
+            delay += this.timeB
+            
+            // Deploy Weak2
+            this.ns.exec(weakScript, this.server, ratios.weak2T, target, 
+                startTime + delay, this.uuid)
+            delay += this.timeB
+            if(performance.now() + delay > endTime) break
+        }
+        this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
+    }
 
     simulateHack(serverData: Server, maxThreads: number, take = 1): [number, Server] {
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
@@ -165,6 +179,7 @@ export class Bot {
 
     async simulateGrowth(serverData: Server, maxThreads: number): Promise<[number, Server]>  {
         if (serverData.moneyAvailable <= 0) serverData.moneyAvailable = 1
+        if (serverData.moneyMax == serverData.moneyAvailable) return [0, serverData]
         if (maxThreads == Infinity) maxThreads = Math.floor(2**30 / this.growRam)
         else if((serverData.moneyMax / serverData.moneyAvailable) > 
             HackingFormulas.growPercent(serverData, maxThreads, this.ns.getPlayer(),
@@ -202,18 +217,18 @@ export class Bot {
         let serverData = this.ns.getServer(this.target)
         
         const freeRam = this.freeRam
-        
+
         // Adjustments for when server is not at best values
         if (serverData.moneyAvailable == 0) serverData.moneyAvailable = 1
         if ((serverData.minDifficulty != serverData.hackDifficulty ||
             serverData.moneyAvailable != serverData.moneyMax)) {
+            
             let sim = this.simulateWeaken(serverData, Infinity)
             hackRatios.weakT = Math.max(sim[0], 0)
             serverData = sim[1]
             let totalRam = hackRatios.weakT * this.weakRam
             
-            const maxT = Math.ceil((freeRam - totalRam) / this.weakRam)
-            sim = await this.simulateGrowth(serverData, maxT)
+            sim = await this.simulateGrowth(serverData, Infinity)
             hackRatios.growT = Math.max(sim[0], 0)
             serverData = sim[1]
             totalRam += hackRatios.growT * this.growRam
@@ -222,26 +237,35 @@ export class Bot {
             hackRatios.weak2T = Math.max(sim[0], 0)
             serverData = sim[1]
             totalRam += hackRatios.weak2T * this.weakRam
-
+            
             if (totalRam > freeRam) {
                 const ramFactor = freeRam / totalRam
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
                 hackRatios.growT = Math.floor(hackRatios.growT * ramFactor)
-                hackRatios.weak2T = Math.floor(hackRatios.weak2T * ramFactor)
+                hackRatios.weak2T = Math.ceil(hackRatios.weak2T * ramFactor)
             }
 
             return hackRatios
         }
-
+        
         serverData.moneyAvailable = serverData.moneyMax
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        const maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .8)
-        const increment = maxMoneyPerHack / 50
+        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .8)
+        let minMoneyPerHack = hackAmount
 
-        // Calculate thread ratios
-        for (let i = maxMoneyPerHack; i > 0; i -= increment) {
+        let bestRatios : HackRatios = {
+            hackT: 0,
+            weakT: 0,
+            growT: 0,
+            weak2T: 0
+        }
+        let count = 0
+        while(maxMoneyPerHack - minMoneyPerHack > hackAmount) {
+            ++count
+
+            const currMoneyPerHack = (maxMoneyPerHack + minMoneyPerHack) / 2
             hackRatios = {
                 hackT: 0,
                 weakT: 0,
@@ -254,11 +278,14 @@ export class Bot {
 
             // Hack
             let maxT = Math.floor(freeRam / this.hackRam)
-            let sim = this.simulateHack(serverData, maxT, i)
+            let sim = this.simulateHack(serverData, maxT, currMoneyPerHack)
             hackRatios.hackT = sim[0]
             serverData = sim[1]
-            
-            if (hackRatios.hackT == -1) continue
+
+            if (sim[0] == -1) {
+                maxMoneyPerHack = currMoneyPerHack
+                continue
+            }
             if (hackRatios.hackT == 0) break
             let totalRam = hackRatios.hackT * this.hackRam
 
@@ -267,8 +294,11 @@ export class Bot {
             sim = this.simulateWeaken(serverData, maxT)
             hackRatios.weakT = sim[0]
             serverData = sim[1]
-           
-            if (hackRatios.weakT == -1) continue
+            
+            if (sim[0] == -1) {
+                maxMoneyPerHack = currMoneyPerHack
+                continue
+            }
             totalRam += hackRatios.weakT * this.weakRam
 
             //Grow
@@ -277,7 +307,10 @@ export class Bot {
             hackRatios.growT = sim[0]
             serverData = sim[1]
             
-            if (hackRatios.growT == -1) continue
+            if (sim[0] == -1) {
+                maxMoneyPerHack = currMoneyPerHack
+                continue
+            }
             totalRam += hackRatios.growT * this.growRam
 
             // Second weaken
@@ -285,18 +318,19 @@ export class Bot {
             sim = this.simulateWeaken(serverData, maxT)
             hackRatios.weak2T = sim[0]
             serverData = sim[1]
+            
+            if (sim[0] == -1) {
+                maxMoneyPerHack = currMoneyPerHack
+                continue
+            }
+            
+            bestRatios = hackRatios
+            
+            minMoneyPerHack = currMoneyPerHack
 
-            if (hackRatios.weak2T == -1) continue
-
-            return hackRatios
         }
-
-        return {
-            hackT: 0,
-            weakT: 0,
-            growT: 0,
-            weak2T: 0
-        }
+        console.debug(count)
+        return bestRatios
     }
 
     get times(): ActionTimes {
@@ -320,11 +354,9 @@ export class Bot {
 }
 
 export class Botnet {
-    ns: NS
+    readonly ns: NS
 
     targets: Array<ServerPerformance> = []
-    servers: Array<string> = []
-
     bots: Array<Bot> = []
 
     constructor(ns: NS) {
@@ -338,15 +370,12 @@ export class Botnet {
 
         this.targets = rankServers(this.ns)
 
-        this.servers = (deepScan(this.ns)).filter((hostname) => {
+        const servers = (deepScan(this.ns)).filter((hostname) => {
             return this.ns.hasRootAccess(hostname)
         })
 
-        this.bots = []
-
         let n = 0
-
-        for (const server of this.servers) {
+        for (const server of servers) {
             let buffer = 16
             if (server != 'home') {
                 this.ns.killall(server)
@@ -360,46 +389,82 @@ export class Botnet {
             this.bots.push(bot)
             await bot.init()
         }
-
-        this.ns.print('INFO: Botnet initialized')
-
         this.initUI()
+        this.ns.print('INFO: Botnet initialized')
     }
 
     async update(): Promise<void> {
-        const newServs = rootAll(this.ns)
-
-        if (newServs.length > 0) {
-            const newServs = rootAll(this.ns)
-            for (const server of newServs) {
-                const bot = new Bot(this.ns, server, 'n00dles')
-                this.bots.push(bot)
-                await bot.init()
-            }
-        }
-
-        if(upgradeAllServers(this.ns)) {
-            this.bots = this.bots.filter( bot => !this.ns.getPurchasedServers().includes(bot.server))
-            let n = 0
-            for(const server of this.ns.getPurchasedServers()) {
-                const bot = new Bot(this.ns, server, this.targets[n++].hostname)
-                this.bots.push(bot)
-                await bot.init()
-            }
-        }
-
+        await this.newBots()
+        this.updateTargets()
+        this.removeSmallBots()
+        await this.upgradePservs()
         for(const bot of this.bots) {
             this.updateUI()
             await bot.update()
         }        
     }
 
-    initUI(): void {
+    /**
+     * Attempts to root all servers and create bots for the new servers
+     */
+    private async newBots() : Promise<void> {
+        const newServs = rootAll(this.ns)
+        if (newServs.length > 0) {
+            for (const server of newServs) {
+                const bot = new Bot(this.ns, server, 'n00dles')
+                this.bots.push(bot)
+                await bot.init()
+            }
+        }
+    }
+
+    /**
+     * Checks if there are new target rankings and update if necessary
+     */
+    private updateTargets() : void {
+        const targets = rankServers(this.ns)
+        if (targets != this.targets) {
+            this.targets = targets
+            let n = 0
+            for (const bot of this.bots) {
+                if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
+                    bot.target = this.targets[n++].hostname
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes all bots with less ram than pservs
+     */
+    private removeSmallBots(): void {
+        this.bots = this.bots.filter((bot) => {
+            const minRam = this.ns.getServerMaxRam(this.ns.getPurchasedServers()[0])
+            return this.ns.getServerMaxRam(bot.server) >= minRam || bot.server == 'home'
+        })
+    }
+
+    /**
+     * Attempt to upgrade all pservs and create new bots for the new servers
+     */
+    private async upgradePservs() : Promise<void> {
+        if (upgradeAllServers(this.ns)) {
+            this.bots = this.bots.filter(bot => !this.ns.getPurchasedServers().includes(bot.server))
+            let n = 0
+            for (const server of this.ns.getPurchasedServers()) {
+                const bot = new Bot(this.ns, server, this.targets[n++].hostname)
+                this.bots.push(bot)
+                await bot.init()
+            }
+        }
+    }
+
+    private initUI(): void {
         this.createDisplay('Exp')
         this.createDisplay('Money')
     }
 
-    updateUI(): void {
+    private updateUI(): void {
         const runningScript = this.ns.getRunningScript()
         const money = runningScript.onlineMoneyMade / runningScript.onlineRunningTime
         const exp = runningScript.onlineExpGained /runningScript.onlineRunningTime
@@ -410,7 +475,7 @@ export class Botnet {
         doc.getElementById('Exp-hook-1').innerHTML = this.ns.nFormat(exp, '0.00a') + '/s'
     }
 
-    createDisplay(name: string): void {
+    private createDisplay(name: string): void {
         const doc = eval('document')
         const display = doc.getElementById(name + '-hook-0')
     
