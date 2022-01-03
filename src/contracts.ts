@@ -24,7 +24,7 @@ const contractFunctions = {
     'Total Ways to Sum': waysToSum,
     'Unique Paths in a Grid I': uniquePaths1,
     'Unique Paths in a Grid II': uniquePaths2,
-    'Find All Valid Math Expressions': (data : any[]) => formatOutput(validEquations(data)),
+    'Find All Valid Math Expressions': (data : [string, number]) => formatOutput(validEquations(data)),
     'Generate IP Addresses': (data : string) => formatOutput(generateIPAddresses(data)),
     'Sanitize Parentheses in Expression': (data: string | string[]) => formatOutput(sanitizeParenthesis(data)),
     'Spiralize Matrix': (data : number[][]) => formatOutput(spiralizeMatrix(data))
@@ -101,7 +101,7 @@ function algorithmicStockTrader3(data: Array<number>): number {
     return maximizeProfit(transactions, 2)
 }
 
-function algorithmicStockTrader4(data: Array<any>): number {
+function algorithmicStockTrader4(data: [number, number[]]): number {
     const transactions = allTransactions(data[1])
     return maximizeProfit(transactions, data[0])
 }
@@ -121,7 +121,7 @@ function allTransactions(days: Array<number>): Array<Array<number>> {
     return transactions
 }
 
-function maximizeProfit(transactions: Array<any>, n = -1): number {
+function maximizeProfit(transactions: number[][], n = -1): number {
     let maxProfit = 0
 
     if (n == 0) return 0
@@ -275,9 +275,9 @@ function uniquePaths(data: Array<Array<number>>): number {
     return sum
 }
 
-function validEquations(data: Array<any>): string[] {
-    const target: number = data[1]
-    const newData: string = data[0]
+function validEquations(data: [string, number]): string[] {
+    const target = data[1]
+    const newData = data[0]
 
     const getAllEquations = (data: string): string[] => {
         const operators = ['+', '-', '*']
@@ -334,7 +334,7 @@ function generateIPAddresses(data: string): string[] {
 
     for (let i = 0; i < 3; ++i) {
         const octet = lastSet.slice(0, i + 1)
-        if (isValidOctet(octet)) {
+        if (octet[0] != '0' && isValidOctet(octet)) {
             let newAddress = dataAddress.slice(0, dataAddress.length - 1).join('.')
             if (newAddress.length > 0) newAddress += '.'
             newAddress += octet + '.'

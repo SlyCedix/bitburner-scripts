@@ -177,7 +177,8 @@ export class Botnet {
     ns: NS
     leveling: boolean
 
-    portFunctions: Array<any> = []
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    portFunctions: Array<Function> = []
 
     target = ''
     servers: Array<string> = []
