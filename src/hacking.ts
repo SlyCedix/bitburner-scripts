@@ -2,7 +2,11 @@ import { NS } from '../NetscriptDefinitions'
 import { HackingFormulas } from './lib/formulas'
 import {
     buyServer,
-    deepScan, findBestServer, getPortFunctions, rootAll
+    deepScan,
+    findBestServer,
+    formatMoney,
+    getPortFunctions,
+    rootAll
 } from '/lib/helpers.js'
 
 let hooks : Array<Node> = []
@@ -265,7 +269,7 @@ export class Botnet {
         const doc = eval('document')
 
         doc.getElementById('Target-hook-1').innerHTML = this.target
-        doc.getElementById('Money-hook-1').innerHTML = this.ns.nFormat(moneyAvailable, '$0.0a')
+        doc.getElementById('Money-hook-1').innerHTML = formatMoney(this.ns, moneyAvailable)
         doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0')
     }
 

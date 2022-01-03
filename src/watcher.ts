@@ -26,7 +26,7 @@ export async function main(ns: NS): Promise<void> {
                 for (const process of processes) {
                     ns.tprintf(`INFO: Restarting ${process.filename} ${process.args} -t ${process.threads}`)
                     if (process.filename != ns.getScriptName()) {
-                        ns.kill(process.pid, ns.getHostname())
+                        ns.kill(process.pid)
                         ns.run(process.filename, process.threads, ...process.args)
                     } else {
                         ns.spawn(process.filename, process.threads, ...process.args)
