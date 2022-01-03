@@ -14,7 +14,7 @@ module.exports = {
         },
     },
     plugins: ['@typescript-eslint'],
-    ignorePatterns: ['NetscriptDefinitions.d.ts'],
+    ignorePatterns: ['NetscriptDefinitions.d.ts', '*.js'],
     rules: {
         'accessor-pairs': [
             'error',
