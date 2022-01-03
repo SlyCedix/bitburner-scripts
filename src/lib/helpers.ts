@@ -62,8 +62,8 @@ export function upgradeAllServers(ns: NS): boolean {
     
     const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
 
-    const costPerGig = 55000 * ns.getPurchasedServerLimit()
-    const maxBuyableRam = Math.min(20, Math.floor(Math.log2(ns.getServerMoneyAvailable('home') / costPerGig)))
+    const costPer2Gig = ns.getPurchasedServerCost(2) * ns.getPurchasedServerLimit()
+    const maxBuyableRam = Math.min(20, Math.floor(Math.log2(ns.getServerMoneyAvailable('home') / costPer2Gig)))
    
     if(maxBuyableRam < 6) return false
 
@@ -144,6 +144,16 @@ export function getPortFunctions(ns: NS): Array<any> {
 }
 
 export function rootAll(ns: NS): string[] {
+    if(!ns.serverExists('darkweb')) {
+        ns.purchaseTor()
+    } else {
+        if(!ns.fileExists('BruteSSH.exe')) ns.purchaseProgram('BruteSSH.exe')
+        if(!ns.fileExists('FTPCrack.exe')) ns.purchaseProgram('FTPCrack.exe')
+        if(!ns.fileExists('HTTPWorm.exe')) ns.purchaseProgram('HTTPWorm.exe')
+        if(!ns.fileExists('SQLInject.exe')) ns.purchaseProgram('SQLInject.exe')
+        if(!ns.fileExists('relaySMTP.exe')) ns.purchaseProgram('relaySMTP.exe')
+    }
+
     const portFunctions = getPortFunctions(ns)
 
     // Gets all hostnames accessible on the network
