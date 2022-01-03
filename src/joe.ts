@@ -31,7 +31,7 @@ class Joebot {
     async update() : Promise<void> {
         const maxT = Math.floor(this.freeRam / 1.75)
         if(maxT > 0) {
-            if(this.ns.getServerSecurityLevel(this.server) != this.ns.getServerMinSecurityLevel(this.server)) {
+            if(this.ns.getServerSecurityLevel('joesguns') != this.ns.getServerMinSecurityLevel('joesguns')) {
                 this.ns.exec(weakScript, this.server, maxT, 'joesguns', 0)
             } else {
                 this.ns.exec(growScript, this.server, maxT, 'joesguns', 0)
@@ -54,7 +54,11 @@ class Joenet {
 
     async init() : Promise<void> {
         rootAll(this.ns)
-        const servers = deepScan(this.ns).filter(server => this.ns.getServer(server).hasAdminRights)
+        const servers = deepScan(this.ns).filter((server) => {
+            return this.ns.getServer(server).hasAdminRights &&
+            !this.ns.getPurchasedServers().includes(server) &&
+            server != 'home'
+        })
 
         for(const server of servers) {
             const bot = new Joebot(this.ns, server)
