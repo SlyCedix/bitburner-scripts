@@ -1,5 +1,5 @@
 import { NS } from '../../NetscriptDefinitions'
-import { ServerPerformance } from '/../types.js'
+import { ServerPerformance } from '../../types'
 
 export function deepScan(ns: NS): string[] {
     ns.disableLog('ALL')
@@ -55,33 +55,56 @@ export function getNextHackingLevel(ns: NS): number {
 export function upgradeAllServers(ns: NS): boolean {
     ns.disableLog('ALL')
     
-    // Fills up on servers before trying to upgrade all at once
-    const pservs : string[] = ns.getPurchasedServers()
-    if(pservs.length < ns.getPurchasedServerLimit()) {
-        if(typeof buyServer(ns) == 'string') return true
-        else return false
-    }
-    
-    const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
-
-    const costPer2Gig = ns.getPurchasedServerCost(2) * ns.getPurchasedServerLimit()
-    const maxBuyableRam = Math.min(20, Math.floor(Math.log2(ns.getServerMoneyAvailable('home') / costPer2Gig)))
-    
-    if(maxBuyableRam < 6) return false
-
-    if(maxBuyableRam > currRam) {
-        for(const pserv of pservs) {
-            if(ns.serverExists(pserv)) {
-                ns.killall(pserv)
-                ns.deleteServer(pserv)
-            }
-            ns.purchaseServer(pserv, 2**maxBuyableRam)
+    const pservs : string[] = ns.getPurchasedServers().sort((a,b) => ns.getServerMaxRam(b) - ns.getServerMaxRam(a))
+    const maxServs = ns.getPurchasedServerLimit()
+    if(pservs.length < maxServs) {
+        for(let i = pservs.length; i < ns.getPurchasedServerLimit(); ++i) {
+            if(!upgradeServer(ns, `pserv-${i}`)) break
         }
-        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**maxBuyableRam)}`)
+        return pservs.length < ns.getPurchasedServers().length
+    }
+
+    const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
+    let upgradeCost = ns.getPurchasedServerCost(2**(currRam + 1)) * maxServs
+
+    // Makes sure all servers are the same level before trying to batch upgrade
+    let serversToUpgrade = pservs.filter(pserv => {
+        return ns.getServerMaxRam(pserv) < ns.getServerMaxRam(pservs[0])
+    })
+    if(serversToUpgrade.length == 0) {
+        serversToUpgrade = pservs
+    } else {
+        upgradeCost = ns.getPurchasedServerCost(2**currRam) * serversToUpgrade.length
+    }
+
+    if(upgradeCost < ns.getServerMoneyAvailable('home')) {
+        const ramToBuy = serversToUpgrade.length == maxServs ? currRam + 1 : currRam
+        for(const pserv of serversToUpgrade) {
+            if(!upgradeServer(ns, pserv, ramToBuy)) {
+                ns.toast(`Could not upgrade ${pserv} to ${formatRAM(ns, 2**ramToBuy)}`, 'error')
+            }
+        }
+        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**ramToBuy)}`)
         return true
     } else {
         return false
     }
+}
+
+export function upgradeServer(ns: NS, server : string, level = 6) : boolean {
+    if(level < 1 || level > 20 || ns.getPurchasedServerCost(2**level) > ns.getServerMoneyAvailable('home')) {
+        return false
+    }
+    if(ns.serverExists(server)) {
+        if(Math.log2(ns.getServerMaxRam(server)) >= level) {
+            return false
+        }
+        ns.killall(server)
+        ns.deleteServer(server)
+    }
+
+    ns.purchaseServer(server, 2**level)
+    return true
 }
 
 let pServLevel = 6
