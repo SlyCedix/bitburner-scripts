@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/SlyCedix/bitburner-scripts#readme",
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "@types/node": "^16.4.3",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
