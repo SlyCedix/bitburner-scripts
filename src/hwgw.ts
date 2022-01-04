@@ -1,6 +1,6 @@
 import { NS, Server } from '../NetscriptDefinitions'
 import { ActionTimes, HackRatios, ServerPerformance } from '../types'
-import { HackingFormulas } from './lib/formulas'
+import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 let hooks : Array<Node> = []
@@ -44,7 +44,11 @@ export class Bot {
 
     target: string
 
-    readonly timeB = 50
+    readonly timeB = 100
+
+    private _hackPercent = 0.99
+    private _maxHack = 0.99
+    private _minHack = 0.25
 
     constructor(ns: NS, server: string, target: string, buffer = 0) {
         ns.disableLog('ALL')
@@ -139,9 +143,13 @@ export class Bot {
             // Deploy Weak2
             this.ns.exec(weakScript, this.server, ratios.weak2T, target, startTime + delay)
             delay += this.timeB
-            if(performance.now() + delay > endTime) break
+            if(performance.now() + delay > endTime) {
+                this._hackPercent += 0.02
+                break
+            }
         }
-
+        // @ts-ignore can't import lodash without breaking things
+        this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack) 
         this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
     }
 
@@ -243,7 +251,7 @@ export class Bot {
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, .99)
+        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, this._hackPercent)
         let minMoneyPerHack = hackAmount
 
         let bestRatios : HackRatios = {
@@ -432,7 +440,9 @@ export class Botnet {
     private removeSmallBots(): void {
         this.bots = this.bots.filter((bot) => {
             const minRam = this.ns.getServerMaxRam(this.ns.getPurchasedServers()[0])
-            return this.ns.getServerMaxRam(bot.server) >= minRam || bot.server == 'home'
+            return bot.server == 'home' || 
+            bot.server.includes('pserv') ||
+            this.ns.getServerMaxRam(bot.server) >= minRam 
         })
     }
 
