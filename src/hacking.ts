@@ -1,5 +1,5 @@
 import { NS } from '../NetscriptDefinitions'
-import { HackingFormulas } from './lib/formulas'
+import { HackingFormulas } from '/lib/formulas.js'
 import {
     buyServer,
     deepScan,

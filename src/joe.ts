@@ -1,5 +1,5 @@
 import { NS } from '../NetscriptDefinitions'
-import { deepScan, rootAll } from './lib/helpers'
+import { deepScan, rootAll } from '/lib/helpers.js'
 
 const growScript = '/hwgw/grow.js'
 const weakScript = '/hwgw/weaken.js'
