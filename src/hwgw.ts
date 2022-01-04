@@ -4,15 +4,19 @@ import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 let hooks : Array<Node> = []
+let hackPcts : any = {}
 
 export async function main(ns : NS) : Promise<void> {
     ns.tail()
+
+    if(ns.fileExists('hackpcts.txt')) {
+        hackPcts = JSON.parse(ns.read('hackpcts.txt'))
+    }
 
     const botnet = new Botnet(ns)
     await botnet.init()
 
     ns.atExit(() => { 
-        console.debug(hooks)
         for(const hook of hooks) {
             // @ts-ignore
             hook.parentElement.removeChild(hook)
@@ -22,6 +26,7 @@ export async function main(ns : NS) : Promise<void> {
 
     while(true) {
         await botnet.update() 
+        await ns.write('hackpcts.txt', [JSON.stringify(hackPcts)], 'w')
         await ns.sleep(0)
     }
 }
@@ -44,7 +49,7 @@ export class Bot {
 
     target: string
 
-    readonly timeB = 100
+    readonly timeB = 150
 
     private _hackPercent = 0.99
     private _maxHack = 0.99
@@ -68,6 +73,10 @@ export class Bot {
         const files = [hackScript, growScript, weakScript]
 
         await this.ns.scp(files, this.ns.getHostname(), this.server)
+
+        if(hackPcts.hasOwnProperty(this.target)) {
+            this._hackPercent = hackPcts[this.target]
+        }
 
         this.ns.print(`INFO: Bot initialized on ${this.server} attacking ${this.target}`)
     }
@@ -108,6 +117,8 @@ export class Bot {
     }
 
     private deployBatches(ratios : HackRatios) : void {
+
+
         const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam + 
         ratios.growT * this.growRam +
         ratios.hackT * this.hackRam
@@ -150,6 +161,7 @@ export class Bot {
         }
         // @ts-ignore can't import lodash without breaking things
         this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack) 
+        hackPcts[this.target] = this._hackPercent
         this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
     }
 
@@ -184,22 +196,27 @@ export class Bot {
             HackingFormulas.growPercent(serverData, maxThreads, this.ns.getPlayer(),
                 this.ns.getServer(this.server).cpuCores)) return [-1, serverData]
 
-        let growT = 0
-        
-        const step = 10
-
-        const newServer = JSON.parse(JSON.stringify(serverData))
-        while (growT < maxThreads) {
-            await this.ns.sleep(0)
-            growT += step
-            newServer.moneyAvailable += step
-            newServer.hackDifficulty += step * GrowSecurityEffect
-            newServer.moneyAvailable *= HackingFormulas.growPercent(newServer, step, this.ns.getPlayer(),
+        const margin = 1.2 // Potential growth buffer
+        let upper = maxThreads
+        let lower = 1
+        while(upper - lower > 1) {
+            const newServer = JSON.parse(JSON.stringify(serverData))
+            const growT = Math.floor((upper + lower) / 2)
+            if(growT < 1) break
+            newServer.moneyAvailable += growT
+            newServer.moneyAvailable *= HackingFormulas.growPercent(newServer, growT, this.ns.getPlayer(),
                 this.ns.getServer(this.server).cpuCores)
-            if (newServer.moneyAvailable >= newServer.moneyMax) {
-                newServer.moneyAvailable = newServer.moneyMax
+            newServer.hackDifficulty += growT * GrowSecurityEffect
+
+            //@ts-ignore
+            if(_.inRange(newServer.moneyAvailable, newServer.moneyMax, newServer.moneyMax * margin)) {
                 return [growT, newServer]
+            } else if(newServer.moneyAvailable < newServer.moneyMax) {
+                lower = growT
+            } else {
+                upper = growT 
             }
+            await this.ns.sleep(0)
         }
 
         return [-1, serverData]
@@ -214,7 +231,7 @@ export class Bot {
         }
 
         let serverData = this.ns.getServer(this.target)
-        
+    
         const freeRam = this.freeRam
 
         // Adjustments for when server is not at best values
@@ -236,7 +253,7 @@ export class Bot {
             hackRatios.weak2T = Math.max(sim[0], 0)
             serverData = sim[1]
             totalRam += hackRatios.weak2T * this.weakRam
-            
+
             if (totalRam > freeRam) {
                 const ramFactor = freeRam / totalRam
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
@@ -494,6 +511,5 @@ export class Botnet {
         } else {
             hooks.push(display.parentElement.parentElement)
         }
-        console.debug(hooks)
     }
 }
