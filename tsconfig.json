@@ -1,6 +1,7 @@
 {
   "include": [
     "NetscriptDefinitions.d.ts",
+    "types.d.ts",
     "src/**/*",
   ],
 
