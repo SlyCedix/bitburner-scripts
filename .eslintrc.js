@@ -64,7 +64,7 @@ module.exports = {
         'id-blacklist': ['error'],
         'id-length': ['off'],
         'id-match': ['error'],
-        indent: ['error', 4],
+        '@typescript-eslint/indent: ['error', 4],
         'indent-legacy': ['off'],
         'init-declarations': ['off'],
         'key-spacing': ['off'],
