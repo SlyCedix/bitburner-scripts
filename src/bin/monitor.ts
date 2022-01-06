@@ -27,6 +27,11 @@ export async function main(ns : NS) : Promise<void> {
             ns.print(formatServer(server.hostname))
         }
         ns.print(`╚════════════════════════════════╩═════════╝`)
+        const hwgwLog = ns.getScriptLogs('hwgw.js').slice(-3)
+        for(const line of hwgwLog) {
+            ns.print(line)
+        }
+        
         fixLineHeight()
         await ns.sleep(1000)
     }
