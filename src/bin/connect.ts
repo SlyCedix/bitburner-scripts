@@ -1,4 +1,4 @@
-import { NS } from '../../NetscriptDefinitions'
+import { NS } from '@ns'
 import { ServerData } from '../../types'
 import { connectToServer } from '/lib/helpers.js'
 
@@ -8,7 +8,7 @@ export async function main(ns: NS): Promise<void> {
         return
     }
 
-    if(connectToServer(ns, ns.args[0] as string)) ns.tprintf(`Connected to ${ns.args[0]}`)
+    if (connectToServer(ns, ns.args[0] as string)) ns.tprintf(`Connected to ${ns.args[0]}`)
     else ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
 }
 

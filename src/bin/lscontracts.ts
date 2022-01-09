@@ -1,4 +1,4 @@
-import { NS } from '../../NetscriptDefinitions'
+import { NS } from '@ns'
 import { getServersWithContracts } from '/lib/helpers.js'
 
 

@@ -1,4 +1,4 @@
-import { NS, ProcessInfo } from '../NetscriptDefinitions'
+import { NS, ProcessInfo } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
     const hashes: any = {}

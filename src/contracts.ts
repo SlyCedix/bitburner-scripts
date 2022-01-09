@@ -1,12 +1,12 @@
-import { NS } from '../NetscriptDefinitions'
+import { NS } from '@ns'
 import { getServersWithContracts } from '/lib/helpers.js'
 
-export async function main(ns : NS) : Promise<void> {
+export async function main(ns: NS): Promise<void> {
     const contracts = new Contracts(ns)
     await contracts.init()
 
-    while(true) {
-        await contracts.update() 
+    while (true) {
+        await contracts.update()
         await ns.sleep(60000)
     }
 }
@@ -24,66 +24,66 @@ const contractFunctions = {
     'Total Ways to Sum': waysToSum,
     'Unique Paths in a Grid I': uniquePaths1,
     'Unique Paths in a Grid II': uniquePaths2,
-    'Find All Valid Math Expressions': (data : [string, number]) => formatOutput(validEquations(data)),
-    'Generate IP Addresses': (data : string) => formatOutput(generateIPAddresses(data)),
+    'Find All Valid Math Expressions': (data: [string, number]) => formatOutput(validEquations(data)),
+    'Generate IP Addresses': (data: string) => formatOutput(generateIPAddresses(data)),
     'Sanitize Parentheses in Expression': (data: string | string[]) => formatOutput(sanitizeParenthesis(data)),
-    'Spiralize Matrix': (data : number[][]) => formatOutput(spiralizeMatrix(data))
+    'Spiralize Matrix': (data: number[][]) => formatOutput(spiralizeMatrix(data))
 }
 
 export class Contracts {
-  failed: string[]
-  ns: NS
+    failed: string[]
+    ns: NS
 
-  constructor(ns: NS) {
-      this.failed = []
-      this.ns = ns
-  }
+    constructor(ns: NS) {
+        this.failed = []
+        this.ns = ns
+    }
 
-  async init(): Promise<void> {
-      this.ns.disableLog('ALL')
-      this.ns.print('INFO: Contracts Initialized')
-  }
+    async init(): Promise<void> {
+        this.ns.disableLog('ALL')
+        this.ns.print('INFO: Contracts Initialized')
+    }
 
-  async update(): Promise<void> {
-      const servers = getServersWithContracts(this.ns)
+    async update(): Promise<void> {
+        const servers = getServersWithContracts(this.ns)
 
-      for (let i = 0; i < servers.length; ++i) {
-          const server = servers[i]
-          const contracts = this.ns.ls(server, '.cct')
+        for (let i = 0; i < servers.length; ++i) {
+            const server = servers[i]
+            const contracts = this.ns.ls(server, '.cct')
 
-          for (let j = 0; j < contracts.length; ++j) {
-              const contract = contracts[j]
+            for (let j = 0; j < contracts.length; ++j) {
+                const contract = contracts[j]
 
-              const contractType = this.ns.codingcontract.getContractType(contract, server)
-              const contractData = this.ns.codingcontract.getData(contract, server)
+                const contractType = this.ns.codingcontract.getContractType(contract, server)
+                const contractData = this.ns.codingcontract.getData(contract, server)
 
 
-              if (!this.failed.includes(contract)) {
-                  if(contractFunctions.hasOwnProperty(contractType)) {
-                      console.debug(`${contractType} ${contractData}`)
-                      // @ts-ignore 
-                      this.attemptContract(contractFunctions[contractType], contract, server, contractData) 
-                  } else {
-                      this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
-                  }
-              }
-          }
-      }
-  }
+                if (!this.failed.includes(contract)) {
+                    if (contractFunctions.hasOwnProperty(contractType)) {
+                        console.debug(`${contractType} ${contractData}`)
+                        // @ts-ignore 
+                        this.attemptContract(contractFunctions[contractType], contract, server, contractData)
+                    } else {
+                        this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)
+                    }
+                }
+            }
+        }
+    }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  attemptContract(solver: Function, contract: string, server: string, data: Array<any>): void {
-      const solution = solver(data)
-      const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
-      if (reward == '') {
-          this.failed.push(contract)
-          this.ns.tprintf(`ERROR: Failed ${contract} of type ` +
-            this.ns.codingcontract.getContractType(contract, server) +
-            ` with solution ${solution}`)
-      } else {
-          this.ns.tprintf(`SUCCESS: ${reward}`)
-      }
-  }
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    attemptContract(solver: Function, contract: string, server: string, data: Array<any>): void {
+        const solution = solver(data)
+        const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
+        if (reward == '') {
+            this.failed.push(contract)
+            this.ns.tprintf(`ERROR: Failed ${contract} of type ` +
+                this.ns.codingcontract.getContractType(contract, server) +
+                ` with solution ${solution}`)
+        } else {
+            this.ns.tprintf(`SUCCESS: ${reward}`)
+        }
+    }
 }
 
 function algorithmicStockTrader1(data: Array<number>): number {
@@ -163,11 +163,11 @@ function arrayJumping(data: number[]): number {
 function largestPrimeFactor(data: number, start = 2): number {
     const isPrime = (n: number): boolean => {
         if (n < 2) return false
-  
+
         for (let i = 2; i < Math.sqrt(n); ++i) {
             if (n % i == 0) return false
         }
-  
+
         return true
     }
 
@@ -282,16 +282,16 @@ function validEquations(data: [string, number]): string[] {
     const getAllEquations = (data: string): string[] => {
         const operators = ['+', '-', '*']
         const equations = [data]
-  
+
         for (const equation of equations) {
             let start = 0
             for (let i = 0; i < equation.length - 1; ++i) {
                 if (operators.includes(equation[i])) start = i
             }
-  
+
             for (let i = start; i < equation.length - 1; ++i) {
                 const isBetweenNumbers = (!isNaN(Number(equation[i])) && !isNaN(Number(equation[i + 1])))
-  
+
                 if (isBetweenNumbers) {
                     for (const operator of operators) {
                         const newEquation = equation.slice(0, i + 1) + operator + equation.slice(i + 1, equation.length)
@@ -300,7 +300,7 @@ function validEquations(data: [string, number]): string[] {
                 }
             }
         }
-  
+
         console.log(equations)
         return equations
     }
@@ -316,13 +316,13 @@ function validEquations(data: [string, number]): string[] {
             }
         })
     }
-  
+
     return equations
 }
 
 function generateIPAddresses(data: string): string[] {
     const isValidOctet = (val: string): boolean => Number(val) > 0 && Number(val) < 256
-  
+
     const dataAddress = data.split('.')
     if (dataAddress.length == 4) {
         if (isValidOctet(dataAddress[3])) return [data]
@@ -363,14 +363,14 @@ function generateIPAddresses(data: string): string[] {
 function sanitizeParenthesis(data: string | string[]): string[] {
     const isValidParenthesis = (checkStr: string): boolean => {
         let paren = 0
-  
+
         for (let i = 0; i < checkStr.length; ++i) {
             if (checkStr[i] == '(') paren++
             else if (checkStr[i] == ')') paren--
-  
+
             if (paren < 0) return false
         }
-  
+
         return paren == 0
     }
 

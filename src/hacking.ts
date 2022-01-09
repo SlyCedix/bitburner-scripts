@@ -1,4 +1,4 @@
-import { NS } from '../NetscriptDefinitions'
+import { NS } from '@ns'
 import { HackingFormulas } from '/lib/formulas.js'
 import {
     buyServer,
@@ -9,23 +9,23 @@ import {
     rootAll
 } from '/lib/helpers.js'
 
-let hooks : Array<Node> = []
+let hooks: Array<Node> = []
 
-export async function main(ns : NS) : Promise<void> {
+export async function main(ns: NS): Promise<void> {
     const botnet = new Botnet(ns)
     await botnet.init()
-  
-    ns.atExit(() => { 
+
+    ns.atExit(() => {
         console.debug(hooks)
-        for(const hook of hooks) {
+        for (const hook of hooks) {
             // @ts-ignore
             hook.parentElement.removeChild(hook)
         }
         hooks = []
     })
 
-    while(true) {
-        await botnet.update() 
+    while (true) {
+        await botnet.update()
         await ns.sleep(10)
     }
 }
@@ -84,8 +84,8 @@ class Bot {
 
     async update(): Promise<void> {
         if (this.target != this.server &&
-        this.ns.getServerMaxMoney(this.server) > 0 &&
-        this.ns.getHackingLevel() > this.ns.getServerRequiredHackingLevel(this.server)) {
+            this.ns.getServerMaxMoney(this.server) > 0 &&
+            this.ns.getHackingLevel() > this.ns.getServerRequiredHackingLevel(this.server)) {
             this.target = this.server
             this.weakenOnly = false
         }
@@ -99,38 +99,38 @@ class Bot {
         let ramNeeded: number
 
         switch (this.status) {
-        case 0:
-            this.runScript(weakenScript, maxWeaken)
-            break
+            case 0:
+                this.runScript(weakenScript, maxWeaken)
+                break
 
-        case 1:
-            weakenT = Math.floor(maxWeaken * 0.08)
-            growT = maxWeaken - weakenT
-            this.runScript(weakenScript, weakenT)
-            this.runScript(growScript, growT)
-            break
+            case 1:
+                weakenT = Math.floor(maxWeaken * 0.08)
+                growT = maxWeaken - weakenT
+                this.runScript(weakenScript, weakenT)
+                this.runScript(growScript, growT)
+                break
 
-        case 2:
-            hackT = Math.floor(fundPct / this.hackPct)
-            growT = Math.ceil(Math.log(this.growPct) / Math.log(1/(1 - fundPct)))
-            weakenT = Math.ceil(((hackT * HackSecurityEffect) + (growT * GrowSecurityEffect)) / WeakSecurityEffect)
-            ramNeeded = hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam
+            case 2:
+                hackT = Math.floor(fundPct / this.hackPct)
+                growT = Math.ceil(Math.log(this.growPct) / Math.log(1 / (1 - fundPct)))
+                weakenT = Math.ceil(((hackT * HackSecurityEffect) + (growT * GrowSecurityEffect)) / WeakSecurityEffect)
+                ramNeeded = hackT * this.hackRam + growT * this.growRam + weakenT * this.weakenRam
 
-            if (ramNeeded > freeRam) {
-                const scaleFactor = freeRam / ramNeeded
-                hackT = Math.floor(hackT * scaleFactor)
-                growT = Math.floor(growT * scaleFactor)
-                weakenT = Math.floor(weakenT * scaleFactor)
-            }
+                if (ramNeeded > freeRam) {
+                    const scaleFactor = freeRam / ramNeeded
+                    hackT = Math.floor(hackT * scaleFactor)
+                    growT = Math.floor(growT * scaleFactor)
+                    weakenT = Math.floor(weakenT * scaleFactor)
+                }
 
-            this.runScript(hackScript, hackT)
-            this.runScript(growScript, growT)
-            this.runScript(weakenScript, weakenT)
-            
-            break
+                this.runScript(hackScript, hackT)
+                this.runScript(growScript, growT)
+                this.runScript(weakenScript, weakenT)
 
-        default:
-            this.ns.print(`ERROR: Invalid target server ${this.target}`)
+                break
+
+            default:
+                this.ns.print(`ERROR: Invalid target server ${this.target}`)
         }
     }
 
@@ -148,7 +148,7 @@ class Bot {
             return -1
         }
         if ((this.ns.getServerMinSecurityLevel(this.target) < this.ns.getServerSecurityLevel(this.target)) ||
-        this.weakenOnly) {
+            this.weakenOnly) {
             return 0
         }
         if (this.ns.getServerMoneyAvailable(this.target) < this.ns.getServerMaxMoney(this.target)) {

@@ -1,4 +1,4 @@
-import { NS } from '../../NetscriptDefinitions'
+import { NS } from '@ns'
 import { ServerData } from '../../types'
 import { findServer } from '/lib/helpers.js'
 

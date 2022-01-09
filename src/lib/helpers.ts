@@ -1,4 +1,4 @@
-import { NS } from '../../NetscriptDefinitions'
+import { NS } from '@ns'
 import { ServerPerformance } from '../../types'
 
 export function deepScan(ns: NS): string[] {
@@ -13,20 +13,20 @@ export function deepScan(ns: NS): string[] {
 }
 
 export function rankServers(ns: NS): ServerPerformance[] {
-    const servers = deepScan(ns).filter(x=>ns.getHackingLevel()/1.5 > ns.getServerRequiredHackingLevel(x))
-        .filter(x=>ns.getServer(x).hasAdminRights)
-    if(servers.length == 0) servers.push('n00dles', 'foodnstuff')
-    const data : ServerPerformance[] = []
-    
+    const servers = deepScan(ns).filter(x => ns.getHackingLevel() / 1.5 > ns.getServerRequiredHackingLevel(x))
+        .filter(x => ns.getServer(x).hasAdminRights)
+    if (servers.length == 0) servers.push('n00dles', 'foodnstuff')
+    const data: ServerPerformance[] = []
+
     for (const target of servers) {
         const server = ns.getServer(target)
         const difficulty = server.minDifficulty
         const ht_mul = 2.5 * server.requiredHackingSkill * difficulty + 500
         const raw = server.moneyMax * server.serverGrowth
-        data.push({hostname: target, preformance: (raw / ht_mul / 1e7)})
+        data.push({ hostname: target, preformance: (raw / ht_mul / 1e7) })
     }
 
-    data.sort((a,b)=>b.preformance - a.preformance)
+    data.sort((a, b) => b.preformance - a.preformance)
 
     return data
 }
@@ -54,56 +54,56 @@ export function getNextHackingLevel(ns: NS): number {
 
 export function upgradeAllServers(ns: NS): boolean {
     ns.disableLog('ALL')
-    
-    const pservs : string[] = ns.getPurchasedServers().sort((a,b) => ns.getServerMaxRam(b) - ns.getServerMaxRam(a))
+
+    const pservs: string[] = ns.getPurchasedServers().sort((a, b) => ns.getServerMaxRam(b) - ns.getServerMaxRam(a))
     const maxServs = ns.getPurchasedServerLimit()
-    if(pservs.length < maxServs) {
-        for(let i = pservs.length; i < ns.getPurchasedServerLimit(); ++i) {
-            if(!upgradeServer(ns, `pserv-${i}`)) break
+    if (pservs.length < maxServs) {
+        for (let i = pservs.length; i < ns.getPurchasedServerLimit(); ++i) {
+            if (!upgradeServer(ns, `pserv-${i}`)) break
         }
         return pservs.length < ns.getPurchasedServers().length
     }
 
     const currRam = ns.serverExists(pservs[0]) ? Math.log2(ns.getServerMaxRam(pservs[0])) : 0
-    let upgradeCost = ns.getPurchasedServerCost(2**(currRam + 1)) * maxServs
+    let upgradeCost = ns.getPurchasedServerCost(2 ** (currRam + 1)) * maxServs
 
     // Makes sure all servers are the same level before trying to batch upgrade
     let serversToUpgrade = pservs.filter(pserv => {
         return ns.getServerMaxRam(pserv) < ns.getServerMaxRam(pservs[0])
     })
-    if(serversToUpgrade.length == 0) {
+    if (serversToUpgrade.length == 0) {
         serversToUpgrade = pservs
     } else {
-        upgradeCost = ns.getPurchasedServerCost(2**currRam) * serversToUpgrade.length
+        upgradeCost = ns.getPurchasedServerCost(2 ** currRam) * serversToUpgrade.length
     }
 
-    if(upgradeCost < ns.getServerMoneyAvailable('home')) {
+    if (upgradeCost < ns.getServerMoneyAvailable('home')) {
         const ramToBuy = serversToUpgrade.length == maxServs ? currRam + 1 : currRam
-        for(const pserv of serversToUpgrade) {
-            if(!upgradeServer(ns, pserv, ramToBuy)) {
-                ns.toast(`Could not upgrade ${pserv} to ${formatRAM(ns, 2**ramToBuy)}`, 'error')
+        for (const pserv of serversToUpgrade) {
+            if (!upgradeServer(ns, pserv, ramToBuy)) {
+                ns.toast(`Could not upgrade ${pserv} to ${formatRAM(ns, 2 ** ramToBuy)}`, 'error')
             }
         }
-        ns.toast(`Upgraded servers to ${formatRAM(ns, 2**ramToBuy)}`)
+        ns.toast(`Upgraded servers to ${formatRAM(ns, 2 ** ramToBuy)}`)
         return true
     } else {
         return false
     }
 }
 
-export function upgradeServer(ns: NS, server : string, level = 6) : boolean {
-    if(level < 1 || level > 20 || ns.getPurchasedServerCost(2**level) > ns.getServerMoneyAvailable('home')) {
+export function upgradeServer(ns: NS, server: string, level = 6): boolean {
+    if (level < 1 || level > 20 || ns.getPurchasedServerCost(2 ** level) > ns.getServerMoneyAvailable('home')) {
         return false
     }
-    if(ns.serverExists(server)) {
-        if(Math.log2(ns.getServerMaxRam(server)) >= level) {
+    if (ns.serverExists(server)) {
+        if (Math.log2(ns.getServerMaxRam(server)) >= level) {
             return false
         }
         ns.killall(server)
         ns.deleteServer(server)
     }
 
-    ns.purchaseServer(server, 2**level)
+    ns.purchaseServer(server, 2 ** level)
     return true
 }
 
@@ -127,7 +127,7 @@ export function buyServer(ns: NS): string | boolean {
         const oldServs = pServs.filter((server) => {
             return ns.getServerMaxRam(server) < maxRam
         })
-        
+
         if (oldServs.length > 0) {
             if (ns.getPurchasedServerCost(maxRam) < moneyAvailable) {
                 ns.killall(pServs[0])
@@ -140,7 +140,7 @@ export function buyServer(ns: NS): string | boolean {
             pServLevel++
         }
     }
-    
+
     return false
 }
 
@@ -169,14 +169,14 @@ export function getPortFunctions(ns: NS): Array<any> {
 }
 
 export function rootAll(ns: NS): string[] {
-    if(!ns.serverExists('darkweb')) {
+    if (!ns.serverExists('darkweb')) {
         ns.purchaseTor()
     } else {
-        if(!ns.fileExists('BruteSSH.exe')) ns.purchaseProgram('BruteSSH.exe')
-        if(!ns.fileExists('FTPCrack.exe')) ns.purchaseProgram('FTPCrack.exe')
-        if(!ns.fileExists('HTTPWorm.exe')) ns.purchaseProgram('HTTPWorm.exe')
-        if(!ns.fileExists('SQLInject.exe')) ns.purchaseProgram('SQLInject.exe')
-        if(!ns.fileExists('relaySMTP.exe')) ns.purchaseProgram('relaySMTP.exe')
+        if (!ns.fileExists('BruteSSH.exe')) ns.purchaseProgram('BruteSSH.exe')
+        if (!ns.fileExists('FTPCrack.exe')) ns.purchaseProgram('FTPCrack.exe')
+        if (!ns.fileExists('HTTPWorm.exe')) ns.purchaseProgram('HTTPWorm.exe')
+        if (!ns.fileExists('SQLInject.exe')) ns.purchaseProgram('SQLInject.exe')
+        if (!ns.fileExists('relaySMTP.exe')) ns.purchaseProgram('relaySMTP.exe')
     }
 
     const portFunctions = getPortFunctions(ns)
@@ -257,10 +257,10 @@ export function runTerminalCommand(command: string): void {
 }
 
 export function formatRAM(ns: NS, n: number): string {
-    return ns.nFormat(n * 1024**3, '0.00ib')
+    return ns.nFormat(n * 1024 ** 3, '0.00ib')
 }
 
-export function formatMoney(ns : NS, n: number): string {
+export function formatMoney(ns: NS, n: number): string {
     return ns.nFormat(n, '$0.00a')
 }
 
@@ -268,7 +268,7 @@ export async function backdoorAll(ns: NS): Promise<number> {
     const servers = getServersWithoutBackdoor(ns)
     let count = 0
 
-    for(const server of servers) {
+    for (const server of servers) {
         connectToServer(ns, server)
         await ns.installBackdoor()
         ++count
@@ -278,16 +278,16 @@ export async function backdoorAll(ns: NS): Promise<number> {
 }
 
 export function connectToServer(ns: NS, target: string): boolean {
-    if(!ns.serverExists(target)) return false
+    if (!ns.serverExists(target)) return false
 
     const path = findServer(ns, target, ns.getCurrentServer())
-    for(const node of path) {
+    for (const node of path) {
         ns.connect(node)
     }
     return true
 }
 
-export function getAllFactions() : string[] {
+export function getAllFactions(): string[] {
     const factions = [
         'CyberSec',
         'Tian Di Hui',
@@ -319,22 +319,22 @@ export function getAllFactions() : string[] {
         'The Syndicate',
         'The Covenant',
         'Daedalus',
-        'Illuminati',    
+        'Illuminati',
     ]
 
     return factions
 }
 
-export function getAllAugments(ns : NS): {factions: string[]; name: string}[] {
+export function getAllAugments(ns: NS): { factions: string[]; name: string }[] {
     const factions = getAllFactions()
-    
-    const augments: Array<{factions: string[]; name: string}> = []
 
-    for(const faction of factions) {
+    const augments: Array<{ factions: string[]; name: string }> = []
+
+    for (const faction of factions) {
         const factionAugs = ns.getAugmentationsFromFaction(faction)
-        for(const aug of factionAugs) {
+        for (const aug of factionAugs) {
             const augMatch = augments.filter(a => a.name == aug)
-            if(augMatch.length == 0) augments.push({factions: [faction], name: aug})
+            if (augMatch.length == 0) augments.push({ factions: [faction], name: aug })
             else augMatch[0].factions.push(faction)
         }
     }

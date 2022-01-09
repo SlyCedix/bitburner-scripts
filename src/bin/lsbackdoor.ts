@@ -1,4 +1,4 @@
-import { NS } from '../../NetscriptDefinitions'
+import { NS } from '@ns'
 import { getServersWithoutBackdoor } from '/lib/helpers.js'
 
 

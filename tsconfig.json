@@ -4,7 +4,6 @@
     "types.d.ts",
     "src/**/*",
   ],
-
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
@@ -14,13 +13,19 @@
     "esModuleInterop": true,
     "sourceMap": false,
     "strict": true,
-
     "rootDir": "src/",
     "outDir": "dist/",
     "baseUrl": "src/",
     "paths": {
-      "/*.js": [ "*" ],
-      "*.js": [ "*" ]
+      "/*.js": [
+        "*"
+      ],
+      "*.js": [
+        "*"
+      ],
+      "@ns": [
+        "../NetscriptDefinitions.d.ts"
+      ]
     }
   }
 }
