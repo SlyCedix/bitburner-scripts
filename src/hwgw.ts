@@ -4,7 +4,7 @@ import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 let hooks: Array<Node> = []
-let hackPcts: Record<string, number> = {}
+// const hackPcts: Record<string, number> = {}
 export async function main(ns: NS): Promise<void> {
     // Opens debugger if run with --debug true
     const flags = ns.flags([
@@ -22,9 +22,9 @@ export async function main(ns: NS): Promise<void> {
     }
 
 
-    if (ns.fileExists('hackpcts.txt')) {
-        hackPcts = JSON.parse(ns.read('hackpcts.txt'))
-    }
+    // if (ns.fileExists('hackpcts.txt')) {
+    //     hackPcts = JSON.parse(ns.read('hackpcts.txt'))
+    // }
 
     const botnet = new Botnet(ns)
     await botnet.init()
@@ -39,7 +39,7 @@ export async function main(ns: NS): Promise<void> {
 
     while (true) {
         await botnet.update()
-        await ns.write('hackpcts.txt', [JSON.stringify(hackPcts, null, 4)], 'w')
+        // await ns.write('hackpcts.txt', [JSON.stringify(hackPcts, null, 4)], 'w')
         await ns.sleep(0)
     }
 }
@@ -87,9 +87,9 @@ export class Bot {
 
         await this.ns.scp(files, this.ns.getHostname(), this.server)
 
-        if (hackPcts.hasOwnProperty(this.target)) {
-            this._hackPercent = hackPcts[this.target]
-        }
+        // if (hackPcts.hasOwnProperty(this.target)) {
+        //     this._hackPercent = hackPcts[this.target]
+        // }
 
         this.ns.print(`INFO: Bot initialized on ${this.server} attacking ${this.target}`)
     }
@@ -174,7 +174,7 @@ export class Bot {
         }
         // @ts-ignore can't import lodash without breaking things
         this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
-        hackPcts[this.target] = this._hackPercent
+        // hackPcts[this.target] = this._hackPercent
         this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
     }
 
