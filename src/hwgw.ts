@@ -4,7 +4,18 @@ import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
 let hooks: Array<Node> = []
+const hackScript = '/hwgw/hack.js'
+const growScript = '/hwgw/grow.js'
+const weakScript = '/hwgw/weaken.js'
+
+const HackSecurityEffect = 0.002
+const WeakSecurityEffect = 0.05
+const GrowSecurityEffect = 0.004
+
+
+// TODO: Make hackpct adjustment not crash the game
 // const hackPcts: Record<string, number> = {}
+
 export async function main(ns: NS): Promise<void> {
     // Opens debugger if run with --debug true
     const flags = ns.flags([
@@ -12,6 +23,7 @@ export async function main(ns: NS): Promise<void> {
     ])
     if (flags.debug) debugger
 
+    // Restarts everything if game ran offline
     const runnningScript = ns.getRunningScript()
     if (runnningScript.offlineRunningTime > 1) {
         ns.exec('main.js', 'home')
@@ -44,13 +56,6 @@ export async function main(ns: NS): Promise<void> {
     }
 }
 
-const hackScript = '/hwgw/hack.js'
-const growScript = '/hwgw/grow.js'
-const weakScript = '/hwgw/weaken.js'
-
-const HackSecurityEffect = 0.002
-const WeakSecurityEffect = 0.05
-const GrowSecurityEffect = 0.004
 export class Bot {
     readonly ns: NS
     readonly buffer: number
@@ -62,11 +67,10 @@ export class Bot {
 
     target: string
 
-    readonly timeB = 150
-
+    private _timeB = 150
     private _hackPercent = 0.99
-    private _maxHack = 0.99
-    private _minHack = 0.25
+    // private _maxHack = 0.99
+    // private _minHack = 0.25
 
     constructor(ns: NS, server: string, target: string, buffer = 0) {
         ns.disableLog('ALL')
@@ -112,71 +116,76 @@ export class Bot {
     private deployPrep(ratios: HackRatios): void {
         const times = this.times // Can change at runtime, better if constant
 
-        const target = this.target
-
         const growDelay = times.weaken - times.grow
 
         this.ns.print(`INFO: Preparing ${this.target} for batches from ${this.server}`)
-        let delay = this.timeB
+        let delay = this._timeB
         const startTime = performance.now()
         if (ratios.weakT > 0)
-            this.ns.exec(weakScript, this.server, ratios.weakT, target, startTime + delay)
-        delay += this.timeB
+            this.ns.exec(weakScript, this.server, ratios.weakT, this.target, startTime + delay)
+        delay += this._timeB
         if (ratios.growT > 0)
-            this.ns.exec(growScript, this.server, ratios.growT, target, startTime + growDelay + delay)
-        delay += this.timeB
+            this.ns.exec(growScript, this.server, ratios.growT, this.target, startTime + growDelay + delay)
+        delay += this._timeB
         if (ratios.weak2T > 0)
-            this.ns.exec(weakScript, this.server, ratios.weak2T, target, startTime + delay)
+            this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, startTime + delay)
     }
 
     private deployBatches(ratios: HackRatios): void {
         const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam +
             ratios.growT * this.growRam +
             ratios.hackT * this.hackRam
+
+        // Max number of batches if undersaturated
         const numBatches = Math.floor(this.freeRam / totalRam)
 
-        const times = this.times // Can change at runtime, better if constant
+        // Can change at runtime, better if constant
+        const times = this.times
 
+        // Calculate delays between weaken and hack/grow
         const hackDelay = times.weaken - times.hack
         const growDelay = times.weaken - times.grow
 
-        const target = this.target
-
         let count = 0
 
-        let delay = this.timeB
+        // Prepare timekeeping
+        let delay = this._timeB
         const startTime = performance.now()
-        const endTime = startTime + (times.weaken) - this.timeB * 4
+        const endTime = startTime + (times.weaken) - this._timeB * 4
+
         for (let i = 0; i < numBatches; ++i) {
             ++count
 
             // Deploy Hack
-            this.ns.exec(hackScript, this.server, ratios.hackT, target, startTime + hackDelay + delay)
-            delay += this.timeB
+            this.ns.exec(hackScript, this.server, ratios.hackT, this.target, startTime + hackDelay + delay)
+            delay += this._timeB
 
             // Deploy Weak1
-            this.ns.exec(weakScript, this.server, ratios.weakT, target, startTime + delay)
-            delay += this.timeB
+            this.ns.exec(weakScript, this.server, ratios.weakT, this.target, startTime + delay)
+            delay += this._timeB
 
             // Deploy Grow
-            this.ns.exec(growScript, this.server, ratios.growT, target, startTime + growDelay + delay)
-            delay += this.timeB
+            this.ns.exec(growScript, this.server, ratios.growT, this.target, startTime + growDelay + delay)
+            delay += this._timeB
 
             // Deploy Weak2
-            this.ns.exec(weakScript, this.server, ratios.weak2T, target, startTime + delay)
-            delay += this.timeB
+            this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, startTime + delay)
+            delay += this._timeB
 
             // Adjust hack percent to be higher if ran out of time (increases ram usage)
             if (performance.now() + delay > endTime) {
-                this._hackPercent += 0.02
+                // this._hackPercent += 0.02
                 break
             }
         }
         // @ts-ignore can't import lodash without breaking things
-        this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
+        this._timeB -= _.clamp(this._timeB - 1, 50)
+        // @ts-ignore can't import lodash without breaking things
+        // this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
         // hackPcts[this.target] = this._hackPercent
-        this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${target}`)
+        this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${this.target}`)
     }
+
 
     simulateHack(serverData: Server, maxThreads: number, take = 1): [number, Server] {
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
@@ -277,6 +286,7 @@ export class Bot {
                 hackRatios.weak2T = Math.ceil(hackRatios.weak2T * ramFactor)
             }
 
+            this._timeB += 5
             return hackRatios
         }
 

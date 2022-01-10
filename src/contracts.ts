@@ -451,6 +451,6 @@ function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
     return output
 }
 
-function formatOutput(output: unknown): string {
+function formatOutput(output: Array<unknown>): string {
     return `[${output.toString().replaceAll(',', ', ')}]`
 }

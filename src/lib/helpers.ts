@@ -154,7 +154,7 @@ export async function scpAll(ns: NS, filename = 'home'): Promise<void> {
     }
 }
 
-export function getPortFunctions(ns: NS): ((string) => void)[] {
+export function getPortFunctions(ns: NS): ((host: string) => void)[] {
     ns.disableLog('ALL')
 
     const portFunctions = []
