@@ -24,7 +24,6 @@ module.exports = {
         'no-debugger': ['off'],
         'semi': ['warn', 'never'],
         'no-trailing-spaces': ['warn'],
-        'max-len': ['warn', { 'code': 120 }],
         'quotes': ['warn', 'single'],
 
         //@typescript-eslint
