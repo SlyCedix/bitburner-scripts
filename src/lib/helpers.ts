@@ -271,6 +271,7 @@ export async function backdoorAll(ns: NS): Promise<number> {
     for (const server of servers) {
         connectToServer(ns, server)
         await ns.installBackdoor()
+        ns.tprintf(`SUCCESS: ${server} has been backdoored`)
         ++count
     }
 
