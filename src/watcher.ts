@@ -1,7 +1,7 @@
 import { NS, ProcessInfo } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
-    const hashes: any = {}
+    const hashes: Record<string,number> = {}
 
     const files = ns.ls('home', '.js')
     for (const file of files) {

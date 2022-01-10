@@ -59,7 +59,7 @@ export class Contracts {
 
 
                 if (!this.failed.includes(contract)) {
-                    if (contractFunctions.hasOwnProperty(contractType)) {
+                    if (Object.prototype.hasOwnProperty.call(contractFunctions, contractType)) {
                         console.debug(`${contractType} ${contractData}`)
                         // @ts-ignore 
                         this.attemptContract(contractFunctions[contractType], contract, server, contractData)
@@ -72,7 +72,7 @@ export class Contracts {
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    attemptContract(solver: Function, contract: string, server: string, data: Array<any>): void {
+    attemptContract(solver: Function, contract: string, server: string, data: Array<unknown>): void {
         const solution = solver(data)
         const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
         if (reward == '') {
@@ -451,6 +451,6 @@ function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
     return output
 }
 
-function formatOutput(output: any): string {
+function formatOutput(output: unknown): string {
     return `[${output.toString().replaceAll(',', ', ')}]`
 }
