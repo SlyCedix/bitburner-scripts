@@ -20,5 +20,45 @@
       "}"
     ],
     "description": "autocomplete"
+  },
+  "tprint": {
+    "scope": "typescript",
+    "prefix": "tp",
+    "body": [
+      "ns.tprintf(`$0`)"
+    ],
+    "description": "tprint"
+  },
+  "tprint error": {
+    "scope": "typescript",
+    "prefix": "err",
+    "body": [
+      "ns.tprintf(`ERROR: $0`)"
+    ],
+    "description": "tprint"
+  },
+  "tprint info": {
+    "scope": "typescript",
+    "prefix": "inf",
+    "body": [
+      "ns.tprintf(`INFO: $0`)"
+    ],
+    "description": "tprint"
+  },
+  "tprint success": {
+    "scope": "typescript",
+    "prefix": "suc",
+    "body": [
+      "ns.tprintf(`SUCCESS: $0`)"
+    ],
+    "description": "tprint"
+  },
+  "tprint warn": {
+    "scope": "typescript",
+    "prefix": "wrn",
+    "body": [
+      "ns.tprintf(`WARN: $0`)"
+    ],
+    "description": "tprint"
   }
 }
