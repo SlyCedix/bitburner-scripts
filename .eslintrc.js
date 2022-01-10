@@ -22,9 +22,10 @@ module.exports = {
         'max-len': ['warn', { 'code': 120 }],
         'no-constant-condition': ['off'],
         'no-debugger': ['off'],
-        'no-trailing-spaces': ['warn'],
-        'quotes': ['warn', 'single'],
         'semi': ['warn', 'never'],
+        'no-trailing-spaces': ['warn'],
+        'max-len': ['warn', { 'code': 120 }],
+        'quotes': ['warn', 'single'],
 
         //@typescript-eslint
         '@typescript-eslint/ban-ts-comment': ['off'],
