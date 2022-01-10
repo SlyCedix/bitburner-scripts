@@ -38,3 +38,16 @@ export function updateStatDisplay(name: string, value: string): boolean {
     statDisplay.innerHTML = value
     return true
 }
+
+export function runTerminalCommand(command: string): void {
+    const terminalInput = doc.getElementById('terminal-input')
+    terminalInput.value = command
+    const handler = Object.keys(terminalInput)[1]
+    terminalInput[handler].onChange({
+        target: terminalInput
+    })
+    terminalInput[handler].onKeyDown({
+        keyCode: 13,
+        preventDefault: () => null
+    })
+}

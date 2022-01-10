@@ -243,19 +243,6 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
     return []
 }
 
-export function runTerminalCommand(command: string): void {
-    const terminalInput = eval('document').getElementById('terminal-input')
-    terminalInput.value = command
-    const handler = Object.keys(terminalInput)[1]
-    terminalInput[handler].onChange({
-        target: terminalInput
-    })
-    terminalInput[handler].onKeyDown({
-        keyCode: 13,
-        preventDefault: () => null
-    })
-}
-
 export function formatRAM(ns: NS, n: number): string {
     return ns.nFormat(n * 1024 ** 3, '0.00ib')
 }
