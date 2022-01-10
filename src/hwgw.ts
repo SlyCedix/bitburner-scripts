@@ -18,12 +18,6 @@ const GrowSecurityEffect = 0.004
 // const hackPcts: Record<string, number> = {}
 
 export async function main(ns: NS): Promise<void> {
-    // Opens debugger if run with --debug true
-    const flags = ns.flags([
-        ['debug', false]
-    ])
-    if (flags.debug) debugger
-
     // Restarts everything if game ran offline
     const runnningScript = ns.getRunningScript()
     if (runnningScript.offlineRunningTime > 1) {
