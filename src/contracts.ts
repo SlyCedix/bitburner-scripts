@@ -61,7 +61,7 @@ export class Contracts {
                 if (!this.failed.includes(contract)) {
                     if (Object.prototype.hasOwnProperty.call(contractFunctions, contractType)) {
                         console.debug(`${contractType} ${contractData}`)
-                        // @ts-ignore 
+                        // @ts-ignore
                         this.attemptContract(contractFunctions[contractType], contract, server, contractData)
                     } else {
                         this.ns.tprintf(`ERROR: No solver for ${contractType} on ${server} found`)

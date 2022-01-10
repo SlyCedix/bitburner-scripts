@@ -5,21 +5,29 @@ module.exports = {
         es6: false,
     },
     extends: [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"],
-    parser: "@typescript-eslint/parser",
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended'],
+    parser: '@typescript-eslint/parser',
     parserOptions: {
         ecmaVersion: 8,
-        sourceType: "module",
+        sourceType: 'module',
         ecmaFeatures: {
+            impliedStrict: true,
             experimentalObjectRestSpread: true,
         },
     },
-    plugins: ["@typescript-eslint"],
-    ignorePatterns: ['NetscriptDefinitions.d.ts', '*.js'],
+    plugins: ['@typescript-eslint'],
+    ignorePatterns: ['NetscriptDefinitions.d.ts',],
     rules: {
+        'max-len': ['warn', { 'code': 120 }],
         'no-constant-condition': ['off'],
-        '@typescript-eslint/ban-ts-comment': ['off'],
         'no-debugger': ['off'],
+        'no-trailing-spaces': ['warn'],
+        'quotes': ['warn', 'single'],
+        'semi': ['warn', 'never'],
+
+        //@typescript-eslint
+        '@typescript-eslint/ban-ts-comment': ['off'],
+        '@typescript-eslint/indent': ['warn', 4],
     }
 }
