@@ -1,5 +1,6 @@
 import { NS, Server } from '@ns'
 import { ActionTimes, HackRatios, ServerPerformance } from '../types'
+import { createStatDisplay, updateStatDisplay } from './lib/DOMhelpers'
 import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
 
@@ -509,8 +510,8 @@ export class Botnet {
     }
 
     private initUI(): void {
-        this.createDisplay('Exp')
-        this.createDisplay('Money')
+        hooks.push(createStatDisplay('Exp'))
+        hooks.push(createStatDisplay('Money'))
     }
 
     private updateUI(): void {
@@ -518,28 +519,7 @@ export class Botnet {
         const money = runningScript.onlineMoneyMade / runningScript.onlineRunningTime
         const exp = runningScript.onlineExpGained / runningScript.onlineRunningTime
 
-        const doc = eval('document')
-
-        doc.getElementById('Money-hook-1').innerHTML = formatMoney(this.ns, money) + '/s'
-        doc.getElementById('Exp-hook-1').innerHTML = this.ns.nFormat(exp, '0.00a') + '/s'
-    }
-
-    private createDisplay(name: string): void {
-        const doc = eval('document')
-        const display = doc.getElementById(name + '-hook-0')
-
-        if (typeof (display) == 'undefined' || display == null) {
-            const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
-            const clonedRow = extraHookRow.cloneNode(true)
-
-            clonedRow.childNodes[0].childNodes[0].id = name + '-hook-0'
-            clonedRow.childNodes[0].childNodes[0].innerHTML = name
-            clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
-            clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
-
-            hooks.push(extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling))
-        } else {
-            hooks.push(display.parentElement.parentElement)
-        }
+        updateStatDisplay('Money', formatMoney(this.ns, money) + '/s')
+        updateStatDisplay('Exp', this.ns.nFormat(exp, '0.00a') + '/s')
     }
 }

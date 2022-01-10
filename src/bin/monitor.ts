@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { modifyLogStyle } from '/lib/DOMhelpers.js'
 import { rankServers } from '/lib/helpers.js'
 
 export async function main(ns: NS): Promise<void> {
@@ -32,27 +33,7 @@ export async function main(ns: NS): Promise<void> {
             ns.print(line)
         }
 
-        fixLineHeight()
+        modifyLogStyle(ns.getScriptName(), 'line-height', '1')
         await ns.sleep(1000)
     }
-}
-
-function fixLineHeight(): void {
-    const doc = eval('document')
-
-    const titleBar = doc.querySelector('[title="/bin/monitor.js "]')
-
-    if (titleBar != null && titleBar != undefined) {
-        // @ts-ignore
-        const paragraphs = titleBar.parentNode.parentNode.parentNode
-            .lastChild.firstChild.firstChild.childNodes
-
-        for (const p of paragraphs) {
-            const _p = p as HTMLElement
-            if (_p.style.lineHeight != '1') {
-                _p.style.lineHeight = '1'
-            }
-        }
-    }
-
 }
