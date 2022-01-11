@@ -1,5 +1,5 @@
 import { NS, Server } from '@ns'
-import { ActionTimes, HackRatios, ServerPerformance } from '../types'
+import { ActionTimes, HackRatios } from '../types'
 import { createStatDisplay, updateStatDisplay } from './lib/DOMhelpers'
 import { HackingFormulas } from '/lib/formulas.js'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
@@ -396,8 +396,8 @@ export class Bot {
 export class Botnet {
     readonly ns: NS
 
-    targets: Array<ServerPerformance> = []
-    bots: Array<Bot> = []
+    targets: string[] = []
+    bots: Bot[] = []
 
     constructor(ns: NS) {
         this.ns = ns
@@ -423,7 +423,7 @@ export class Botnet {
             }
             let target = 'n00dles'
             if (this.ns.getPurchasedServers().includes(server) || server == 'home') {
-                target = this.targets[n++].hostname
+                target = this.targets[n++]
             }
             const bot = new Bot(this.ns, server, target, buffer)
             this.bots.push(bot)
@@ -466,7 +466,7 @@ export class Botnet {
         let n = 0
         for (const bot of this.bots) {
             if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
-                bot.target = this.targets[n++].hostname
+                bot.target = this.targets[n++]
             }
         }
     }
@@ -493,7 +493,7 @@ export class Botnet {
             this.bots = this.bots.filter(bot => !this.ns.getPurchasedServers().includes(bot.server))
             let n = 0
             for (const server of this.ns.getPurchasedServers()) {
-                const bot = new Bot(this.ns, server, this.targets[n++].hostname ?? 'n00dles')
+                const bot = new Bot(this.ns, server, this.targets[n++] ?? 'n00dles')
                 this.bots.push(bot)
                 await bot.init()
             }

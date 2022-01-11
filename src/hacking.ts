@@ -1,12 +1,11 @@
 import { NS } from '@ns'
 import { HackingFormulas } from '/lib/formulas.js'
 import {
-    buyServer,
     deepScan,
     findBestServer,
     formatMoney,
     getPortFunctions,
-    rootAll
+    rootAll, upgradeAllServers
 } from '/lib/helpers.js'
 
 let hooks: Array<Node> = []
@@ -239,16 +238,7 @@ export class Botnet {
             }
         }
 
-        const boughtServer = buyServer(this.ns)
-
-        if (boughtServer) {
-            this.bots = this.bots.filter((bot: Bot) => {
-                return bot.server != boughtServer
-            })
-            const bot = new Bot(this.ns, boughtServer as string, this.target, 0, this.leveling)
-            this.bots.push(bot)
-            await bot.init()
-        }
+        upgradeAllServers(this.ns)
 
         for (const bot of this.bots) {
             await bot.update()

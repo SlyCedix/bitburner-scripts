@@ -20,12 +20,12 @@ export async function main(ns: NS): Promise<void> {
 
     while (true) {
         ns.clearLog()
-        const topTen = rankServers(ns).filter(server => ns.getServerMaxMoney(server.hostname) > 0).slice(0, 10)
+        const topTen = rankServers(ns).filter(server => ns.getServerMaxMoney(server) > 0).slice(0, 10)
         ns.print('╔════════════════════════════════╦═════════╗')
         ns.print('║ hostname                 money ║     sec ║')
         ns.print('╠════════════════════════════════╬═════════╣')
         for (const server of topTen) {
-            ns.print(formatServer(server.hostname))
+            ns.print(formatServer(server))
         }
         ns.print('╚════════════════════════════════╩═════════╝')
         const hwgwLog = ns.getScriptLogs('hwgw.js').slice(-3)

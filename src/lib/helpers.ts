@@ -1,6 +1,9 @@
 import { NS } from '@ns'
-import { ServerPerformance } from '../../types'
 
+/**
+ * @param ns
+ * @returns Array of all hostnames
+ */
 export function deepScan(ns: NS): string[] {
     ns.disableLog('ALL')
     const hostnames = ['home']
@@ -12,51 +15,58 @@ export function deepScan(ns: NS): string[] {
     return hostnames
 }
 
-export function rankServers(ns: NS): ServerPerformance[] {
-    const servers = deepScan(ns).filter(x => ns.getHackingLevel() / 1.5 > ns.getServerRequiredHackingLevel(x))
-        .filter(x => ns.getServer(x).hasAdminRights)
-    if (servers.length == 0) servers.push('n00dles', 'foodnstuff')
-    const data: ServerPerformance[] = []
-
-    for (const target of servers) {
-        const server = ns.getServer(target)
+/**
+ * @param ns
+ * @returns Array of all hostnames sorted by performance
+ */
+export function rankServers(ns: NS): string[] {
+    const getPerformance = (hostname: string): number => {
+        const server = ns.getServer(hostname)
         const difficulty = server.minDifficulty
         const ht_mul = 2.5 * server.requiredHackingSkill * difficulty + 500
         const raw = server.moneyMax * server.serverGrowth
-        data.push({ hostname: target, preformance: (raw / ht_mul / 1e7) })
+        return raw / ht_mul / 1e7
     }
 
-    data.sort((a, b) => b.preformance - a.preformance)
-
-    return data
+    return deepScan(ns)
+        .filter(x => ns.getHackingLevel() / 1.5 > ns.getServerRequiredHackingLevel(x))
+        .filter(x => ns.getServer(x).hasAdminRights)
+        .sort((a, b) => getPerformance(b) - getPerformance(a))
 }
 
+/**
+ * @param ns
+ * @returns Hostname of highest performing server
+ */
 export function findBestServer(ns: NS): string {
-    return rankServers(ns)[0].hostname
+    return rankServers(ns)[0]
 }
 
+/**
+ * @param ns
+ * @returns Lowest hacking level of a locked server
+ */
 export function getNextHackingLevel(ns: NS): number {
-    ns.disableLog('ALL')
-
-    let hostnames = deepScan(ns)
-    hostnames = hostnames.filter((hostname) =>
+    const hostnames = deepScan(ns).filter((hostname) =>
         (ns.getServerRequiredHackingLevel(hostname) > ns.getHackingLevel()))
-    let lowest = Number.MAX_VALUE
+        .sort((a, b) => ns.getServerRequiredHackingLevel(b) - ns.getServerRequiredHackingLevel(a))
 
-    for (let i = 0; i < hostnames.length; ++i) {
-        if (ns.getServerRequiredHackingLevel(hostnames[i]) < lowest) {
-            lowest = ns.getServerRequiredHackingLevel(hostnames[i])
-        }
-    }
-
-    return lowest
+    return ns.getServerRequiredHackingLevel(hostnames[0])
 }
 
+/**
+ * Purchases 64GB servers until server limit is reached
+ *
+ * Attempts to upgrade all servers at once otherwise
+ * @param ns
+ * @returns true if a server was purchased, false otherwise
+ */
 export function upgradeAllServers(ns: NS): boolean {
-    ns.disableLog('ALL')
-
-    const pservs: string[] = ns.getPurchasedServers().sort((a, b) => ns.getServerMaxRam(b) - ns.getServerMaxRam(a))
+    const pservs: string[] = ns.getPurchasedServers()
+        .sort((a, b) => ns.getServerMaxRam(b) - ns.getServerMaxRam(a))
     const maxServs = ns.getPurchasedServerLimit()
+
+    // Get to server cap before upgrading
     if (pservs.length < maxServs) {
         for (let i = pservs.length; i < ns.getPurchasedServerLimit(); ++i) {
             if (!upgradeServer(ns, `pserv-${i}`)) break
@@ -91,6 +101,15 @@ export function upgradeAllServers(ns: NS): boolean {
     }
 }
 
+/**
+ * Upgrades a server to level if higher than the current level
+ *
+ * Buys a new server at level if the server does not exist
+ * @param ns
+ * @param server hostname of the server to upgrade or purchase
+ * @param level level to upgrade to
+ * @returns
+ */
 export function upgradeServer(ns: NS, server: string, level = 6): boolean {
     if (level < 1 || level > 20 || ns.getPurchasedServerCost(2 ** level) > ns.getServerMoneyAvailable('home')) {
         return false
@@ -107,53 +126,23 @@ export function upgradeServer(ns: NS, server: string, level = 6): boolean {
     return true
 }
 
-let pServLevel = 6
-export function buyServer(ns: NS): string | boolean {
-    ns.disableLog('ALL')
-
-    const pServs = ns.getPurchasedServers()
-    const maxRam = Math.pow(2, pServLevel)
-
-    const serverCost = ns.getPurchasedServerCost(maxRam)
-    const moneyAvailable = ns.getServerMoneyAvailable('home')
-
-    if (pServs.length < ns.getPurchasedServerLimit()) {
-        if (serverCost < moneyAvailable) {
-            const hostname = ns.purchaseServer('pserv-' + pServs.length, maxRam)
-            ns.toast(`Purchased server ${hostname} with ${formatRAM(ns, maxRam)}`)
-            return hostname
-        }
-    } else {
-        const oldServs = pServs.filter((server) => {
-            return ns.getServerMaxRam(server) < maxRam
-        })
-
-        if (oldServs.length > 0) {
-            if (ns.getPurchasedServerCost(maxRam) < moneyAvailable) {
-                ns.killall(pServs[0])
-                ns.deleteServer(pServs[0])
-                const hostname = ns.purchaseServer(pServs[0], maxRam)
-                ns.toast(`Upgraded server ${hostname} to ${formatRAM(ns, maxRam)}`)
-                return hostname
-            }
-        } else {
-            pServLevel++
-        }
-    }
-
-    return false
-}
-
-export async function scpAll(ns: NS, filename = 'home'): Promise<void> {
-    ns.disableLog('ALL')
-
+/**
+ * Copies file from home to every server on the network
+ * @param ns
+ * @param files Filename or array of filenames to scp
+ */
+export async function scpAll(ns: NS, files: string | string[]): Promise<void> {
     const hostnames = deepScan(ns)
 
-    for (let i = 0; i < hostnames.length; ++i) {
-        await ns.scp(filename, 'home', hostnames[i])
+    for (const hostname of hostnames) {
+        await ns.scp(files, 'home', hostname)
     }
 }
 
+/**
+ * @param ns
+ * @returns Array of port functions that the player currently can access
+ */
 export function getPortFunctions(ns: NS): ((host: string) => void)[] {
     ns.disableLog('ALL')
 
@@ -168,7 +157,11 @@ export function getPortFunctions(ns: NS): ((host: string) => void)[] {
     return portFunctions
 }
 
-export function rootAll(ns: NS): string[] {
+/**
+ * Attempts to purchase all port openers using singularity
+ * @param ns
+ */
+export function buyAll(ns: NS): void {
     if (!ns.serverExists('darkweb')) {
         ns.purchaseTor()
     } else {
@@ -178,14 +171,18 @@ export function rootAll(ns: NS): string[] {
         if (!ns.fileExists('SQLInject.exe')) ns.purchaseProgram('SQLInject.exe')
         if (!ns.fileExists('relaySMTP.exe')) ns.purchaseProgram('relaySMTP.exe')
     }
+}
 
+/**
+ * @param ns
+ * @returns Array of hostnames that have been rooted
+ */
+export function rootAll(ns: NS): string[] {
+    buyAll(ns)
     const portFunctions = getPortFunctions(ns)
 
-    // Gets all hostnames accessible on the network
-    const hostnames = deepScan(ns)
-
     // Checks which hostnames can be rooted, but are not
-    const needRoot = hostnames.filter((hostname) => {
+    const needRoot = deepScan(ns).filter((hostname) => {
         return !ns.hasRootAccess(hostname) &&
             (ns.getServerNumPortsRequired(hostname) <= portFunctions.length)
     })
@@ -201,28 +198,38 @@ export function rootAll(ns: NS): string[] {
     return needRoot
 }
 
+/**
+ * @param ns
+ * @returns Array of hostnames that have not been backdoored
+ */
 export function getServersWithoutBackdoor(ns: NS): string[] {
-    let hostnames = deepScan(ns)
-    hostnames = hostnames.filter((hostname) => {
-        return (!ns.getServer(hostname).backdoorInstalled &&
-            ns.hasRootAccess(hostname) &&
-            ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(hostname) &&
-            !ns.getPurchasedServers().includes(hostname) &&
-            hostname != 'home')
-    })
-
-    return hostnames
+    return deepScan(ns)
+        .filter((hostname) => {
+            return (!ns.getServer(hostname).backdoorInstalled &&
+                ns.hasRootAccess(hostname) &&
+                ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(hostname) &&
+                !ns.getPurchasedServers().includes(hostname) &&
+                hostname != 'home')
+        })
 }
 
+/**
+ * @param ns
+ * @returns List of servers with contract files
+ */
 export function getServersWithContracts(ns: NS): string[] {
-    let hostnames = deepScan(ns)
-    hostnames = hostnames.filter((hostname) => {
+    return deepScan(ns).filter((hostname) => {
         return ns.ls(hostname, '.cct').length > 0
     })
-
-    return hostnames
 }
 
+
+/**
+ * @param ns
+ * @param target Hostname to connect to
+ * @param start Optional - Hostname to connect from (defaults to home)
+ * @returns connection path from start to target as array of hostnames
+ */
 export function findServer(ns: NS, target: string, start = 'home', source = ''): string[] {
     const hostnames = ns.scan(start).filter((hostname) => {
         return hostname != source
@@ -232,8 +239,8 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
         return [start, target]
     }
 
-    for (let i = 0; i < hostnames.length; ++i) {
-        const connection = findServer(ns, target, hostnames[i], start)
+    for (const hostname of hostnames) {
+        const connection = findServer(ns, target, hostname, start)
 
         if (connection.length > 0) {
             return [start, ...connection]
@@ -243,96 +250,31 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
     return []
 }
 
+/**
+ * Kills all scripts on every server
+ * @param ns
+ */
 export function killAll(ns: NS): void {
     deepScan(ns)
-        .filter(server => server != 'home')
-        .forEach(server => ns.killall(server))
+        .filter(server => server != ns.getHostname())
+        .forEach(ns.killall)
     ns.killall(ns.getHostname())
 }
 
+/**
+ * @param ns
+ * @param n Ram in GB to format
+ * @returns Formatted ram string in iB
+ */
 export function formatRAM(ns: NS, n: number): string {
     return ns.nFormat(n * 1024 ** 3, '0.00ib')
 }
 
+/**
+ * @param ns
+ * @param n Amount of money to format
+ * @returns Formatted money string
+ */
 export function formatMoney(ns: NS, n: number): string {
     return ns.nFormat(n, '$0.00a')
-}
-
-export async function backdoorAll(ns: NS): Promise<number> {
-    const servers = getServersWithoutBackdoor(ns)
-    let count = 0
-
-    for (const server of servers) {
-        connectToServer(ns, server)
-        await ns.installBackdoor()
-        ns.tprintf(`SUCCESS: ${server} has been backdoored`)
-        ++count
-    }
-
-    return count
-}
-
-export function connectToServer(ns: NS, target: string): boolean {
-    if (!ns.serverExists(target)) return false
-
-    const path = findServer(ns, target, ns.getCurrentServer())
-    for (const node of path) {
-        ns.connect(node)
-    }
-    return true
-}
-
-export function getAllFactions(): string[] {
-    const factions = [
-        'CyberSec',
-        'Tian Di Hui',
-        'Netburners',
-        'Sector-12',
-        'Chongqing',
-        'New Tokyo',
-        'Ishima',
-        'Aevum',
-        'Volhaven',
-        'NiteSec',
-        'The Black Hand',
-        'BitRunners',
-        'ECorp',
-        'MegaCorp',
-        'KuaiGong International',
-        'Four Sigma',
-        'NWO',
-        'Blade Industries',
-        'OmniTek Incorporated',
-        'Bachman & Associates',
-        'Clarke Incorporated',
-        'Fulcrum Secret Technologies',
-        'Slum Snakes',
-        'Tetrads',
-        'Silhouette',
-        'Speakers for the Dead',
-        'The Dark Army',
-        'The Syndicate',
-        'The Covenant',
-        'Daedalus',
-        'Illuminati',
-    ]
-
-    return factions
-}
-
-export function getAllAugments(ns: NS): { factions: string[]; name: string }[] {
-    const factions = getAllFactions()
-
-    const augments: Array<{ factions: string[]; name: string }> = []
-
-    for (const faction of factions) {
-        const factionAugs = ns.getAugmentationsFromFaction(faction)
-        for (const aug of factionAugs) {
-            const augMatch = augments.filter(a => a.name == aug)
-            if (augMatch.length == 0) augments.push({ factions: [faction], name: aug })
-            else augMatch[0].factions.push(faction)
-        }
-    }
-
-    return augments
 }
