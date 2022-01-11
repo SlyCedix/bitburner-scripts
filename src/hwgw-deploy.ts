@@ -84,7 +84,7 @@ export class Bot {
 
     async update(): Promise<void> {
         const ratios = await this.getRatios()
-        if (ratios.hackT > 0) await this.deployBatches(ratios)
+        if (ratios.hackT > 0) this.deployBatches(ratios)
         else this.deployPrep(ratios)
     }
 
@@ -105,7 +105,7 @@ export class Bot {
         this._endTime = performance.now() + times.weaken + 3 * this._timeB
     }
 
-    private async deployBatches(ratios: HackRatios): Promise<void> {
+    private deployBatches(ratios: HackRatios): void {
         const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam +
             ratios.growT * this.growRam +
             ratios.hackT * this.hackRam
@@ -143,7 +143,6 @@ export class Bot {
             // Deploy Weak2
             deploy(this.ns, weakScript, ratios.weak2T, this.target, startTime + delay)
             delay += this._timeB
-            await this.sleep(0)
         }
         // @ts-ignore can't import lodash without breaking things
         // this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
@@ -358,12 +357,6 @@ export class Bot {
     isRunning(): boolean {
         return performance.now() < this._endTime
     }
-
-    sleep(ms: number): Promise<void> {
-        const ret: Promise<void> = new Promise(resolve => setTimeout(resolve, ms))
-        // this.ns.print(`sleep: Sleeping for ${Math.floor(ms)} milliseconds`)
-        return ret
-    }
 }
 
 export class Botnet {
@@ -400,6 +393,7 @@ export class Botnet {
         for (const bot of freeBots) {
             this.updateUI()
             await bot.update()
+            await this.ns.sleep(0)
         }
     }
 
