@@ -13,7 +13,6 @@ const HackSecurityEffect = 0.002
 const WeakSecurityEffect = 0.05
 const GrowSecurityEffect = 0.004
 
-
 // TODO: Make hackpct adjustment not crash the game
 // const hackPcts: Record<string, number> = {}
 
@@ -106,7 +105,7 @@ export class Bot {
         this._endTime = performance.now() + times.weaken + 3 * this._timeB
     }
 
-    private deployBatches(ratios: HackRatios): void {
+    private async deployBatches(ratios: HackRatios): Promise<void> {
         const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam +
             ratios.growT * this.growRam +
             ratios.hackT * this.hackRam
@@ -127,7 +126,7 @@ export class Bot {
         // Prepare timekeeping
         let delay = this._timeB
         const startTime = performance.now()
-        this._endTime = startTime + times.weaken + (numBatches + 1) * 4 * this._timeB
+
         for (let i = 0; i < numBatches; ++i) {
             // Deploy Hack
             deploy(this.ns, hackScript, ratios.hackT, this.target, startTime + hackDelay + delay)
@@ -144,10 +143,13 @@ export class Bot {
             // Deploy Weak2
             deploy(this.ns, weakScript, ratios.weak2T, this.target, startTime + delay)
             delay += this._timeB
+            await this.sleep(0)
         }
         // @ts-ignore can't import lodash without breaking things
         // this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
         this.ns.print(`INFO: Deployed ${numBatches} batches attacking ${this.target}`)
+
+        this._endTime = startTime + times.weaken + (numBatches + 1) * 4 * this._timeB
     }
 
 
@@ -356,6 +358,12 @@ export class Bot {
     isRunning(): boolean {
         return performance.now() < this._endTime
     }
+
+    sleep(ms: number): Promise<void> {
+        const ret: Promise<void> = new Promise(resolve => setTimeout(resolve, ms))
+        // this.ns.print(`sleep: Sleeping for ${Math.floor(ms)} milliseconds`)
+        return ret
+    }
 }
 
 export class Botnet {
@@ -410,7 +418,7 @@ export class Botnet {
                 await bot.init()
             }
         }
-        this.bots.sort((a, b) => this.targets.indexOf(b.target) - this.targets.indexOf(a.target))
+        this.bots.sort((a, b) => this.targets.indexOf(a.target) - this.targets.indexOf(b.target))
     }
 
     private initUI(): void {
