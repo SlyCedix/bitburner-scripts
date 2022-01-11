@@ -143,11 +143,6 @@ export class Bot {
         const saturationBatches = Math.floor(times.weaken / (this._timeB * 4))
         const numBatches = Math.min(maxBatches, saturationBatches)
 
-        // Max number of batches if undersaturated
-        const maxBatches = Math.floor(this.freeRam / totalRam)
-        const saturationBatches = Math.floor(times.weaken / (this._timeB * 4))
-        const numBatches = Math.min(maxBatches, saturationBatches)
-
         // Calculate delays between weaken and hack/grow
         const hackDelay = times.weaken - times.hack
         const growDelay = times.weaken - times.grow
