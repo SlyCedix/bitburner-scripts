@@ -136,7 +136,9 @@ export class Bot {
             ratios.hackT * this.hackRam
 
         // Max number of batches if undersaturated
-        const numBatches = Math.floor(this.freeRam / totalRam)
+        const maxBatches = Math.floor(this.freeRam / totalRam)
+        const saturationBatches = Math.floor(times.weaken / (this._timeB * 4))
+        const numBatches = Math.min(maxBatches, saturationBatches)
 
         // Can change at runtime, better if constant
         const times = this.times
@@ -150,7 +152,6 @@ export class Bot {
         // Prepare timekeeping
         let delay = this._timeB
         const startTime = performance.now()
-        const endTime = startTime + (times.weaken) - this._timeB * 4
 
         for (let i = 0; i < numBatches; ++i) {
             ++count
@@ -171,15 +172,10 @@ export class Bot {
             this.ns.exec(weakScript, this.server, ratios.weak2T, this.target, startTime + delay)
             delay += this._timeB
 
-            // Adjust hack percent to be higher if ran out of time (increases ram usage)
-            if (performance.now() + delay > endTime) {
-                // this._hackPercent += 0.02
-                break
-            }
             await this.ns.sleep(0)
         }
         // @ts-ignore can't import lodash without breaking things
-        this._timeB -= _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
+        this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
         // @ts-ignore can't import lodash without breaking things
         // this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
         // hackPcts[this.target] = this._hackPercent
@@ -466,14 +462,11 @@ export class Botnet {
      * Checks if there are new target rankings and update if necessary
      */
     private updateTargets(): void {
-        const targets = rankServers(this.ns)
-        if (targets != this.targets) {
-            this.targets = targets
-            let n = 0
-            for (const bot of this.bots) {
-                if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
-                    bot.target = this.targets[n++].hostname
-                }
+        this.targets = rankServers(this.ns)
+        let n = 0
+        for (const bot of this.bots) {
+            if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
+                bot.target = this.targets[n++].hostname
             }
         }
     }
@@ -509,7 +502,7 @@ export class Botnet {
 
     private initUI(): void {
         hooks.push(createStatDisplay('Exp'))
-        hooks.push(createStatDisplay('Money'))
+        hooks.push(createStatDisplay('Money', false))
     }
 
     private updateUI(): void {
