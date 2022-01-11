@@ -243,6 +243,13 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
     return []
 }
 
+export function killAll(ns: NS): void {
+    deepScan(ns)
+        .filter(server => server != 'home')
+        .forEach(server => ns.killall(server))
+    ns.killall(ns.getHostname())
+}
+
 export function formatRAM(ns: NS, n: number): string {
     return ns.nFormat(n * 1024 ** 3, '0.00ib')
 }
