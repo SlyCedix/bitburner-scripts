@@ -60,15 +60,13 @@ export class Bot {
 
     target: string
 
-    private _timeB = 150
-    private _minTime = 100
-    private _maxTime = 200
+    private _timeB = 200
+    // private _minTime = 500
+    // private _maxTime = 1500
     private _adjustmentCount = 2
     private _endTime = 0
 
     private _hackPercent = 0.99
-    // private _maxHack = 0.99
-    // private _minHack = 0.25
 
     constructor(ns: NS, target: string) {
         ns.disableLog('ALL')
@@ -82,10 +80,6 @@ export class Bot {
     }
 
     async init(): Promise<void> {
-        // if (hackPcts.hasOwnProperty(this.target)) {
-        //     this._hackPercent = hackPcts[this.target]
-        // }
-
         this.ns.print(`INFO: Bot initialized attacking ${this.target}`)
     }
 
@@ -116,7 +110,7 @@ export class Bot {
         this._endTime = performance.now() + times.weaken + 3 * this._timeB
     }
 
-    private async deployBatches(ratios: HackRatios): Promise<void> {
+    private deployBatches(ratios: HackRatios): void {
         const totalRam = (ratios.weakT + ratios.weak2T) * this.weakRam +
             ratios.growT * this.growRam +
             ratios.hackT * this.hackRam
@@ -132,15 +126,13 @@ export class Bot {
         const hackDelay = times.weaken - times.hack
         const growDelay = times.weaken - times.grow
 
-        let count = 0
+        this.ns.print(`INFO: Deploying ${numBatches} batches attacking ${this.target}`)
 
         // Prepare timekeeping
         let delay = this._timeB
         const startTime = performance.now()
         this._endTime = startTime + times.weaken + (numBatches + 1) * 4 * this._timeB
         for (let i = 0; i < numBatches; ++i) {
-            ++count
-
             // Deploy Hack
             deploy(this.ns, hackScript, ratios.hackT, this.target, startTime + hackDelay + delay)
             delay += this._timeB
@@ -156,15 +148,10 @@ export class Bot {
             // Deploy Weak2
             deploy(this.ns, weakScript, ratios.weak2T, this.target, startTime + delay)
             delay += this._timeB
-
-            await this.ns.sleep(0)
         }
         // @ts-ignore can't import lodash without breaking things
-        this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
-        // @ts-ignore can't import lodash without breaking things
-        // this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
-        // hackPcts[this.target] = this._hackPercent
-        this.ns.print(`INFO: Deployed ${count} batches attacking ${this.target}`)
+        // this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
+        this.ns.print(`INFO: Deployed ${numBatches} batches attacking ${this.target}`)
     }
 
 
@@ -265,7 +252,7 @@ export class Bot {
             }
 
             //@ts-ignore using lodash
-            this._timeB = _.clamp(5 / Math.log2(this._adjustmentCount++), this._minTime, this._maxTime)
+            // this._timeB = _.clamp(5 / Math.log2(this._adjustmentCount++), this._minTime, this._maxTime)
             return hackRatios
         }
 
