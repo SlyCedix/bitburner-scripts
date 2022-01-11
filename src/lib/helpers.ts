@@ -278,3 +278,44 @@ export function formatRAM(ns: NS, n: number): string {
 export function formatMoney(ns: NS, n: number): string {
     return ns.nFormat(n, '$0.00a')
 }
+
+/**
+ * @param ns
+ * @returns Total ram of all rooted servers
+ */
+export function getNetworkRam(ns: NS): number {
+    return deepScan(ns)
+        .map(s => ns.getServer(s))
+        .filter(s => s.hasAdminRights)
+        .map(s => s.maxRam - s.ramUsed)
+        .reduce((a, b) => a + b)
+}
+
+/**
+ * Executes a script on the server with the most ram available
+ * @param ns
+ * @param script Script to be executed
+ * @param threads Thread count to run the script with
+ * @param args Arguments to pass to the script
+ * @returns true if the script was executed, false otherwise
+ */
+export function deploy(ns: NS, script: string, threads: number, ...args: (string | boolean | number)[]): boolean {
+    const reqRam = ns.getScriptRam(script) * threads
+    const server = deepScan(ns)
+        .filter(s => getServerFreeRam(ns, s) >= reqRam)
+        .reduce((a, b) => getServerFreeRam(ns, b) > getServerFreeRam(ns, a) ? b : a)
+
+    if (!server) return false
+
+    ns.exec(script, server, threads, ...args)
+    return true
+}
+
+/**
+ * @param ns
+ * @param server hostname to check the ram of
+ * @returns Available ram on a server
+ */
+export function getServerFreeRam(ns: NS, server: string): number {
+    return ns.getServerMaxRam(server) - ns.getServerUsedRam(server)
+}
