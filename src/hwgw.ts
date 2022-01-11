@@ -63,6 +63,8 @@ export class Bot {
     target: string
 
     private _timeB = 150
+    private _minTime = 100
+    private _maxTime = 200
     private _adjustmentCount = 2
 
     private _hackPercent = 0.99
@@ -177,7 +179,7 @@ export class Bot {
             await this.ns.sleep(0)
         }
         // @ts-ignore can't import lodash without breaking things
-        this._timeB -= _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), 50, 200)
+        this._timeB -= _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
         // @ts-ignore can't import lodash without breaking things
         // this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
         // hackPcts[this.target] = this._hackPercent
@@ -285,7 +287,7 @@ export class Bot {
             }
 
             //@ts-ignore using lodash
-            this._timeB = _.clamp(5 / Math.log2(this._adjustmentCount++), 50, 200)
+            this._timeB = _.clamp(5 / Math.log2(this._adjustmentCount++), this._minTime, this._maxTime)
             return hackRatios
         }
 
