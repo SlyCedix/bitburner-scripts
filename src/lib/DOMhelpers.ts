@@ -17,7 +17,7 @@ export function modifyLogStyle(logName: string, style: string, value: string): b
     return true
 }
 
-export function createStatDisplay(name: string): Node {
+export function createStatDisplay(name: string, border = true): Node {
     const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
     if (extraHookRow == null || extraHookRow == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
 
@@ -27,6 +27,12 @@ export function createStatDisplay(name: string): Node {
     clonedRow.childNodes[0].childNodes[0].innerHTML = name
     clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
     clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
+
+    if (!border) {
+        clonedRow.childNodes[0].style.setProperty('border-bottom', '0px')
+        clonedRow.childNodes[1].style.setProperty('border-bottom', '0px')
+    }
+
 
     return extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
 }
