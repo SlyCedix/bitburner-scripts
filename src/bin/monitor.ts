@@ -18,8 +18,17 @@ export async function main(ns: NS): Promise<void> {
     }
     ns.tail()
 
+    const logScript = ns.args[0] as string ?? 'hwgw.js'
+    let logTitle = ns.getScriptName() + ' '
+    if (logScript != 'hwgw.js') logTitle += logScript
+
     while (true) {
         ns.clearLog()
+        const hwgwLog = ns.getScriptLogs(logScript).slice(-10)
+        for (const line of hwgwLog) {
+            ns.print(line)
+        }
+
         const topTen = rankServers(ns).filter(server => ns.getServerMaxMoney(server) > 0).slice(0, 10)
         ns.print('╔════════════════════════════════╦═════════╗')
         ns.print('║ hostname                 money ║     sec ║')
@@ -28,12 +37,8 @@ export async function main(ns: NS): Promise<void> {
             ns.print(formatServer(server))
         }
         ns.print('╚════════════════════════════════╩═════════╝')
-        const hwgwLog = ns.getScriptLogs('hwgw.js').slice(-3)
-        for (const line of hwgwLog) {
-            ns.print(line)
-        }
 
-        modifyLogStyle(ns.getScriptName(), 'line-height', '1')
+        modifyLogStyle(logTitle, 'line-height', '1')
         await ns.sleep(1000)
     }
 }

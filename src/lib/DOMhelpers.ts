@@ -2,7 +2,7 @@
 const doc = eval('document')
 
 export function modifyLogStyle(logName: string, style: string, value: string): boolean {
-    const titleBar = doc.querySelector(`[title="${logName} "]`)
+    const titleBar = doc.querySelector(`[title="${logName}"]`)
     if (titleBar == null || titleBar == undefined) return false
 
     const paragraphs = titleBar.parentNode.parentNode.parentNode

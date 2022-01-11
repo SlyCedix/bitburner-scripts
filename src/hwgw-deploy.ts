@@ -24,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
         ns.exec('main.js', 'home')
         ns.exit()
     } else {
-        ns.exec('/bin/monitor.js', 'home')
+        ns.exec('/bin/monitor.js', 'home', 1, ns.getScriptName())
         // ns.tail('/bin/monitor.js')
     }
 
@@ -84,13 +84,9 @@ export class Bot {
     }
 
     async update(): Promise<void> {
-        if (this.ns.getServerMaxMoney(this.target) == 0) return
-
-        if (performance.now() > this._endTime) {
-            const ratios = await this.getRatios()
-            if (ratios.hackT > 0) await this.deployBatches(ratios)
-            else this.deployPrep(ratios)
-        }
+        const ratios = await this.getRatios()
+        if (ratios.hackT > 0) await this.deployBatches(ratios)
+        else this.deployPrep(ratios)
     }
 
     private deployPrep(ratios: HackRatios): void {
@@ -119,7 +115,7 @@ export class Bot {
         const times = this.times
 
         // Max number of batches if undersaturated
-        const numBatches = Math.floor(times.weaken / (this._timeB * 4))
+        const numBatches = Math.max(Math.floor(times.weaken / (this._timeB * 4)), 1)
         if (numBatches * totalRam > getNetworkRam(this.ns) * .9) return
 
         // Calculate delays between weaken and hack/grow
@@ -356,6 +352,10 @@ export class Bot {
             weaken: HackingFormulas.weakenTime(server, player),
         }
     }
+
+    isRunning(): boolean {
+        return performance.now() < this._endTime
+    }
 }
 
 export class Botnet {
@@ -388,7 +388,8 @@ export class Botnet {
     async update(): Promise<void> {
         await this.updateTargets()
         upgradeAllServers(this.ns)
-        for (const bot of this.bots) {
+        const freeBots = this.bots.filter(b => !b.isRunning())
+        for (const bot of freeBots) {
             this.updateUI()
             await bot.update()
         }
