@@ -1,6 +1,13 @@
 // import { NS } from '@ns'
 const doc = eval('document')
 
+/**
+ * Modifies one css property of the specified log
+ * @param logName name that appears in the tilebar of the log
+ * @param style property name of the style to change (hyphen-case)
+ * @param value value to change the property to
+ * @returns true if the log was found, false otherwise
+ */
 export function modifyLogStyle(logName: string, style: string, value: string): boolean {
     const titleBar = doc.querySelector(`[title="${logName}"]`)
     if (titleBar == null || titleBar == undefined) return false
@@ -17,6 +24,14 @@ export function modifyLogStyle(logName: string, style: string, value: string): b
     return true
 }
 
+/**
+ * Creates a new node on the stat display directly below charisma
+ *
+ * New nodes are appended to the top of the custom stats section
+ * @param name Name of the hook, will be displayed on the left side
+ * @param border Whether a white border exists at the bottom of the display
+ * @returns The new HTML node of the element
+ */
 export function createStatDisplay(name: string, border = true): Node {
     const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
     if (extraHookRow == null || extraHookRow == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
@@ -37,6 +52,12 @@ export function createStatDisplay(name: string, border = true): Node {
     return extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
 }
 
+/**
+ * Places a new value in the specified custom stat display
+ * @param name Name of the display to modify
+ * @param value value to set the stat display to
+ * @returns true if the display was found, false otherwise
+ */
 export function updateStatDisplay(name: string, value: string): boolean {
     const statDisplay: HTMLElement = doc.getElementById(name + '-hook-1')
     if (statDisplay == null || statDisplay == undefined) return false
@@ -45,6 +66,12 @@ export function updateStatDisplay(name: string, value: string): boolean {
     return true
 }
 
+/**
+ * Injects a single command into the terminal
+ *
+ * Must be on the terminal page for this to function
+ * @param command text to be injected into the terminal
+ */
 export function runTerminalCommand(command: string): void {
     const terminalInput = doc.getElementById('terminal-input')
     terminalInput.value = command
