@@ -111,6 +111,11 @@ export async function levelAllFactions(ns: NS): Promise<void> {
     const factions = getJoinedFactions(ns)
 
     for (const faction of factions) {
+        if (ns.getFactionFavor(faction) >= 150) {
+            ns.donateToFaction(faction, 2e12)
+            continue
+        }
+
         while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150) {
             ns.workForFaction(faction, 'Hacking Contracts', false)
             await ns.sleep(60000)
@@ -124,22 +129,24 @@ export async function levelAllFactions(ns: NS): Promise<void> {
  */
 export function getPurchaseableAugments(ns: NS): { faction: string, augments: string[] }[] {
     return getJoinedFactions(ns)
-        .flatMap(f => {
+        .map(f => {
             const augments = ns.getAugmentationsFromFaction(f)
                 .filter(a => !ns.getOwnedAugmentations(true).includes(a))
+                .filter(a => ns.getAugmentationRepReq(a) <= ns.getFactionRep(f))
             return { faction: f, augments: augments }
-        })
+        }).filter(x => x.augments.length != 0)
 }
 
 /**
  * @param ns
  * @returns the most expensive augment along with the list of factions that carry it
  */
-export function getMostExpensiveAugment(ns: NS): { factions: string[], augment: string } {
+export function getMostExpensiveAugment(ns: NS): { factions: string[], augment: string, cost: number } {
     let maxCost = 0
     const bestAugment = {
         factions: new Array<string>(),
-        augment: ''
+        augment: '',
+        cost: 0
     }
     const factionAugs = getPurchaseableAugments(ns)
     for (const augs of factionAugs) {
@@ -152,8 +159,20 @@ export function getMostExpensiveAugment(ns: NS): { factions: string[], augment: 
             maxCost = price
             bestAugment.factions = [augs.faction]
             bestAugment.augment = mostExpensive
+            bestAugment.cost = 0
         }
     }
 
     return bestAugment
+}
+
+/**
+ * @param ns
+ * @param faction name of faction to check
+ * @returns true if faction has any augments to purchase besides Neuroflux, false otherwise
+ */
+export function factionHasAugs(ns: NS, faction: string): boolean {
+    return ns.getAugmentationsFromFaction(faction)
+        .filter(a => !ns.getOwnedAugmentations(true).includes(a))
+        .length > 1
 }
