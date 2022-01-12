@@ -1,5 +1,15 @@
-// import { NS } from '@ns'
-const doc = eval('document')
+//This file is full of @ts-expect error due to typescript weirdness with the DOM
+//This is pretty much unavoidable without defining objects extremely explicitly
+//which I'd rather not do
+const doc: Document = eval('document')
+
+export function getLogNode(logName: string): Node | null {
+    const titleBar = doc.querySelector(`[title="${logName}"]`)
+    if (titleBar == null || titleBar == undefined) return null
+
+    //@ts-expect-error can't be null if the above check passed
+    return titleBar.parentNode.parentNode.parentNode
+}
 
 /**
  * Modifies one css property of the specified log
@@ -9,11 +19,11 @@ const doc = eval('document')
  * @returns true if the log was found, false otherwise
  */
 export function modifyLogStyle(logName: string, style: string, value: string): boolean {
-    const titleBar = doc.querySelector(`[title="${logName}"]`)
-    if (titleBar == null || titleBar == undefined) return false
+    const log = getLogNode(logName)
+    if (log == null) return false
 
-    const paragraphs = titleBar.parentNode.parentNode.parentNode
-        .lastChild.firstChild.firstChild.childNodes
+    //@ts-expect-error can't be null if the above check passed
+    const paragraphs = log.lastChild.firstChild.firstChild.children
 
     for (const _p of paragraphs) {
         const p = _p as HTMLElement
@@ -32,11 +42,11 @@ export function modifyLogStyle(logName: string, style: string, value: string): b
  * @returns true if the log was found, false otherwise
  */
 export function resizeLog(logName: string, width: string, height: string): boolean {
-    const titleBar = doc.querySelector(`[title="${logName}"]`)
-    if (titleBar == null || titleBar == undefined) return false
+    const log = getLogNode(logName)
+    if (log == null) return false
 
-    const resizeable = titleBar.parentNode.parentNode.parentNode
-        .lastChild.firstChild
+    //@ts-expect-error can't be null if the above check passed
+    const resizeable = log.lastChild.firstChild as HTMLDivElement
 
     resizeable.style.width = width
     resizeable.style.height = height
@@ -48,16 +58,16 @@ export function resizeLog(logName: string, width: string, height: string): boole
  * @param logName name that appears in the titlebar of the log
  * @returns width in pixels of the paragraph element, -1 if the log cannot be found
  */
-export function minimizeLogWidth(logName: string): number {
-    const titleBar = doc.querySelector(`[title="${logName}"]`)
-    if (titleBar == null || titleBar == undefined) return false
+export function minimizeLogWidth(logName: string): boolean {
+    const log = getLogNode(logName)
+    if (log == null) return false
 
-    const p = titleBar.parentNode.parentNode.parentNode
-        .lastChild.firstChild.firstChild.lastChild
+    //@ts-expect-error can't be null if the above check passed
+    const p = log.lastChild.firstChild.firstChild.lastChild as HTMLParagraphElement
     if (p == null || p == undefined) return false
 
     p.style.setProperty('display', 'inline', 'important')
-    return resizeLog(logName, `${p.offsetWidth + 1}px`, 'auto')
+    return resizeLog(logName, `${p.offsetWidth + 1}px`, '20%')
 }
 
 /**
@@ -69,22 +79,28 @@ export function minimizeLogWidth(logName: string): number {
  * @returns The new HTML node of the element
  */
 export function createStatDisplay(name: string, border = true): Node {
-    const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
-    if (extraHookRow == null || extraHookRow == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
+    const extraHook = doc.getElementById('overview-extra-hook-0')
+    if (extraHook == null || extraHook == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
 
-    const clonedRow = extraHookRow.cloneNode(true)
+    //@ts-expect-error
+    const extraHookRow = extraHook.parentNode.parentNode
 
-    clonedRow.childNodes[0].childNodes[0].id = name + '-hook-0'
-    clonedRow.childNodes[0].childNodes[0].innerHTML = name
-    clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
-    clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
+    //@ts-expect-error
+    const clonedRow = extraHookRow.cloneNode(true) as HTMLElement
+
+    clonedRow.children[0].children[0].id = name + '-hook-0'
+    clonedRow.children[0].children[0].innerHTML = name
+    clonedRow.children[1].children[0].id = name + '-hook-1'
+    clonedRow.children[2].children[0].id = name + '-hook-2'
 
     if (!border) {
-        clonedRow.childNodes[0].style.setProperty('border-bottom', '0px')
-        clonedRow.childNodes[1].style.setProperty('border-bottom', '0px')
+        //@ts-expect-error won't be null
+        clonedRow.children[0].style.setProperty('border-bottom', '0px')
+        //@ts-expect-error won't be null
+        clonedRow.children[1].style.setProperty('border-bottom', '0px')
     }
 
-
+    //@ts-expect-error won't be null
     return extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
 }
 
@@ -95,7 +111,7 @@ export function createStatDisplay(name: string, border = true): Node {
  * @returns true if the display was found, false otherwise
  */
 export function updateStatDisplay(name: string, value: string): boolean {
-    const statDisplay: HTMLElement = doc.getElementById(name + '-hook-1')
+    const statDisplay = doc.getElementById(name + '-hook-1')
     if (statDisplay == null || statDisplay == undefined) return false
 
     statDisplay.innerHTML = value
@@ -109,13 +125,17 @@ export function updateStatDisplay(name: string, value: string): boolean {
  * @param command text to be injected into the terminal
  */
 export function runTerminalCommand(command: string): void {
-    const terminalInput = doc.getElementById('terminal-input')
+    const terminalInput = doc.getElementById('terminal-input') as HTMLInputElement
+    if (terminalInput == null) return
     terminalInput.value = command
     const handler = Object.keys(terminalInput)[1]
-    terminalInput[handler].onChange({
+    const reactHandler = terminalInput[handler as keyof HTMLElement]
+    //@ts-expect-error
+    reactHandler.onChange({
         target: terminalInput
     })
-    terminalInput[handler].onKeyDown({
+    //@ts-expect-error
+    reactHandler.onKeyDown({
         keyCode: 13,
         preventDefault: () => null
     })
