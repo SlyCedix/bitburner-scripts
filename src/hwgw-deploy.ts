@@ -121,8 +121,6 @@ export class Bot {
         const hackDelay = times.weaken - times.hack
         const growDelay = times.weaken - times.grow
 
-        this.ns.print(`INFO: Deploying ${numBatches} batches attacking ${this.target}`)
-
         // Prepare timekeeping
         let delay = this._timeB
         const startTime = performance.now()

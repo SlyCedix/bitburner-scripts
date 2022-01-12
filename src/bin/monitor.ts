@@ -26,7 +26,7 @@ export async function main(ns: NS): Promise<void> {
         ns.clearLog()
         const hwgwLog = ns.getScriptLogs(logScript).slice(-10)
         for (const line of hwgwLog) {
-            ns.print(line)
+            ns.print(line.slice(6, 50))
         }
 
         const topTen = rankServers(ns).filter(server => ns.getServerMaxMoney(server) > 0).slice(0, 10)
