@@ -95,3 +95,25 @@ export function getAllAugments(ns: NS): { factions: string[]; name: string }[] {
 
     return augments
 }
+/**
+ * @param ns
+ * @returns Array of all factions which have any amount of rep
+ */
+export function getJoinedFactions(ns: NS): string[] {
+    return getAllFactions().filter(f => ns.getFactionRep(f) > 0)
+}
+
+/**
+ * Loops through every faction joined and attempts to level them until a reset would give 150 favor
+ * @param ns
+ */
+export async function levelAllFactions(ns: NS): Promise<void> {
+    const factions = getJoinedFactions(ns)
+
+    for (const faction of factions) {
+        while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150) {
+            ns.workForFaction(faction, 'Hacking Contracts', false)
+            await ns.sleep(60000)
+        }
+    }
+}
