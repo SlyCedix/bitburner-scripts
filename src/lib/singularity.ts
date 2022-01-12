@@ -117,3 +117,43 @@ export async function levelAllFactions(ns: NS): Promise<void> {
         }
     }
 }
+
+/**
+ * @param ns
+ * @returns Array of all joined factions and their associated unowned augments
+ */
+export function getPurchaseableAugments(ns: NS): { faction: string, augments: string[] }[] {
+    return getJoinedFactions(ns)
+        .flatMap(f => {
+            const augments = ns.getAugmentationsFromFaction(f)
+                .filter(a => !ns.getOwnedAugmentations(true).includes(a))
+            return { faction: f, augments: augments }
+        })
+}
+
+/**
+ * @param ns
+ * @returns the most expensive augment along with the list of factions that carry it
+ */
+export function getMostExpensiveAugment(ns: NS): { factions: string[], augment: string } {
+    let maxCost = 0
+    const bestAugment = {
+        factions: new Array<string>(),
+        augment: ''
+    }
+    const factionAugs = getPurchaseableAugments(ns)
+    for (const augs of factionAugs) {
+        const mostExpensive = augs.augments
+            .reduce((a, b) => ns.getAugmentationPrice(a) > ns.getAugmentationPrice(b) ? a : b)
+        const price = ns.getAugmentationPrice(mostExpensive)
+        if (mostExpensive == bestAugment.augment) {
+            bestAugment.factions.push(augs.faction)
+        } else if (price > maxCost) {
+            maxCost = price
+            bestAugment.factions = [augs.faction]
+            bestAugment.augment = mostExpensive
+        }
+    }
+
+    return bestAugment
+}
