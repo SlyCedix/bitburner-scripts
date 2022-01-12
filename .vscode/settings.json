@@ -33,7 +33,7 @@
         "loadNpmCommands": true,
         "commands": [
             {
-                "name": "Push",
+                "name": "push",
                 "useVsCodeApi": true,
                 "command": "ext.bitburner-connector.pushAllFiles"
             }
