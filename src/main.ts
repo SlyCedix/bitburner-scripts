@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 
 
-const scripts = ['hwgw.js', 'contracts.js', 'watcher.js']
+const scripts = ['hwgw.js', 'homeUpgrade.js', 'contracts.js', 'watcher.js']
 const kill = ['/hwgw/hack.js', '/hwgw/weaken.js', '/hwgw/grow.js']
 
 export async function main(ns: NS): Promise<void> {

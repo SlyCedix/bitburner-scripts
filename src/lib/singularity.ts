@@ -221,3 +221,14 @@ export function getBestKarmaCrime(ns: NS, chanceThresh = 1): string {
         return aRate > bRate ? a : b
     })
 }
+/**
+ * @param ns
+ * @returns true if ram or cores were upgraded, false otherwise
+ */
+export function upgradeHomeServer(ns: NS): boolean {
+    if (ns.getUpgradeHomeRamCost() * 16 < ns.getUpgradeHomeCoresCost()) {
+        return ns.upgradeHomeRam()
+    } else {
+        return ns.upgradeHomeCores()
+    }
+}
