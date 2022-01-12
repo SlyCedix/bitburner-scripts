@@ -1,4 +1,4 @@
-//This file is full of @ts-expect error due to typescript weirdness with the DOM
+//This file is full of @ts-expect-error due to typescript weirdness with the DOM
 //This is pretty much unavoidable without defining objects extremely explicitly
 //which I'd rather not do
 const doc: Document = eval('document')
