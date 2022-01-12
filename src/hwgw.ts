@@ -501,8 +501,8 @@ export class Botnet {
     }
 
     private initUI(): void {
-        hooks.push(createStatDisplay('Exp'))
-        hooks.push(createStatDisplay('Money', false))
+        hooks.push(createStatDisplay('Exp', this.ns.ui.getTheme().hack))
+        hooks.push(createStatDisplay('Money', this.ns.ui.getTheme().money, false))
     }
 
     private updateUI(): void {

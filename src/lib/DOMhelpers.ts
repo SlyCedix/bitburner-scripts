@@ -78,7 +78,8 @@ export function minimizeLogWidth(logName: string): boolean {
  * @param border Whether a white border exists at the bottom of the display
  * @returns The new HTML node of the element
  */
-export function createStatDisplay(name: string, border = true): Node {
+
+export function createStatDisplay(name: string, color = '', border = true): Node {
     const extraHook = doc.getElementById('overview-extra-hook-0')
     if (extraHook == null || extraHook == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
 
@@ -94,10 +95,19 @@ export function createStatDisplay(name: string, border = true): Node {
     clonedRow.children[2].children[0].id = name + '-hook-2'
 
     if (!border) {
-        //@ts-expect-error won't be null
+        //@ts-expect-error
         clonedRow.children[0].style.setProperty('border-bottom', '0px')
-        //@ts-expect-error won't be null
+        //@ts-expect-error
         clonedRow.children[1].style.setProperty('border-bottom', '0px')
+    }
+
+    if (color.length != 0) {
+        //@ts-expect-error
+        clonedRow.children[0].firstChild.style.setProperty('color', color)
+        //@ts-expect-error
+        clonedRow.children[1].firstChild.style.setProperty('color', color)
+        //@ts-expect-error
+        clonedRow.children[2].firstChild.style.setProperty('color', color)
     }
 
     //@ts-expect-error won't be null
