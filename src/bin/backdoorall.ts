@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { backdoorAll } from '/lib/singularity.js'
+import { backdoorAll } from 'lib/singularity'
 
 export async function main(ns: NS): Promise<void> {
     const count = await backdoorAll(ns)

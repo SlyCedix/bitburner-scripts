@@ -1,7 +1,7 @@
 import { NS } from '@ns'
-import { ServerData } from '../../types'
-import { runTerminalCommand } from '/lib/DOMhelpers.js'
-import { findServer } from '/lib/helpers.js'
+import { ServerData } from '@types'
+import { runTerminalCommand } from 'lib/DOMhelpers'
+import { findServer } from 'lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
     if (ns.args.length != 1) {

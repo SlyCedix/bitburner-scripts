@@ -18,14 +18,14 @@
     "outDir": "dist/",
     "baseUrl": "src/",
     "paths": {
-      "/*.js": [
-        "*"
-      ],
-      "*.js": [
+      "/*": [
         "*"
       ],
       "@ns": [
         "../NetscriptDefinitions.d.ts"
+      ],
+      "@types": [
+        "../types.d.ts"
       ]
     }
   }

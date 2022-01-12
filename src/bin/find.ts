@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { ServerData } from '../../types'
-import { findServer } from '/lib/helpers.js'
+import { ServerData } from '@types'
+import { findServer } from 'lib/helpers'
 
 
 export async function main(ns: NS): Promise<void> {

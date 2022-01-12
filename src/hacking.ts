@@ -1,12 +1,12 @@
 import { NS } from '@ns'
-import { HackingFormulas } from '/lib/formulas.js'
+import { HackingFormulas } from 'lib/formulas'
 import {
     deepScan,
     findBestServer,
     formatMoney,
     getPortFunctions,
     rootAll, upgradeAllServers
-} from '/lib/helpers.js'
+} from 'lib/helpers'
 
 let hooks: Array<Node> = []
 

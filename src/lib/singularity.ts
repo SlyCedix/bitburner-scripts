@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { findServer, getServersWithoutBackdoor } from '/lib/helpers.js'
+import { findServer, getServersWithoutBackdoor } from 'lib/helpers'
 
 /**
  * Backdoors every server using singularity
@@ -181,4 +181,43 @@ export function factionHasAugs(ns: NS, faction: string): boolean {
     return ns.getAugmentationsFromFaction(faction)
         .filter(a => !ns.getOwnedAugmentations(true).includes(a))
         .length > 1
+}
+
+/**
+ * @returns an array of all crimes
+ */
+export function getAllCrimes(): string[] {
+    return [
+        'Shoplift',
+        'Rob store',
+        'Mug someone',
+        'Larceny',
+        'Deal Drugs',
+        'Traffick illegal Arms',
+        'Homicide',
+        'Grand theft Auto',
+        'Kidnap and Ransom',
+        'Assassinate',
+        'Heist'
+    ]
+}
+
+/**
+ * @param ns
+ * @param chanceThresh Minimum crime success chance to include in calculations
+ * @returns crime with maximum karma/second
+ */
+export function getBestKarmaCrime(ns: NS, chanceThresh = 1): string {
+    const crimes = getAllCrimes().filter(c => ns.getCrimeChance(c) >= chanceThresh)
+    if (crimes.length == 0) return getAllCrimes()[0]
+
+    return crimes.reduce((a, b) => {
+        const aStats = ns.getCrimeStats(a)
+        const bStats = ns.getCrimeStats(b)
+
+        const aRate = aStats.karma / aStats.time
+        const bRate = bStats.karma / bStats.time
+
+        return aRate > bRate ? a : b
+    })
 }

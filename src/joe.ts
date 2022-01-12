@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { deepScan, rootAll } from '/lib/helpers.js'
+import { deepScan, rootAll } from 'lib/helpers'
 
 const growScript = '/hwgw/grow.js'
 const weakScript = '/hwgw/weaken.js'

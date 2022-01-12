@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { minimizeLogWidth, modifyLogStyle } from '/lib/DOMhelpers.js'
-import { rankServers } from '/lib/helpers.js'
+import { minimizeLogWidth, modifyLogStyle } from 'lib/DOMhelpers'
+import { rankServers } from 'lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
     const formatServer = (serverName: string): string => {

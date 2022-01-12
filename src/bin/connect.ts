@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { ServerData } from '../../types'
-import { connectToServer } from '/lib/singularity.js'
+import { ServerData } from '@types'
+import { connectToServer } from 'lib/singularity'
 
 export async function main(ns: NS): Promise<void> {
     if (ns.args.length != 1) {

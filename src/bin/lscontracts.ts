@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getServersWithContracts } from '/lib/helpers.js'
+import { getServersWithContracts } from 'lib/helpers'
 
 
 export async function main(ns: NS): Promise<void> {

@@ -1,8 +1,8 @@
 import { NS, Server } from '@ns'
-import { ActionTimes, HackRatios } from '../types'
-import { createStatDisplay, updateStatDisplay } from './lib/DOMhelpers'
-import { HackingFormulas } from '/lib/formulas.js'
-import { deploy, formatMoney, getNetworkRam, rankServers, rootAll, upgradeAllServers } from '/lib/helpers.js'
+import { ActionTimes, HackRatios } from '@types'
+import { createStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
+import { HackingFormulas } from 'lib/formulas'
+import { deploy, formatMoney, getNetworkRam, rankServers, rootAll, upgradeAllServers } from 'lib/helpers'
 
 let hooks: Array<Node> = []
 const hackScript = '/hwgw/hack.js'
