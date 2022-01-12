@@ -28,11 +28,15 @@ export function rankServers(ns: NS): string[] {
         return raw / ht_mul / 1e7
     }
 
-    return deepScan(ns)
+    const servers = deepScan(ns)
         .filter(x => ns.getHackingLevel() / 1.5 > ns.getServerRequiredHackingLevel(x))
         .filter(x => ns.getServer(x).hasAdminRights)
         .filter(x => ns.getServerMaxMoney(x) != 0)
-        .sort((a, b) => getPerformance(b) - getPerformance(a))
+
+    if (servers.length < 2) return ['n00dles']
+    return servers.sort((a, b) => getPerformance(b) - getPerformance(a))
+
+
 }
 
 /**
