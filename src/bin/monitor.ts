@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { modifyLogStyle } from '/lib/DOMhelpers.js'
+import { minimizeLogWidth, modifyLogStyle } from '/lib/DOMhelpers.js'
 import { rankServers } from '/lib/helpers.js'
 
 export async function main(ns: NS): Promise<void> {
@@ -38,7 +38,9 @@ export async function main(ns: NS): Promise<void> {
         }
         ns.print('╚════════════════════════════════╩═════════╝')
 
-        modifyLogStyle(logTitle, 'line-height', '1')
+        if (modifyLogStyle(logTitle, 'line-height', '1')) {
+            minimizeLogWidth(logTitle)
+        }
         await ns.sleep(1000)
     }
 }

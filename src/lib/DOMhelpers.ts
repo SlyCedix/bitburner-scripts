@@ -25,6 +25,42 @@ export function modifyLogStyle(logName: string, style: string, value: string): b
 }
 
 /**
+ * Resizes log to a specific size
+ * @param logName name that appears in the titlebar of the log
+ * @param width width as valid css string
+ * @param height height as valid css string
+ * @returns true if the log was found, false otherwise
+ */
+export function resizeLog(logName: string, width: string, height: string): boolean {
+    const titleBar = doc.querySelector(`[title="${logName}"]`)
+    if (titleBar == null || titleBar == undefined) return false
+
+    const resizeable = titleBar.parentNode.parentNode.parentNode
+        .lastChild.firstChild
+
+    resizeable.style.width = width
+    resizeable.style.height = height
+    return true
+}
+
+/**
+ * Sets the log to the minimum width that can support the last line
+ * @param logName name that appears in the titlebar of the log
+ * @returns width in pixels of the paragraph element, -1 if the log cannot be found
+ */
+export function minimizeLogWidth(logName: string): number {
+    const titleBar = doc.querySelector(`[title="${logName}"]`)
+    if (titleBar == null || titleBar == undefined) return false
+
+    const p = titleBar.parentNode.parentNode.parentNode
+        .lastChild.firstChild.firstChild.lastChild
+    if (p == null || p == undefined) return false
+
+    p.style.setProperty('display', 'inline', 'important')
+    return resizeLog(logName, `${p.offsetWidth + 1}px`, 'auto')
+}
+
+/**
  * Creates a new node on the stat display directly below charisma
  *
  * New nodes are appended to the top of the custom stats section
