@@ -133,6 +133,12 @@ export function getPurchaseableAugments(ns: NS): { faction: string, augments: st
             const augments = ns.getAugmentationsFromFaction(f)
                 .filter(a => !ns.getOwnedAugmentations(true).includes(a))
                 .filter(a => ns.getAugmentationRepReq(a) <= ns.getFactionRep(f))
+                .filter(a => {
+                    const prereqs = ns.getAugmentationPrereq(a)
+                    if (prereqs.length == 0) return true
+                    const ownership = prereqs.map(prereq => ns.getOwnedAugmentations().includes(prereq))
+                    return !ownership.includes(false)
+                })
             return { faction: f, augments: augments }
         }).filter(x => x.augments.length != 0)
 }
@@ -159,7 +165,7 @@ export function getMostExpensiveAugment(ns: NS): { factions: string[], augment: 
             maxCost = price
             bestAugment.factions = [augs.faction]
             bestAugment.augment = mostExpensive
-            bestAugment.cost = 0
+            bestAugment.cost = price
         }
     }
 
