@@ -15,9 +15,11 @@ module.exports = {
             impliedStrict: true,
             experimentalObjectRestSpread: true,
         },
+        project: ['./tsconfig.json'],
+        tsconfigRootDir: __dirname
     },
     plugins: ['@typescript-eslint'],
-    ignorePatterns: ['NetscriptDefinitions.d.ts',],
+    ignorePatterns: ['NetscriptDefinitions.d.ts', '*.js'],
     rules: {
         'max-len': ['warn', { 'code': 120 }],
         'no-constant-condition': ['off'],
@@ -29,5 +31,6 @@ module.exports = {
         //@typescript-eslint
         '@typescript-eslint/ban-ts-comment': ['off'],
         '@typescript-eslint/indent': ['warn', 4],
+        '@typescript-eslint/no-floating-promises': 'error',
     }
 }
