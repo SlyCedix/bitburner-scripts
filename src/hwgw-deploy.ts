@@ -122,8 +122,10 @@ export class Bot {
         const times = this.times
 
         // Max number of batches if undersaturated
-        const numBatches = Math.max(Math.floor(times.weaken / (this._timeB * 4)), 1)
-        if (numBatches * totalRam > getNetworkRam(this.ns) * .9) return
+        let numBatches = Math.max(Math.floor(times.weaken / (this._timeB * 4)), 1)
+        if (numBatches * totalRam > getNetworkRam(this.ns)) {
+            numBatches = Math.floor(numBatches * numBatches * totalRam / getNetworkRam(this.ns))
+        }
 
         // Calculate delays between weaken and hack/grow
         const hackDelay = times.weaken - times.hack
@@ -263,7 +265,9 @@ export class Bot {
         serverData.hackDifficulty = serverData.minDifficulty
 
         const hackAmount = HackingFormulas.hackPercent(serverData, this.ns.getPlayer())
-        let maxMoneyPerHack = Math.min(Math.floor(freeRam / this.hackRam) * hackAmount, this._hackPercent)
+        let maxMoneyPerHack = Math.min(
+            Math.floor(getMaxDeployRam(this.ns) / this.hackRam) * hackAmount,
+            this._hackPercent)
         let minMoneyPerHack = hackAmount
 
         let bestRatios: HackRatios = {
