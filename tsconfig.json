@@ -2,6 +2,7 @@
   "include": [
     "NetscriptDefinitions.d.ts",
     "types.d.ts",
+    "global.d.ts",
     "src/**/*",
   ],
   "compilerOptions": {
