@@ -306,14 +306,17 @@ export function getNetworkRam(ns: NS): number {
  */
 export function deploy(ns: NS, script: string, threads: number, ...args: (string | boolean | number)[]): boolean {
     const reqRam = ns.getScriptRam(script) * threads
-    const server = deepScan(ns)
+    const servers = deepScan(ns)
+        .filter(s => ns.getServer(s).hasAdminRights)
         .filter(s => getServerFreeRam(ns, s) >= reqRam)
-        .reduce((a, b) => getServerFreeRam(ns, b) > getServerFreeRam(ns, a) ? b : a)
 
-    if (!server) return false
+    let server
 
-    ns.exec(script, server, threads, ...args)
-    return true
+    if (servers.length == 0) return false
+    if (servers.length == 1) server = servers[0]
+    else server = servers.reduce((a, b) => getServerFreeRam(ns, b) < getServerFreeRam(ns, a) ? b : a)
+
+    return ns.exec(script, server, threads, ...args) != 0
 }
 
 /**
@@ -323,4 +326,18 @@ export function deploy(ns: NS, script: string, threads: number, ...args: (string
  */
 export function getServerFreeRam(ns: NS, server: string): number {
     return ns.getServerMaxRam(server) - ns.getServerUsedRam(server)
+}
+
+
+export function getMaxDeployRam(ns: NS): number {
+    const servers = deepScan(ns)
+        .filter(s => ns.getServer(s).hasAdminRights)
+
+    if (servers.length == 0) return 0
+    if (servers.length == 1) return getServerFreeRam(ns, servers[0])
+
+    const server = servers.reduce((a, b) => getServerFreeRam(ns, b) > getServerFreeRam(ns, a) ? b : a)
+
+    return getServerFreeRam(ns, server)
+
 }

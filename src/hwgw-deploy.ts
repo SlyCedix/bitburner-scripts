@@ -2,7 +2,15 @@ import { NS, Server } from '@ns'
 import { ActionTimes, HackRatios } from '@types'
 import { createStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
 import { HackingFormulas } from 'lib/formulas'
-import { deploy, formatMoney, getNetworkRam, rankServers, rootAll, upgradeAllServers } from 'lib/helpers'
+import {
+    deploy,
+    formatMoney,
+    getMaxDeployRam,
+    getNetworkRam,
+    rankServers,
+    rootAll,
+    upgradeAllServers
+} from 'lib/helpers'
 
 let hooks: Array<Node> = []
 const hackScript = '/hwgw/hack.js'
@@ -239,8 +247,8 @@ export class Bot {
             serverData = sim[1]
             totalRam += hackRatios.weak2T * this.weakRam
 
-            if (totalRam > freeRam) {
-                const ramFactor = freeRam / totalRam
+            if (totalRam > getMaxDeployRam(this.ns)) {
+                const ramFactor = getMaxDeployRam(this.ns) / totalRam
                 hackRatios.weakT = Math.floor(hackRatios.weakT * ramFactor)
                 hackRatios.growT = Math.floor(hackRatios.growT * ramFactor)
                 hackRatios.weak2T = Math.ceil(hackRatios.weak2T * ramFactor)
@@ -278,7 +286,7 @@ export class Bot {
             serverData.hackDifficulty = serverData.minDifficulty
 
             // Hack
-            let maxT = Math.floor(freeRam / this.hackRam)
+            const maxT = Math.floor(getMaxDeployRam(this.ns) / this.hackRam)
             let sim = this.simulateHack(serverData, maxT, currMoneyPerHack)
             hackRatios.hackT = sim[0]
             serverData = sim[1]
@@ -291,7 +299,6 @@ export class Bot {
             let totalRam = hackRatios.hackT * this.hackRam
 
             // First Weaken
-            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
             sim = this.simulateWeaken(serverData, maxT)
             hackRatios.weakT = sim[0]
             serverData = sim[1]
@@ -303,7 +310,6 @@ export class Bot {
             totalRam += hackRatios.weakT * this.weakRam
 
             //Grow
-            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
             sim = await this.simulateGrowth(serverData, maxT)
             hackRatios.growT = sim[0]
             serverData = sim[1]
@@ -315,7 +321,6 @@ export class Bot {
             totalRam += hackRatios.growT * this.growRam
 
             // Second weaken
-            maxT = Math.floor((freeRam - totalRam) / this.hackRam)
             sim = this.simulateWeaken(serverData, maxT)
             hackRatios.weak2T = sim[0]
             serverData = sim[1]
