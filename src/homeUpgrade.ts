@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { upgradeHomeServer } from '/lib/singularity'
+import { upgradeHomeServer } from 'lib/singularity'
 
 export async function main(ns: NS): Promise<void> {
     while (true) {

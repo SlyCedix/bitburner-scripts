@@ -1,6 +1,6 @@
 import { NS } from '@ns'
+import { ServerData } from '@types'
 import { scpAll } from 'lib/helpers'
-import { ServerData } from '../../types'
 
 export async function main(ns: NS): Promise<void> {
     await scpAll(ns, ns.args[0] as string)
