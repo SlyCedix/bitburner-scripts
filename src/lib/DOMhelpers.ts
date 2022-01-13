@@ -3,6 +3,10 @@
 //which I'd rather not do
 const doc: Document = eval('document')
 
+/**
+ * @param logName Pattern to match in the titlebar of the log
+ * @returns Node object with that title, null if it can't be found
+ */
 export function getLogNode(logName: string): Node | null {
     const titleBar = doc.querySelector(`[title*="${logName}"]`)
     if (titleBar == null || titleBar == undefined) return null
@@ -78,7 +82,6 @@ export function minimizeLogWidth(logName: string): boolean {
  * @param border Whether a white border exists at the bottom of the display
  * @returns The new HTML node of the element
  */
-
 export function createStatDisplay(name: string, color = '', border = true): Node {
     const extraHook = doc.getElementById('overview-extra-hook-0')
     if (extraHook == null || extraHook == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
