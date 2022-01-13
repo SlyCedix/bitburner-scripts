@@ -16,11 +16,10 @@ export async function main(ns: NS): Promise<void> {
 
         return namePadded + moneyPadded + secPadded
     }
-    ns.tail()
-
+    const logTitle = ns.getScriptName()
     const logScript = ns.args[0] as string ?? 'hwgw.js'
-    let logTitle = ns.getScriptName() + ' '
-    if (logScript != 'hwgw.js') logTitle += logScript
+
+    ns.tail()
 
     while (true) {
         ns.clearLog()

@@ -4,7 +4,7 @@
 const doc: Document = eval('document')
 
 export function getLogNode(logName: string): Node | null {
-    const titleBar = doc.querySelector(`[title="${logName}"]`)
+    const titleBar = doc.querySelector(`[title*="${logName}"]`)
     if (titleBar == null || titleBar == undefined) return null
 
     //@ts-expect-error can't be null if the above check passed
