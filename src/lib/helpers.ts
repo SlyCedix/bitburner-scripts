@@ -153,11 +153,11 @@ export function getPortFunctions(ns: NS): ((host: string) => void)[] {
 
     const portFunctions = []
 
-    if (ns.fileExists('BruteSSH.exe')) portFunctions.push(ns.brutessh)
-    if (ns.fileExists('FTPCrack.exe')) portFunctions.push(ns.ftpcrack)
-    if (ns.fileExists('relaySMTP.exe')) portFunctions.push(ns.relaysmtp)
-    if (ns.fileExists('HTTPWorm.exe')) portFunctions.push(ns.httpworm)
-    if (ns.fileExists('SQLInject.exe')) portFunctions.push(ns.sqlinject)
+    if (ns.fileExists('BruteSSH.exe')) portFunctions.push((s : string) => ns.brutessh(s))
+    if (ns.fileExists('FTPCrack.exe')) portFunctions.push((s : string) => ns.ftpcrack(s))
+    if (ns.fileExists('relaySMTP.exe')) portFunctions.push((s : string) => ns.relaysmtp(s))
+    if (ns.fileExists('HTTPWorm.exe')) portFunctions.push((s : string) => ns.httpworm(s))
+    if (ns.fileExists('SQLInject.exe')) portFunctions.push((s : string) => ns.sqlinject(s))
 
     return portFunctions
 }
@@ -262,7 +262,7 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
 export function killAll(ns: NS): void {
     deepScan(ns)
         .filter(server => server != ns.getHostname())
-        .forEach(ns.killall)
+        .forEach((s : string) => ns.killall(s))
     ns.killall(ns.getHostname())
 }
 

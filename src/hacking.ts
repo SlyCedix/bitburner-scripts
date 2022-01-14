@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { createStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
 import { HackingFormulas } from 'lib/formulas'
 import {
     deepScan,
@@ -131,6 +132,7 @@ class Bot {
             default:
                 this.ns.print(`ERROR: Invalid target server ${this.target}`)
         }
+        await this.ns.sleep(0)
     }
 
     get hackPct(): number {
@@ -247,9 +249,9 @@ export class Botnet {
     }
 
     initUI(): void {
-        this.createDisplay('Security')
-        this.createDisplay('Money')
-        this.createDisplay('Target')
+        createStatDisplay('Security')
+        createStatDisplay('Money')
+        createStatDisplay('Target')
     }
 
     updateUI(): void {
@@ -257,30 +259,8 @@ export class Botnet {
 
         const securityLevel = this.ns.getServerSecurityLevel(this.target)
 
-        const doc = eval('document')
-
-        doc.getElementById('Target-hook-1').innerHTML = this.target
-        doc.getElementById('Money-hook-1').innerHTML = formatMoney(this.ns, moneyAvailable)
-        doc.getElementById('Security-hook-1').innerHTML = this.ns.nFormat(securityLevel, '0.0')
-    }
-
-    createDisplay(name: string): void {
-        const doc = eval('document')
-        const display = doc.getElementById(name + '-hook-0')
-
-        if (typeof (display) == 'undefined' || display == null) {
-            const extraHookRow = doc.getElementById('overview-extra-hook-0').parentElement.parentElement
-            const clonedRow = extraHookRow.cloneNode(true)
-
-            clonedRow.childNodes[0].childNodes[0].id = name + '-hook-0'
-            clonedRow.childNodes[0].childNodes[0].innerHTML = name
-            clonedRow.childNodes[1].childNodes[0].id = name + '-hook-1'
-            clonedRow.childNodes[2].childNodes[0].id = name + '-hook-2'
-
-            hooks.push(extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling))
-        } else {
-            hooks.push(display.parentElement.parentElement)
-        }
-        console.debug(hooks)
+        updateStatDisplay('Target', this.target)
+        updateStatDisplay('Money', formatMoney(this.ns, moneyAvailable))
+        updateStatDisplay('Security', this.ns.nFormat(securityLevel, '0.0'))
     }
 }

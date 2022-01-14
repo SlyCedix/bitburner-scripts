@@ -5,7 +5,7 @@ export async function main(ns: NS): Promise<void> {
 
     const files = ns.ls('home', '.js')
     for (const file of files) {
-        const contents = ns.read(file)
+        const contents = ns.read(file) as string
         hashes[file] = getHash(contents)
     }
 
@@ -13,7 +13,7 @@ export async function main(ns: NS): Promise<void> {
         const files = ns.ls('home', '.js')
 
         for (const file of files) {
-            const contents = ns.read(file)
+            const contents = ns.read(file) as string
             const hash = getHash(contents)
 
             if (hash != hashes[file]) {
@@ -24,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
                 })
 
                 for (const process of processes) {
-                    ns.tprintf(`INFO: Restarting ${process.filename} ${process.args} -t ${process.threads}`)
+                    ns.tprintf(`INFO: Restarting ${process.filename} ${process.args.toString()} -t ${process.threads}`)
                     if (process.filename != ns.getScriptName()) {
                         ns.kill(process.pid)
                         ns.run(process.filename, process.threads, ...process.args)

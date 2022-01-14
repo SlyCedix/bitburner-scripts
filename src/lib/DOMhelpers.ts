@@ -1,18 +1,86 @@
-//This file is full of @ts-expect-error due to typescript weirdness with the DOM
-//This is pretty much unavoidable without defining objects extremely explicitly
-//which I'd rather not do
-const doc: Document = eval('document')
+const doc = eval('document') as Document
 
 /**
  * @param logName Pattern to match in the titlebar of the log
- * @returns Node object with that title, null if it can't be found
+ * @returns HTML Element matching that title, null if it can't be found
  */
-export function getLogNode(logName: string): Node | null {
+export function getLogElement(logName: string): Element | null {
     const titleBar = doc.querySelector(`[title*="${logName}"]`)
-    if (titleBar == null || titleBar == undefined) return null
+    if (titleBar == null) return null
 
-    //@ts-expect-error can't be null if the above check passed
-    return titleBar.parentNode.parentNode.parentNode
+    return traverseDOM(titleBar, 'parent', 'parent', 'parent') as Element | null
+}
+
+/**
+ * log.lastChild.firstChild.firstChild.children
+ * @param logName Pattern to match in the titlebar of the log
+ * @returns HTMLCollection of paragraph elements matching that title, null if it can't be found
+ */
+export function getLogParagraphs(logName: string): HTMLCollectionOf<HTMLParagraphElement> | null {
+    return traverseDOM(getLogElement(logName),
+        'lastChild',
+        'firstChild',
+        'firstChild',
+        'children') as HTMLCollectionOf<HTMLParagraphElement> | null
+}
+
+/**
+ * log.lastChild.firstChild
+ * @param logName Pattern to match in the titlebar of the log
+ * @returns Resizable HTMLDivElement matching that title, null if it can't be found
+ */
+export function getLogResizable(logName: string): HTMLDivElement | null {
+    return traverseDOM(getLogElement(logName), 'lastChild', 'firstChild') as HTMLDivElement | null
+}
+
+/**
+ * Nullsafe DOM traversal
+ * @param element Starting element
+ * @param path DOM traversal path, valid options are 'parent' 'firstChild' 'lastChild' and 'children',
+ * no entries can exist after 'children'
+ * @returns Element or collection at the point traversed to, null otherwise
+ */
+export function traverseDOM(element: Element | null, ...path: string[]): Element | HTMLCollection | null {
+    if(element == null) return null
+
+    const functions = {
+        parent: (element : Element | null): Element | null => {
+            if(element == null) return element
+            return element.parentElement
+        },
+
+        firstChild: (element: Element | null): Element | null => {
+            if(element == null) return element
+            return element.firstElementChild
+        },
+
+        lastChild: (element: Element | null): Element | null => {
+            if(element == null) return element
+            return element.lastElementChild
+        },
+
+        children: (element: Element | null): HTMLCollection | null => {
+            if(element == null) return element
+            return element.children
+        }
+    }
+
+    let ret : Element | HTMLCollection | null = element
+
+    while(path.length > 0){
+        // Null if tried to get next step of children
+        if(Array.isArray(ret)) return null
+
+        const next = path.shift() as string
+        if(Object.keys(functions).includes(next)) {
+            ret = functions[next as keyof typeof functions](ret as Element)
+            if(ret == null) return ret
+        } else {
+            return null
+        }
+    }
+
+    return ret
 }
 
 /**
@@ -23,14 +91,11 @@ export function getLogNode(logName: string): Node | null {
  * @returns true if the log was found, false otherwise
  */
 export function modifyLogStyle(logName: string, style: string, value: string): boolean {
-    const log = getLogNode(logName)
-    if (log == null) return false
-
-    //@ts-expect-error can't be null if the above check passed
-    const paragraphs = log.lastChild.firstChild.firstChild.children
+    const paragraphs = getLogParagraphs(logName)
+    if(paragraphs == null) return false
 
     for (const _p of paragraphs) {
-        const p = _p as HTMLElement
+        const p = _p
         if (p.style.getPropertyValue(style) != value) {
             p.style.setProperty(style, value)
         }
@@ -46,11 +111,8 @@ export function modifyLogStyle(logName: string, style: string, value: string): b
  * @returns true if the log was found, false otherwise
  */
 export function resizeLog(logName: string, width: string, height: string): boolean {
-    const log = getLogNode(logName)
-    if (log == null) return false
-
-    //@ts-expect-error can't be null if the above check passed
-    const resizeable = log.lastChild.firstChild as HTMLDivElement
+    const resizeable = getLogResizable(logName)
+    if (resizeable == null) return false
 
     resizeable.style.width = width
     resizeable.style.height = height
@@ -63,12 +125,11 @@ export function resizeLog(logName: string, width: string, height: string): boole
  * @returns width in pixels of the paragraph element, -1 if the log cannot be found
  */
 export function minimizeLogWidth(logName: string): boolean {
-    const log = getLogNode(logName)
+    const log = getLogParagraphs(logName)
     if (log == null) return false
 
-    //@ts-expect-error can't be null if the above check passed
-    const p = log.lastChild.firstChild.firstChild.lastChild as HTMLParagraphElement
-    if (p == null || p == undefined) return false
+    const p = log[log.length - 1]
+    if (p == null) return false
 
     p.style.setProperty('display', 'inline', 'important')
     return resizeLog(logName, `${p.offsetWidth + 1}px`, '20%')
@@ -84,37 +145,34 @@ export function minimizeLogWidth(logName: string): boolean {
  */
 export function createStatDisplay(name: string, color = '', border = true): Node {
     const extraHook = doc.getElementById('overview-extra-hook-0')
-    if (extraHook == null || extraHook == undefined) throw 'ERROR: Could not find extra hook, was it modified?'
+    if (extraHook == null) throw 'ERROR: Could not find extra hook, was it modified?'
 
-    //@ts-expect-error
-    const extraHookRow = extraHook.parentNode.parentNode
+    const extraHookRow = traverseDOM(extraHook, 'parent', 'parent') as Element
+    const clonedRow = extraHookRow.cloneNode(true) as Element
 
-    //@ts-expect-error
-    const clonedRow = extraHookRow.cloneNode(true) as HTMLElement
+    const children = traverseDOM(clonedRow, 'children') as HTMLCollection
+    const hook0 = traverseDOM(children[0], 'firstChild') as HTMLElement
+    const hook1 = traverseDOM(children[1], 'firstChild') as HTMLElement
+    const hook2 = traverseDOM(children[2], 'firstChild') as HTMLElement
 
-    clonedRow.children[0].children[0].id = name + '-hook-0'
-    clonedRow.children[0].children[0].innerHTML = name
-    clonedRow.children[1].children[0].id = name + '-hook-1'
-    clonedRow.children[2].children[0].id = name + '-hook-2'
+    hook0.id = name + '-hook-0'
+    hook0.innerHTML = name
+    hook1.id = name + '-hook-1'
+    hook2.id = name + '-hook-2'
 
     if (!border) {
-        //@ts-expect-error
-        clonedRow.children[0].style.setProperty('border-bottom', '0px')
-        //@ts-expect-error
-        clonedRow.children[1].style.setProperty('border-bottom', '0px')
+        hook0.style.setProperty('border-bottom', '0px')
+        hook1.style.setProperty('border-bottom', '0px')
     }
 
     if (color.length != 0) {
-        //@ts-expect-error
-        clonedRow.children[0].firstChild.style.setProperty('color', color)
-        //@ts-expect-error
-        clonedRow.children[1].firstChild.style.setProperty('color', color)
-        //@ts-expect-error
-        clonedRow.children[2].firstChild.style.setProperty('color', color)
+        hook0.style.setProperty('color', color)
+        hook1.style.setProperty('color', color)
+        hook2.style.setProperty('color', color)
     }
 
-    //@ts-expect-error won't be null
-    return extraHookRow.parentNode.insertBefore(clonedRow, extraHookRow.nextSibling)
+    const parent = traverseDOM(extraHookRow, 'parent') as HTMLElement
+    return parent.insertBefore(clonedRow, extraHookRow.nextSibling)
 }
 
 /**
@@ -144,10 +202,12 @@ export function runTerminalCommand(command: string): void {
     const handler = Object.keys(terminalInput)[1]
     const reactHandler = terminalInput[handler as keyof HTMLElement]
     //@ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     reactHandler.onChange({
         target: terminalInput
     })
     //@ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     reactHandler.onKeyDown({
         keyCode: 13,
         preventDefault: () => null

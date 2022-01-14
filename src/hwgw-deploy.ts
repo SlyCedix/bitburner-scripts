@@ -41,7 +41,7 @@ export async function main(ns: NS): Promise<void> {
     // }
 
     const botnet = new Botnet(ns)
-    await botnet.init()
+    botnet.init()
 
     ns.atExit(() => {
         for (const hook of hooks) {
@@ -86,7 +86,7 @@ export class Bot {
         this.weakRam = ns.getScriptRam(weakScript)
     }
 
-    async init(): Promise<void> {
+    init(): void {
         this.ns.print(`INFO: Bot initialized attacking ${this.target}`)
     }
 
@@ -194,7 +194,7 @@ export class Bot {
         let upper = maxThreads
         let lower = 1
         while (upper != lower) {
-            const newServer = JSON.parse(JSON.stringify(serverData))
+            const newServer = JSON.parse(JSON.stringify(serverData)) as Server
             const growT = Math.ceil((upper + lower) / 2)
             if (growT < 1) break
             newServer.moneyAvailable += growT
@@ -376,7 +376,7 @@ export class Botnet {
         this.ns = ns
     }
 
-    async init(): Promise<void> {
+    init(): void {
         this.ns.disableLog('ALL')
 
         rootAll(this.ns)
@@ -386,7 +386,7 @@ export class Botnet {
         for (const target of this.targets) {
             const bot = new Bot(this.ns, target)
             this.bots.push(bot)
-            await bot.init()
+            bot.init()
         }
 
         this.initUI()
@@ -394,7 +394,7 @@ export class Botnet {
     }
 
     async update(): Promise<void> {
-        await this.updateTargets()
+        this.updateTargets()
         upgradeAllServers(this.ns)
         const freeBots = this.bots.filter(b => !b.isRunning())
         for (const bot of freeBots) {
@@ -407,16 +407,16 @@ export class Botnet {
     /**
      * Checks if there are new target rankings and update if necessary
      */
-    private async updateTargets(): Promise<void> {
+    private updateTargets(): void {
         const targets = rankServers(this.ns)
         if (targets.length > this.targets.length) {
             const newTargets = targets.filter(s => !this.targets.includes(s))
             this.targets = targets
 
-            for (const target in newTargets) {
+            for (const target of newTargets) {
                 const bot = new Bot(this.ns, target)
                 this.bots.push(bot)
-                await bot.init()
+                bot.init()
             }
         }
         this.bots.sort((a, b) => this.targets.indexOf(a.target) - this.targets.indexOf(b.target))

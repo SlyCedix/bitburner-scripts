@@ -2,10 +2,10 @@ import { NS } from '@ns'
 
 export async function main(ns: NS): Promise<void> {
     const hacknet = new Hacknet(ns)
-    await hacknet.init()
+    hacknet.init()
 
     while (true) {
-        await hacknet.update()
+        hacknet.update()
         await ns.sleep(10)
     }
 }
@@ -20,11 +20,11 @@ export class Hacknet {
         this.ns = ns
     }
 
-    async init(): Promise<void> {
+    init(): void {
         this.ns.print('INFO: Hacknet initialized')
     }
 
-    async update(): Promise<void> {
+    update(): void {
         let maxCost = Math.min(this.totalProduction * 30,
             this.ns.getServerMoneyAvailable('home') * 0.1)
 

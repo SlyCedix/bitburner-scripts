@@ -1,10 +1,9 @@
 import { NS } from '@ns'
 
-
 const scripts = ['hwgw.js', 'homeUpgrade.js', 'contracts.js', 'watcher.js']
 const kill = ['/hwgw/hack.js', '/hwgw/weaken.js', '/hwgw/grow.js']
 
-export async function main(ns: NS): Promise<void> {
+export function main(ns: NS): void {
     for (const script of kill) {
         ns.scriptKill(script, 'home')
     }

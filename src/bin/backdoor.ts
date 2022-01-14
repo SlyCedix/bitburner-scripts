@@ -3,11 +3,11 @@ import { ServerData } from '@types'
 import { runTerminalCommand } from 'lib/DOMhelpers'
 import { findServer } from 'lib/helpers'
 
-export async function main(ns: NS): Promise<void> {
+export function main(ns: NS): void {
     if (ns.args.length != 1) {
         ns.tprintf('ERROR: Incorrect usage of connect command. Usage: backdoor [ip/hostname]')
     } else {
-        const connections = await findServer(ns, ns.args[0] as string)
+        const connections = findServer(ns, ns.args[0] as string)
         let connectString = 'home; '
 
         for (const connection of connections) {
@@ -17,7 +17,7 @@ export async function main(ns: NS): Promise<void> {
         if (connectString.length > 0) {
             runTerminalCommand(connectString + 'backdoor')
         } else {
-            ns.tprintf(`ERROR: Host ${ns.args[0]} not found.`)
+            ns.tprintf(`ERROR: Host ${ns.args[0] as string} not found.`)
         }
     }
 }

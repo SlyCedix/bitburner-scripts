@@ -219,7 +219,7 @@ export class Bot {
         let upper = maxThreads
         let lower = 1
         while (upper != lower) {
-            const newServer = JSON.parse(JSON.stringify(serverData))
+            const newServer = JSON.parse(JSON.stringify(serverData)) as Server
             const growT = Math.ceil((upper + lower) / 2)
             if (growT < 1) break
             newServer.moneyAvailable += growT

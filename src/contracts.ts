@@ -3,10 +3,10 @@ import { getServersWithContracts } from 'lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
     const contracts = new Contracts(ns)
-    await contracts.init()
+    contracts.init()
 
     while (true) {
-        await contracts.update()
+        contracts.update()
         await ns.sleep(60000)
     }
 }
@@ -39,12 +39,12 @@ export class Contracts {
         this.ns = ns
     }
 
-    async init(): Promise<void> {
+    init(): void {
         this.ns.disableLog('ALL')
         this.ns.print('INFO: Contracts Initialized')
     }
 
-    async update(): Promise<void> {
+    update(): void {
         const servers = getServersWithContracts(this.ns)
 
         for (let i = 0; i < servers.length; ++i) {
@@ -55,12 +55,12 @@ export class Contracts {
                 const contract = contracts[j]
 
                 const contractType = this.ns.codingcontract.getContractType(contract, server)
-                const contractData = this.ns.codingcontract.getData(contract, server)
+                const contractData = this.ns.codingcontract.getData(contract, server) as unknown
 
 
                 if (!this.failed.includes(contract)) {
                     if (Object.prototype.hasOwnProperty.call(contractFunctions, contractType)) {
-                        console.debug(`${contractType} ${contractData}`)
+                        console.debug(`${contractType} ${contractData as string}`)
                         // @ts-ignore
                         this.attemptContract(contractFunctions[contractType], contract, server, contractData)
                     } else {
@@ -73,13 +73,13 @@ export class Contracts {
 
     // eslint-disable-next-line @typescript-eslint/ban-types
     attemptContract(solver: Function, contract: string, server: string, data: Array<unknown>): void {
-        const solution = solver(data)
-        const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true })
+        const solution = solver(data) as number | string[]
+        const reward = this.ns.codingcontract.attempt(solution, contract, server, { returnReward: true }) as string
         if (reward == '') {
             this.failed.push(contract)
             this.ns.tprintf(`ERROR: Failed ${contract} of type ` +
                 this.ns.codingcontract.getContractType(contract, server) +
-                ` with solution ${solution}`)
+                ` with solution ${solution.toString()}`)
         } else {
             this.ns.tprintf(`SUCCESS: ${reward}`)
         }
@@ -199,9 +199,9 @@ function pyramidSum(data: Array<Array<number>>, sum = 0): number {
     sum += data[0][0]
     if (data.length == 1) return sum
 
-    const leftData = JSON.parse(JSON.stringify(data))
+    const leftData = JSON.parse(JSON.stringify(data)) as number[][]
     leftData.splice(0, 1)
-    const rightData = JSON.parse(JSON.stringify(leftData))
+    const rightData = JSON.parse(JSON.stringify(leftData)) as number[][]
 
     for (let i = 0; i < leftData.length; ++i) {
         leftData[i].splice(leftData[i].length - 1, 1)
@@ -256,14 +256,14 @@ function uniquePaths(data: Array<Array<number>>): number {
     let sum = 0
 
     if (data.length > 1) {
-        const downField = JSON.parse(JSON.stringify(data))
+        const downField = JSON.parse(JSON.stringify(data)) as number[][]
         downField.splice(0, 1)
 
         sum += uniquePaths(downField)
     }
 
     if (data[0].length > 1) {
-        const upField = JSON.parse(JSON.stringify(data))
+        const upField = JSON.parse(JSON.stringify(data)) as number[][]
 
         for (let i = 0; i < data.length; ++i) {
             upField[i].splice(0, 1)
@@ -435,7 +435,7 @@ function spiralizeMatrix(data: Array<Array<number>>): Array<number> {
         }
     }
 
-    const newdata = JSON.parse(JSON.stringify(data))
+    const newdata = JSON.parse(JSON.stringify(data)) as number[][]
     newdata.splice(height - 1, 1)
     newdata.splice(0, 1)
 

@@ -28,7 +28,7 @@ class Joebot {
         await this.ns.scp(files, 'home', this.server)
     }
 
-    async update(): Promise<void> {
+    update(): void {
         const maxT = Math.floor(this.freeRam / 1.75)
         if (maxT > 0) {
             if (this.ns.getServerSecurityLevel('joesguns') != this.ns.getServerMinSecurityLevel('joesguns')) {
@@ -78,7 +78,7 @@ class Joenet {
         }
 
         for (const bot of this.bots) {
-            await bot.update()
+            bot.update()
         }
     }
 }

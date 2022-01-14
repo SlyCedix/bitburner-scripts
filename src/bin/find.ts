@@ -3,8 +3,8 @@ import { ServerData } from '@types'
 import { findServer } from 'lib/helpers'
 
 
-export async function main(ns: NS): Promise<void> {
-    ns.tprintf((await findServer(ns, ns.args[0] as string)).join(' > '))
+export function main(ns: NS): void {
+    ns.tprintf((findServer(ns, ns.args[0] as string)).join(' > '))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
