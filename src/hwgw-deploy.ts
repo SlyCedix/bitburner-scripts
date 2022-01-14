@@ -127,32 +127,52 @@ export class Bot {
         const hackDelay = times.weaken - times.hack
         const growDelay = times.weaken - times.grow
 
+        let count = 0
         // Prepare timekeeping
         let delay = this._timeB
         const startTime = performance.now()
 
         for (let i = 0; i < numBatches; ++i) {
+            const currBatch = []
+
             // Deploy Hack
-            deploy(this.ns, hackScript, ratios.hackT, this.target, startTime + hackDelay + delay)
+            currBatch.push(deploy(this.ns, hackScript, ratios.hackT, this.target, startTime + hackDelay + delay))
+            if(currBatch.slice(-1)[0] == 0) {
+                currBatch.forEach(p => this.ns.kill(p))
+                break
+            }
             delay += this._timeB
 
             // Deploy Weak1
-            deploy(this.ns, weakScript, ratios.weakT, this.target, startTime + delay)
+            currBatch.push(deploy(this.ns, weakScript, ratios.weakT, this.target, startTime + delay))
+            if(currBatch.slice(-1)[0] == 0) {
+                currBatch.forEach(p => this.ns.kill(p))
+                break
+            }
             delay += this._timeB
 
             // Deploy Grow
-            deploy(this.ns, growScript, ratios.growT, this.target, startTime + growDelay + delay)
+            currBatch.push(deploy(this.ns, growScript, ratios.growT, this.target, startTime + growDelay + delay))
+            if(currBatch.slice(-1)[0] == 0) {
+                currBatch.forEach(p => this.ns.kill(p))
+                break
+            }
             delay += this._timeB
 
             // Deploy Weak2
-            deploy(this.ns, weakScript, ratios.weak2T, this.target, startTime + delay)
+            currBatch.push(deploy(this.ns, weakScript, ratios.weak2T, this.target, startTime + delay))
+            if(currBatch.slice(-1)[0] == 0) {
+                currBatch.forEach(p => this.ns.kill(p))
+                break
+            }
             delay += this._timeB
+            count++
         }
-        // @ts-ignore can't import lodash without breaking things
-        // this._timeB = _.clamp(this._timeB - (1 / Math.log2(this._adjustmentCount++)), this._minTime, this._maxTime)
-        this.ns.print(`INFO: Deployed ${numBatches} batches attacking ${this.target}`)
 
-        this._endTime = startTime + times.weaken + (numBatches + 1) * 4 * this._timeB
+        if(count > 0) {
+            this.ns.print(`INFO: Deployed ${count} batches attacking ${this.target}`)
+            this._endTime = startTime + times.weaken + (count + 1) * 4 * this._timeB
+        }
     }
 
 
