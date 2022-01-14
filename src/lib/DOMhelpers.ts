@@ -189,6 +189,16 @@ export function updateStatDisplay(name: string, value: string): boolean {
     return true
 }
 
+export function deleteStatDisplay(name: string): boolean {
+    const hook = doc.getElementById(`${name}-hook-0`)
+    if(hook == null) return false
+
+    const hookRow  = traverseDOM(hook, 'parent', 'parent') as Element
+    const hookRowParent = traverseDOM(hookRow, 'parent') as Element
+    hookRowParent.removeChild(hookRow)
+    return true
+}
+
 /**
  * Injects a single command into the terminal
  *

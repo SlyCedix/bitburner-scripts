@@ -1,10 +1,9 @@
 import { NS, Server } from '@ns'
 import { ActionTimes, HackRatios } from '@types'
-import { createStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
+import { createStatDisplay, deleteStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
 import { HackingFormulas } from 'lib/formulas'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from 'lib/helpers'
 
-let hooks: Array<Node> = []
 const hackScript = '/hwgw/hack.js'
 const growScript = '/hwgw/grow.js'
 const weakScript = '/hwgw/weaken.js'
@@ -37,11 +36,8 @@ export async function main(ns: NS): Promise<void> {
     await botnet.init()
 
     ns.atExit(() => {
-        for (const hook of hooks) {
-            // @ts-ignore
-            hook.parentElement.removeChild(hook)
-        }
-        hooks = []
+        deleteStatDisplay('Money')
+        deleteStatDisplay('Exp')
     })
 
     while (true) {
@@ -501,8 +497,8 @@ export class Botnet {
     }
 
     private initUI(): void {
-        hooks.push(createStatDisplay('Exp', this.ns.ui.getTheme().hack))
-        hooks.push(createStatDisplay('Money', this.ns.ui.getTheme().money, false))
+        createStatDisplay('Exp', this.ns.ui.getTheme().hack)
+        createStatDisplay('Money', this.ns.ui.getTheme().money, false)
     }
 
     private updateUI(): void {

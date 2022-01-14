@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { createStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
+import { createStatDisplay, updateStatDisplay, deleteStatDisplay } from 'lib/DOMhelpers'
 import { HackingFormulas } from 'lib/formulas'
 import {
     deepScan,
@@ -9,19 +9,14 @@ import {
     rootAll, upgradeAllServers
 } from 'lib/helpers'
 
-let hooks: Array<Node> = []
-
 export async function main(ns: NS): Promise<void> {
     const botnet = new Botnet(ns)
     await botnet.init()
 
     ns.atExit(() => {
-        console.debug(hooks)
-        for (const hook of hooks) {
-            // @ts-ignore
-            hook.parentElement.removeChild(hook)
-        }
-        hooks = []
+        deleteStatDisplay('Security')
+        deleteStatDisplay('Target')
+        deleteStatDisplay('Money')
     })
 
     while (true) {
