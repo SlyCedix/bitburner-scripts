@@ -10,13 +10,13 @@ export async function main(ns: karmaNS): Promise<void> {
 
     while (true) {
         ns.tail()
-        updateStatDisplay('Karma', ns.heart.break())
-        await ns.asleep(ns.commitCrime(getBestKarmaCrime(ns, 1)))
+        updateStatDisplay('Karma', Math.ceil(ns.heart.break()).toString())
+        await ns.asleep(ns.commitCrime(getBestKarmaCrime(ns)))
     }
 }
 
 interface karmaNS extends NS {
     heart: {
-        break: () => string
+        break: () => number
     }
 }

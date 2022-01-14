@@ -207,16 +207,13 @@ export function getAllCrimes(): string[] {
  * @param chanceThresh Minimum crime success chance to include in calculations
  * @returns crime with maximum karma/second
  */
-export function getBestKarmaCrime(ns: NS, chanceThresh = 1): string {
-    const crimes = getAllCrimes().filter(c => ns.getCrimeChance(c) >= chanceThresh)
-    if (crimes.length == 0) return getAllCrimes()[0]
-
-    return crimes.reduce((a, b) => {
+export function getBestKarmaCrime(ns: NS): string {
+    return getAllCrimes().reduce((a, b) => {
         const aStats = ns.getCrimeStats(a)
         const bStats = ns.getCrimeStats(b)
 
-        const aRate = aStats.karma / aStats.time
-        const bRate = bStats.karma / bStats.time
+        const aRate = aStats.karma / aStats.time * ns.getCrimeChance(a)
+        const bRate = bStats.karma / bStats.time * ns.getCrimeChance(b)
 
         return aRate > bRate ? a : b
     })
