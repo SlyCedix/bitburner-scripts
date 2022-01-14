@@ -1,15 +1,11 @@
 import { NS } from '@ns'
 
 const scripts = ['hwgw.js', 'homeUpgrade.js', 'contracts.js', 'watcher.js']
-const kill = ['/hwgw/hack.js', '/hwgw/weaken.js', '/hwgw/grow.js']
 
 export function main(ns: NS): void {
-    for (const script of kill) {
-        ns.scriptKill(script, 'home')
-    }
+    ns.ps()
+        .filter(p => p.filename != ns.getScriptName())
+        .forEach(p => ns.kill(p.pid))
 
-    for (const script of scripts) {
-        ns.scriptKill(script, 'home')
-        ns.run(script)
-    }
+    scripts.forEach(s => ns.run(s))
 }
