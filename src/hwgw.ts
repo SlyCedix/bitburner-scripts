@@ -423,7 +423,7 @@ export class Botnet {
             }
             let target = 'n00dles'
             if (this.ns.getPurchasedServers().includes(server) || server == 'home') {
-                target = this.targets[n++]
+                target = this.targets[n++] ?? 'n00dles'
             }
             const bot = new Bot(this.ns, server, target, buffer)
             this.bots.push(bot)
@@ -466,7 +466,7 @@ export class Botnet {
         let n = 0
         for (const bot of this.bots) {
             if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
-                bot.target = this.targets[n++]
+                bot.target = this.targets[n++] ?? 'n00dles'
             }
         }
     }
