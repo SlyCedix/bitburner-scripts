@@ -107,8 +107,9 @@ export function getJoinedFactions(ns: NS): string[] {
  * Loops through every faction joined and attempts to level them until a reset would give 150 favor
  * @param ns
  */
-export async function levelAllFactions(ns: NS): Promise<void> {
+export async function levelAllFactions(ns: NS, focus = false): Promise<void> {
     const factions = getJoinedFactions(ns)
+    const jobs = ['Hacking Contracts', 'Field Work', 'Security Work']
 
     for (const faction of factions) {
         if (ns.getFactionFavor(faction) >= 150) {
@@ -116,8 +117,17 @@ export async function levelAllFactions(ns: NS): Promise<void> {
             continue
         }
 
+        const highestRepAug = ns.getAugmentationsFromFaction(faction)
+            .filter(a => !ns.getOwnedAugmentations(true).includes(a))
+            .reduce((a,b) => ns.getAugmentationRepReq(a) > ns.getAugmentationRepReq(b) ? a : b)
+
+        const repMax = ns.getAugmentationRepReq(highestRepAug)
+
         while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150) {
-            ns.workForFaction(faction, 'Hacking Contracts', false)
+            for(const job of jobs) {
+                if(ns.workForFaction(faction, job, focus)) break
+            }
+            if(ns.getFactionRep(faction) > repMax) break
             await ns.sleep(60000)
         }
     }
