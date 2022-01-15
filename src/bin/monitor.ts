@@ -3,6 +3,8 @@ import { minimizeLogWidth, modifyLogStyle } from 'lib/DOMhelpers'
 import { rankServers } from 'lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
+    ns.disableLog('ALL')
+
     const formatServer = (serverName: string): string => {
         const namePadded = `║ ${serverName.padEnd(20)}`
 
