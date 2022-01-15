@@ -161,8 +161,10 @@ export function createStatDisplay(name: string, color = '', border = true): Node
     hook2.id = name + '-hook-2'
 
     if (!border) {
-        hook0.style.setProperty('border-bottom', '0px')
-        hook1.style.setProperty('border-bottom', '0px')
+        const styleParent0 = children[0] as HTMLElement
+        const styleParent1 = children[1] as HTMLElement
+        styleParent0.style.setProperty('border-bottom', '0px')
+        styleParent1.style.setProperty('border-bottom', '0px')
     }
 
     if (color.length != 0) {
