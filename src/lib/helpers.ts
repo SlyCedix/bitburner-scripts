@@ -160,27 +160,10 @@ export function getPortFunctions(ns: NS): ((host: string) => void)[] {
 }
 
 /**
- * Attempts to purchase all port openers using singularity
- * @param ns
- */
-export function buyAll(ns: NS): void {
-    if (!ns.serverExists('darkweb')) {
-        ns.purchaseTor()
-    } else {
-        if (!ns.fileExists('BruteSSH.exe')) ns.purchaseProgram('BruteSSH.exe')
-        if (!ns.fileExists('FTPCrack.exe')) ns.purchaseProgram('FTPCrack.exe')
-        if (!ns.fileExists('HTTPWorm.exe')) ns.purchaseProgram('HTTPWorm.exe')
-        if (!ns.fileExists('SQLInject.exe')) ns.purchaseProgram('SQLInject.exe')
-        if (!ns.fileExists('relaySMTP.exe')) ns.purchaseProgram('relaySMTP.exe')
-    }
-}
-
-/**
  * @param ns
  * @returns Array of hostnames that have been rooted
  */
 export function rootAll(ns: NS): string[] {
-    buyAll(ns)
     const portFunctions = getPortFunctions(ns)
 
     // Checks which hostnames can be rooted, but are not

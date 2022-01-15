@@ -230,3 +230,17 @@ export function upgradeHomeServer(ns: NS): boolean {
         return ns.upgradeHomeCores()
     }
 }
+
+/**
+ * Attempts to purchase all port openers using singularity
+ * @param ns
+ */
+export function buyAll(ns: NS): void {
+    if (!ns.serverExists('darkweb')) {
+        ns.purchaseTor()
+    } else {
+        ['BruteSSH.exe', 'FTPCrack.exe', 'HTTPWorm.exe', 'SQLInject.exe', 'relaySMTP.exe']
+            .filter(f => !ns.fileExists(f))
+            .forEach(f => ns.purchaseProgram(f))
+    }
+}
