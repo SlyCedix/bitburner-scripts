@@ -1,5 +1,6 @@
 import { NS } from '@ns'
 import { deepScan, rootAll } from 'lib/helpers'
+import { buyAll } from 'lib/singularity'
 
 const growScript = '/hwgw/grow.js'
 const weakScript = '/hwgw/weaken.js'
@@ -53,6 +54,7 @@ class Joenet {
     }
 
     async init(): Promise<void> {
+        buyAll(this.ns)
         rootAll(this.ns)
         const servers = deepScan(this.ns).filter((server) => {
             return this.ns.getServer(server).hasAdminRights &&
@@ -68,6 +70,7 @@ class Joenet {
     }
 
     async update(): Promise<void> {
+        buyAll(this.ns)
         const newServers = rootAll(this.ns)
         if (newServers.length > 0) {
             for (const server of newServers) {

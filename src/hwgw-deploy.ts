@@ -11,6 +11,7 @@ import {
     rootAll,
     upgradeAllServers
 } from 'lib/helpers'
+import { buyAll } from 'lib/singularity'
 
 const hackScript = '/hwgw/hack.js'
 const growScript = '/hwgw/grow.js'
@@ -72,8 +73,6 @@ export class Bot {
     private _hackPercent = 0.99
 
     constructor(ns: NS, target: string) {
-        ns.disableLog('ALL')
-
         this.ns = ns
         this.target = target
 
@@ -388,12 +387,12 @@ export class Botnet {
     bots: Bot[] = []
 
     constructor(ns: NS) {
+        ns.disableLog('ALL')
         this.ns = ns
     }
 
     init(): void {
-        this.ns.disableLog('ALL')
-
+        buyAll(this.ns)
         rootAll(this.ns)
 
         this.targets = rankServers(this.ns)
@@ -423,6 +422,9 @@ export class Botnet {
      * Checks if there are new target rankings and update if necessary
      */
     private updateTargets(): void {
+        buyAll(this.ns)
+        rootAll(this.ns)
+
         const targets = rankServers(this.ns)
         if (targets.length > this.targets.length) {
             const newTargets = targets.filter(s => !this.targets.includes(s))

@@ -3,6 +3,7 @@ import { ActionTimes, HackRatios } from '@types'
 import { createStatDisplay, deleteStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
 import { HackingFormulas } from 'lib/formulas'
 import { deepScan, formatMoney, rankServers, rootAll, upgradeAllServers } from 'lib/helpers'
+import { buyAll } from 'lib/singularity'
 
 const hackScript = '/hwgw/hack.js'
 const growScript = '/hwgw/grow.js'
@@ -68,8 +69,6 @@ export class Bot {
     // private _minHack = 0.25
 
     constructor(ns: NS, server: string, target: string, buffer = 0) {
-        ns.disableLog('ALL')
-
         this.ns = ns
         this.buffer = buffer
         this.server = server
@@ -396,12 +395,12 @@ export class Botnet {
     bots: Bot[] = []
 
     constructor(ns: NS) {
+        ns.disableLog('ALL')
         this.ns = ns
     }
 
     async init(): Promise<void> {
-        this.ns.disableLog('ALL')
-
+        buyAll(this.ns)
         rootAll(this.ns)
 
         this.targets = rankServers(this.ns)
@@ -417,9 +416,9 @@ export class Botnet {
                 this.ns.killall(server)
                 buffer = 0
             }
-            let target = 'n00dles'
+            let target = this.targets.slice(-1)[0]
             if (this.ns.getPurchasedServers().includes(server) || server == 'home') {
-                target = this.targets[n++] ?? 'n00dles'
+                target = this.targets[n++] ?? this.targets.slice(-1)[0]
             }
             const bot = new Bot(this.ns, server, target, buffer)
             this.bots.push(bot)
@@ -444,10 +443,11 @@ export class Botnet {
      * Attempts to root all servers and create bots for the new servers
      */
     private async newBots(): Promise<void> {
+        buyAll(this.ns)
         const newServs = rootAll(this.ns)
         if (newServs.length > 0) {
             for (const server of newServs) {
-                const bot = new Bot(this.ns, server, 'n00dles')
+                const bot = new Bot(this.ns, server, this.targets.slice(-1)[0])
                 this.bots.push(bot)
                 await bot.init()
             }
@@ -462,7 +462,7 @@ export class Botnet {
         let n = 0
         for (const bot of this.bots) {
             if (bot.server == 'home' || this.ns.getPurchasedServers().includes(bot.server)) {
-                bot.target = this.targets[n++] ?? 'n00dles'
+                bot.target = this.targets[n++] ?? this.targets.slice(-1)[0]
             }
         }
     }
@@ -489,7 +489,7 @@ export class Botnet {
             this.bots = this.bots.filter(bot => !this.ns.getPurchasedServers().includes(bot.server))
             let n = 0
             for (const server of this.ns.getPurchasedServers()) {
-                const bot = new Bot(this.ns, server, this.targets[n++] ?? 'n00dles')
+                const bot = new Bot(this.ns, server, this.targets[n++] ?? this.targets.slice(-1)[0])
                 this.bots.push(bot)
                 await bot.init()
             }
