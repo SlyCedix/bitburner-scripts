@@ -261,9 +261,12 @@ export function findServer(ns: NS, target: string, start = 'home', source = ''):
  */
 export function killAll(ns: NS): void {
     deepScan(ns)
-        .filter(server => server != ns.getHostname())
-        .forEach((s : string) => ns.killall(s))
-    ns.killall(ns.getHostname())
+        .filter(s => s != ns.getHostname())
+        .forEach(s => ns.killall(s))
+
+    ns.ps()
+        .filter(p => p.filename != ns.getScriptName())
+        .forEach(p => ns.kill(p.pid))
 }
 
 /**
@@ -314,7 +317,7 @@ export function deploy(ns: NS, script: string, threads: number, ...args: (string
 
     if (servers.length == 0) return 0
     if (servers.length == 1) server = servers[0]
-    else server = servers.reduce((a, b) => getServerFreeRam(ns, b) < getServerFreeRam(ns, a) ? b : a)
+    else server = servers.reduce((a, b) => getServerFreeRam(ns, b) > getServerFreeRam(ns, a) ? b : a)
 
     return ns.exec(script, server, threads, ...args)
 }
