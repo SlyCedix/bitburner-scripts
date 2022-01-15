@@ -5,7 +5,6 @@ import { NS } from '@ns'
  * @returns Array of all hostnames
  */
 export function deepScan(ns: NS): string[] {
-    ns.disableLog('ALL')
     const hostnames = ['home']
 
     for (const hostname of hostnames) {
@@ -149,8 +148,6 @@ export async function scpAll(ns: NS, files: string | string[]): Promise<void> {
  * @returns Array of port functions that the player currently can access
  */
 export function getPortFunctions(ns: NS): ((host: string) => void)[] {
-    ns.disableLog('ALL')
-
     const portFunctions = []
 
     if (ns.fileExists('BruteSSH.exe')) portFunctions.push((s : string) => ns.brutessh(s))
