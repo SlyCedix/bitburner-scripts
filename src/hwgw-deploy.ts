@@ -97,7 +97,7 @@ export class Bot {
 
         const growDelay = times.weaken - times.grow
 
-        this.ns.print(`INFO: Preparing ${this.target} for batches`)
+        this.ns.print(`INFO: Prep ${this.target}`)
         let delay = this._timeB
         const startTime = performance.now()
         if (ratios.weakT > 0) deploy(this.ns, weakScript, ratios.weakT, this.target, startTime + delay)
@@ -168,9 +168,8 @@ export class Bot {
             delay += this._timeB
             count++
         }
-
         if(count > 0) {
-            this.ns.print(`INFO: Deployed ${count} batches attacking ${this.target}`)
+            this.ns.print(`INFO: ${count} batches on ${this.target}`)
             this._endTime = startTime + times.weaken + (count + 1) * 4 * this._timeB
         }
     }
@@ -444,9 +443,8 @@ export class Botnet {
     }
 
     private updateUI(): void {
-        const runningScript = this.ns.getRunningScript()
-        const money = runningScript.onlineMoneyMade / runningScript.onlineRunningTime
-        const exp = runningScript.onlineExpGained / runningScript.onlineRunningTime
+        const money = this.ns.getScriptIncome()[0]
+        const exp = this.ns.getScriptExpGain()
 
         updateStatDisplay('Money', formatMoney(this.ns, money) + '/s')
         updateStatDisplay('Exp', this.ns.nFormat(exp, '0.00a') + '/s')

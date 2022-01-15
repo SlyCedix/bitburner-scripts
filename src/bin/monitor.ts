@@ -23,7 +23,7 @@ export async function main(ns: NS): Promise<void> {
 
     while (true) {
         ns.clearLog()
-        const hwgwLog = ns.getScriptLogs(logScript).slice(-10)
+        const hwgwLog = ns.getScriptLogs(logScript).slice(-8)
         for (const line of hwgwLog) {
             ns.print(line.slice(6, 50))
         }

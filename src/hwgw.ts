@@ -113,7 +113,7 @@ export class Bot {
 
         const growDelay = times.weaken - times.grow
 
-        this.ns.print(`INFO: Preparing ${this.target} for batches from ${this.server}`)
+        this.ns.print(`INFO: Prep ${this.target}@${this.server}`)
         let delay = this._timeB
         const startTime = performance.now()
         if (ratios.weakT > 0)
@@ -175,7 +175,7 @@ export class Bot {
         // @ts-ignore can't import lodash without breaking things
         // this._hackPercent = _.clamp(this._hackPercent - 0.01, this._minHack, this._maxHack)
         // hackPcts[this.target] = this._hackPercent
-        this.ns.print(`INFO: Deployed ${count} batches on ${this.server} attacking ${this.target}`)
+        this.ns.print(`INFO: ${count} batches on ${this.target}@${this.server}`)
     }
 
 
@@ -502,9 +502,8 @@ export class Botnet {
     }
 
     private updateUI(): void {
-        const runningScript = this.ns.getRunningScript()
-        const money = runningScript.onlineMoneyMade / runningScript.onlineRunningTime
-        const exp = runningScript.onlineExpGained / runningScript.onlineRunningTime
+        const money = this.ns.getScriptIncome()[0]
+        const exp = this.ns.getScriptExpGain()
 
         updateStatDisplay('Money', formatMoney(this.ns, money) + '/s')
         updateStatDisplay('Exp', this.ns.nFormat(exp, '0.00a') + '/s')
