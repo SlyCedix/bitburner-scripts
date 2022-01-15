@@ -120,7 +120,7 @@ export class Bot {
         // Max number of batches if undersaturated
         let numBatches = Math.max(Math.floor(times.weaken / (this._timeB * 4)), 1)
         if (numBatches * totalRam > getNetworkRam(this.ns)) {
-            numBatches = Math.floor(numBatches * numBatches * totalRam / getNetworkRam(this.ns))
+            numBatches = Math.floor(getNetworkRam(this.ns) / totalRam)
         }
 
         // Calculate delays between weaken and hack/grow
@@ -133,7 +133,7 @@ export class Bot {
         const startTime = performance.now()
 
         for (let i = 0; i < numBatches; ++i) {
-            const currBatch = []
+            const currBatch : number[] = []
 
             // Deploy Hack
             currBatch.push(deploy(this.ns, hackScript, ratios.hackT, this.target, startTime + hackDelay + delay))
