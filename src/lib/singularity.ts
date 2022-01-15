@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { CrimeStats, NS } from '@ns'
 import { findServer, getServersWithoutBackdoor } from 'lib/helpers'
 
 /**
@@ -204,20 +204,21 @@ export function getAllCrimes(): string[] {
 
 /**
  * @param ns
- * @param chanceThresh Minimum crime success chance to include in calculations
- * @returns crime with maximum karma/second
+ * @param prop CrimeStats property to maximize
+ * @returns crime with maximum property/second
  */
-export function getBestKarmaCrime(ns: NS): string {
+export function getBestCrime(ns: NS, prop: keyof CrimeStats): string {
     return getAllCrimes().reduce((a, b) => {
         const aStats = ns.getCrimeStats(a)
         const bStats = ns.getCrimeStats(b)
 
-        const aRate = aStats.karma / aStats.time * ns.getCrimeChance(a)
-        const bRate = bStats.karma / bStats.time * ns.getCrimeChance(b)
+        const aRate = <number>aStats[prop] / aStats.time * ns.getCrimeChance(a)
+        const bRate = <number>bStats[prop] / bStats.time * ns.getCrimeChance(b)
 
         return aRate > bRate ? a : b
     })
 }
+
 /**
  * @param ns
  * @returns true if ram or cores were upgraded, false otherwise

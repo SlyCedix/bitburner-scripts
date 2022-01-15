@@ -1,6 +1,6 @@
-import { NS } from '@ns'
+import { NS, CrimeStats } from '@ns'
 import { createStatDisplay, deleteStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
-import { getBestKarmaCrime } from 'lib/singularity'
+import { getBestCrime } from 'lib/singularity'
 
 export async function main(ns: karmaNS): Promise<void> {
     createStatDisplay('Karma', ns.ui.getTheme().combat)
@@ -8,10 +8,12 @@ export async function main(ns: karmaNS): Promise<void> {
         deleteStatDisplay('Karma')
     })
 
+    const prop = ns.args[0] as string ?? 'money'
+
     while (true) {
         ns.tail()
         updateStatDisplay('Karma', Math.ceil(ns.heart.break()).toString())
-        await ns.asleep(ns.commitCrime(getBestKarmaCrime(ns)))
+        await ns.asleep(ns.commitCrime(getBestCrime(ns, prop as keyof CrimeStats)))
     }
 }
 
