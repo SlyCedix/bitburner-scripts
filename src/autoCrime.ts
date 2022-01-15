@@ -13,7 +13,7 @@ export async function main(ns: karmaNS): Promise<void> {
     while (true) {
         ns.tail()
         updateStatDisplay('Karma', Math.ceil(ns.heart.break()).toString())
-        await ns.asleep(ns.commitCrime(getBestCrime(ns, prop as keyof CrimeStats)))
+        await ns.sleep(ns.commitCrime(getBestCrime(ns, prop as keyof CrimeStats)))
     }
 }
 
