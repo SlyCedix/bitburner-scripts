@@ -1,5 +1,5 @@
 import { NS, CrimeStats } from '@ns'
-import { createStatDisplay, deleteStatDisplay, updateStatDisplay } from 'lib/DOMhelpers'
+import { createStatDisplay, deleteStatDisplay, getLogElement, updateStatDisplay } from 'lib/DOMhelpers'
 import { getBestCrime } from 'lib/singularity'
 
 export async function main(ns: karmaNS): Promise<void> {
@@ -11,7 +11,7 @@ export async function main(ns: karmaNS): Promise<void> {
     const prop = ns.args[0] as string ?? 'money'
 
     while (true) {
-        ns.tail()
+        if(getLogElement(ns.getScriptName()) == null) ns.tail()
         updateStatDisplay('Karma', Math.ceil(ns.heart.break()).toString())
         await ns.sleep(ns.commitCrime(getBestCrime(ns, prop as keyof CrimeStats)))
     }
