@@ -109,27 +109,70 @@ export function getJoinedFactions(ns: NS): string[] {
  */
 export async function levelAllFactions(ns: NS, focus = false): Promise<void> {
     const factions = getJoinedFactions(ns)
-    const jobs = ['Hacking Contracts', 'Field Work', 'Security Work']
 
     for (const faction of factions) {
-        if (ns.getFactionFavor(faction) >= 150) {
-            ns.donateToFaction(faction, 2e12)
-            continue
-        }
+        await levelFaction(ns, faction, focus)
+    }
+}
 
-        const highestRepAug = ns.getAugmentationsFromFaction(faction)
-            .filter(a => !ns.getOwnedAugmentations(true).includes(a))
-            .reduce((a,b) => ns.getAugmentationRepReq(a) > ns.getAugmentationRepReq(b) ? a : b)
+/**
+ * Levels a faction to max or the required level to unlock donations if not unlocked
+ * @param ns
+ * @param faction faction to level
+ * @param focus Whether to open the the faction work screen
+ */
+export async function levelFaction(ns: NS, faction: string, focus=false): Promise<void> {
+    const highestRepAug = ns.getAugmentationsFromFaction(faction)
+        .filter(a => !ns.getOwnedAugmentations(true).includes(a))
+        .reduce((a,b) => ns.getAugmentationRepReq(a) > ns.getAugmentationRepReq(b) ? a : b)
 
-        const repMax = ns.getAugmentationRepReq(highestRepAug)
+    const repMax = ns.getAugmentationRepReq(highestRepAug)
 
-        while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150) {
-            for(const job of jobs) {
-                if(ns.workForFaction(faction, job, focus)) break
-            }
-            if(ns.getFactionRep(faction) > repMax) break
+    if(ns.getFactionFavor(faction) >= 150) {
+        await donateToRep(ns, faction, repMax)
+    }
+
+    const job = ['Hacking Contracts', 'Field Work', 'Security Work']
+        .filter(j => ns.workForFaction(faction, j, false))[0]
+
+    while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150 &&
+        ns.getFactionRep(faction) < repMax) {
+        ns.workForFaction(faction, job, focus)
+        await ns.sleep(60000)
+    }
+}
+
+/**
+ * Donates to a faction in increments of 1e10 until a target reputation value is surpassed
+ * @param ns
+ * @param faction faction to donate to
+ * @param target target reputation to reach
+ */
+export async function donateToRep(ns: NS, faction: string, target: number): Promise<void> {
+    while(ns.getFactionRep(faction) < target) {
+        if(ns.getServerMoneyAvailable('home') > 1e10) {
+            ns.donateToFaction(faction, 1e10)
+            await ns.sleep(0)
+        } else {
             await ns.sleep(60000)
         }
+    }
+}
+
+/**
+ * Buys all available augments from most expensive to cheapest, then prompts for a reset
+ * @param ns
+ */
+export async function augmentationReset(ns: NS): Promise<void> {
+    let bestAugment = getMostExpensiveAugment(ns)
+    while (bestAugment.cost != 0) {
+        ns.purchaseAugmentation(bestAugment.factions[0], bestAugment.augment)
+        await ns.sleep(0)
+        bestAugment = getMostExpensiveAugment(ns)
+    }
+
+    if (await ns.prompt('All augmentations purchased, install?')) {
+        ns.installAugmentations('main.js')
     }
 }
 

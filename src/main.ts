@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 
-const scripts = ['hwgw.js', 'homeUpgrade.js', 'contracts.js', 'watcher.js']
+const scripts = ['hwgw.js', 'homeUpgrade.js', 'contracts.js', 'watcher.js', 'factions.js']
 
 export function main(ns: NS): void {
     ns.ps()
