@@ -19,7 +19,7 @@ export async function main(ns: NS): Promise<void> {
         return namePadded + moneyPadded + secPadded
     }
     const logTitle = ns.getScriptName()
-    const logScript = ns.args[0] as string ?? 'hwgw.js'
+    const logScript = ns.args[0] as string ?? ''
 
     ns.tail()
 

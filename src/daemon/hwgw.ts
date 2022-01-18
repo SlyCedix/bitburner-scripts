@@ -24,7 +24,7 @@ export async function main(ns: NS): Promise<void> {
         ns.exec('main.js', 'home')
         ns.exit()
     } else {
-        ns.exec('/bin/monitor.js', 'home')
+        ns.exec('/bin/monitor.js', 'home', 1, ns.getScriptName())
         // ns.tail('/bin/monitor.js')
     }
 
