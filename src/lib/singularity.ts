@@ -171,9 +171,7 @@ export async function augmentationReset(ns: NS): Promise<void> {
         bestAugment = getMostExpensiveAugment(ns)
     }
 
-    if (await ns.prompt('All augmentations purchased, install?')) {
-        ns.installAugmentations('main.js')
-    }
+    ns.installAugmentations('main.js')
 }
 
 /**
