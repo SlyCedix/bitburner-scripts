@@ -100,7 +100,7 @@ export function getAllAugments(ns: NS): { factions: string[]; name: string }[] {
  * @returns Array of all factions which have any amount of rep
  */
 export function getJoinedFactions(ns: NS): string[] {
-    return getAllFactions().filter(f => ns.getFactionRep(f) > 0)
+    return ns.getPlayer().factions
 }
 
 /**
@@ -143,19 +143,28 @@ export async function levelFaction(ns: NS, faction: string, focus=false): Promis
 }
 
 /**
- * Donates to a faction in increments of 1e10 until a target reputation value is surpassed
+ * Attempts to donate to a faction to reach the target value, if not enough money,
+ * works for faction in the background for 60 seconds
  * @param ns
  * @param faction faction to donate to
  * @param target target reputation to reach
  */
 export async function donateToRep(ns: NS, faction: string, target: number): Promise<void> {
-    while(ns.getFactionRep(faction) < target) {
-        if(ns.getServerMoneyAvailable('home') > 1e10) {
-            ns.donateToFaction(faction, 1e10)
-            await ns.sleep(0)
-        } else {
-            await ns.sleep(60000)
+    const job = ['Hacking Contracts', 'Field Work', 'Security Work']
+        .filter(j => ns.workForFaction(faction, j, false))[0]
+
+    while(true) {
+        const repToBuy = target - ns.getFactionRep(faction)
+        if(repToBuy <= 0) return
+
+        const repCost = 1e6 * repToBuy / ns.getPlayer().faction_rep_mult
+        if(ns.getServerMoneyAvailable('home') >= repCost) {
+            ns.donateToFaction(faction, repCost)
+            return
         }
+        ns.workForFaction(faction, job, false)
+        await ns.sleep(60000)
+
     }
 }
 
