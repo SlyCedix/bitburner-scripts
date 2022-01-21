@@ -4,7 +4,8 @@ import { getJoinedFactions,factionHasAugs, levelAllFactions, augmentationReset }
 export async function main(ns : NS) : Promise<void> {
     const crimePid = ns.run('/daemon/crime.js', 1, 'kills')
 
-    while(getJoinedFactions(ns).length < 2) {
+    while(getJoinedFactions(ns).length < 2 &&
+        !getJoinedFactions(ns).includes('Daedalus')) {
         const invs = ns.checkFactionInvitations()
             .filter(f => factionHasAugs(ns, f))
 
