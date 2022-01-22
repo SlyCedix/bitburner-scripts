@@ -1,4 +1,5 @@
 import { CrimeStats, NS } from '@ns'
+import { FactionRequirements } from '@types'
 import { findServer, getServersWithoutBackdoor } from 'lib/helpers'
 
 /**
@@ -241,6 +242,196 @@ export function factionHasAugs(ns: NS, faction: string): boolean {
     return ns.getAugmentationsFromFaction(faction)
         .filter(a => !ns.getOwnedAugmentations(true).includes(a))
         .length > 1
+}
+
+export function getFactionRequirements(name: string): FactionRequirements{
+    const factions = {
+        'CyberSec': {
+            backdoor: 'CSEC'
+        } as FactionRequirements,
+        'Tian Di Hui': {
+            money: 1e6,
+            hack_level:50,
+            location: ['Chongqing', 'New Tokyo', 'Ishima']
+        } as FactionRequirements,
+        'Netburners': {
+            hack_level: 80,
+            hacknet_level: 100,
+            hacknet_ram: 8,
+            hacknet_cores: 4
+        } as FactionRequirements,
+        'Sector-12': {
+            money: 15e6,
+            location: ['Sector-12'],
+            conflicts: ['Chongqing', 'New Tokyo', 'Ishima', 'Volhaven']
+        } as FactionRequirements,
+        'Chongqing': {
+            money: 20e6,
+            location: ['Chongqing'],
+            conflicts: ['Sector-12', 'Aevum', 'Volhaven']
+        } as FactionRequirements,
+        'New Tokyo': {
+            money: 20e6,
+            location: ['New Tokyo'],
+            conflicts: ['Sector-12', 'Aevum', 'Volhaven']
+        } as FactionRequirements,
+        'Ishima': {
+            money: 30e6,
+            location: ['Ishima'],
+            conflicts: ['Sector-12', 'Aevum', 'Volhaven']
+        } as FactionRequirements,
+        'Aevum': {
+            money: 40e6,
+            location: ['Aevum'],
+            conflicts: ['Chongqing', 'New Tokyo', 'Ishima', 'Volhaven']
+        } as FactionRequirements,
+        'Volhaven': {
+            money: 50e6,
+            location: ['Volhaven'],
+            conflicts: ['Sector-12', 'Aevum', 'Chongqing', 'New Tokyo', 'Ishima']
+        } as FactionRequirements,
+        'NiteSec': {
+            backdoor: 'avmnite-02h'
+        } as FactionRequirements,
+        'The Black Hand': {
+            backdoor: 'I.I.I.I'
+        } as FactionRequirements,
+        'BitRunners': {
+            backdoor: 'run4theh111z'
+        } as FactionRequirements,
+        'ECorp': {
+            company: {
+                name: 'ECorp',
+                location: 'Aevum',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'MegaCorp': {
+            company: {
+                name: 'MegaCorp',
+                location: 'Sector-12',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'KuaiGong International': {
+            company: {
+                name: 'KuaiGong International',
+                location: 'Chongqing',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'Four Sigma': {
+            company: {
+                name: 'Four Sigma',
+                location: 'Sector-12',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'NWO': {
+            company: {
+                name: 'NWO',
+                location: 'Volhaven',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'Blade Industries': {
+            company: {
+                name: 'Blade Industries',
+                location: 'Sector-12',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'OmniTek Incorporated': {
+            company: {
+                name: 'OmniTek Incorporated',
+                location: 'Volhaven',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'Bachman & Associates': {
+            company: {
+                name: 'Bachman & Associates',
+                location: 'Aevum',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'Clarke Incorporated': {
+            company: {
+                name: 'Clarke Incorporated',
+                location: 'Aevum',
+                rep: 200e3,
+            }
+        } as FactionRequirements,
+        'Fulcrum Secret Technologies': {
+            backdoor: 'fulcrumassets',
+            company: {
+                name: 'Fulcrum Technologies',
+                location: 'Aevum',
+                rep: 250e3,
+            }
+        } as FactionRequirements,
+        'Slum Snakes': {
+            combat_stats: 30,
+            karma: -9,
+            money: 1e6
+        } as FactionRequirements,
+        'Tetrads': {
+            location: ['Chongqing', 'New Tokyo', 'Ishima'],
+            combat_stats: 75,
+            karma: -18
+        } as FactionRequirements,
+        'Silhouette': {
+            ceo: true,
+            money: 15e6,
+            karma: -22
+        } as FactionRequirements,
+        'Speakers for the Dead': {
+            hack_level: 100,
+            combat_stats: 300,
+            kills: 30,
+            karma: -45,
+            company_conflicts: ['CIA', 'NSA']
+        } as FactionRequirements,
+        'The Dark Army': {
+            hack_level: 300,
+            combat_stats: 300,
+            location: ['Chongqing'],
+            kills: 5,
+            karma: -45,
+            company_conflicts: ['CIA', 'NSA']
+        } as FactionRequirements,
+        'The Syndicate': {
+            hack_level: 200,
+            combat_stats: 200,
+            location: ['Aevum', 'Sector-12'],
+            money: 10e6,
+            karma: -90,
+            company_conflicts: ['CIA', 'NSA']
+        } as FactionRequirements,
+        'The Covenant': {
+            augmentations: 20,
+            money: 75e9,
+            hack_level: 850,
+            combat_stats: 850
+        } as FactionRequirements,
+        'Daedalus': {
+            augmentations: 30,
+            money: 100e9,
+            hack_level: 2500,
+            combat_stats: 1500,
+            hack_or_combat: true,
+        } as FactionRequirements,
+        'Illuminati': {
+            augmentations: 30,
+            money: 150e9,
+            hack_level: 1500,
+            combat_stats: 1200
+        } as FactionRequirements,
+    } as Record<string, FactionRequirements>
+
+    if(!Object.keys(factions).includes(name)) throw(`getFactionRequirements: Invalid faction name: '${name}'`)
+
+    return factions[name]
 }
 
 /**
