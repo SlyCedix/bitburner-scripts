@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { ServerData } from '@types'
 
 const pref = '/daemon/'
 const suff = '.js'
@@ -92,6 +93,20 @@ export async function main(ns : NS) : Promise<void> {
     }
 
     await ns.write('daemons.txt', JSON.stringify(daemons, null, 2), 'w')
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function autocomplete(data : ServerData, args : string[]) : string[] {
+    if(args.length == 0) {
+        return ['--start', '--stop', '--restart']
+    }
+
+    const daemons = data.scripts
+        .filter(s => s.includes('/daemon/'))
+        .map(s => s.replace(/\/daemon\/(.*).js/, '$1'))
+
+    return daemons
+
 }
 
 interface Flags {
