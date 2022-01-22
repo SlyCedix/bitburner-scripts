@@ -1,20 +1,20 @@
 import { NS } from '@ns'
-import { getJoinedFactions,factionHasAugs, levelAllFactions, augmentationReset } from '/lib/singularity'
+import { karmaNS } from '@types'
+import {
+    getJoinedFactions,
+    levelAllFactions,
+    augmentationReset,
+    getNextFaction,
+    fulfillFactionRequirements,
+} from '/lib/singularity'
 
 export async function main(ns : NS) : Promise<void> {
-    const crimePid = ns.run('/daemon/crime.js', 1, 'kills')
-
-    while(getJoinedFactions(ns).length < 2 &&
-        !getJoinedFactions(ns).includes('Daedalus')) {
-        const invs = ns.checkFactionInvitations()
-            .filter(f => factionHasAugs(ns, f))
-
-        if(invs.length > 0) ns.joinFaction(invs[0])
-
+    while(getJoinedFactions(ns).length < 2) {
+        const next = getNextFaction(ns)
+        if(!ns.checkFactionInvitations().includes(next)) await fulfillFactionRequirements(ns as karmaNS, next)
+        ns.joinFaction(next)
         await ns.sleep(10000)
     }
-
-    ns.kill(crimePid)
 
     const hasNeuroreceptor = ns.getOwnedAugmentations().includes('Neuroreceptor Management Implant')
 

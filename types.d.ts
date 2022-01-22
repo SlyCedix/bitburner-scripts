@@ -1,3 +1,5 @@
+import { NS } from '@ns'
+
 export interface ServerData {
     servers: string[];
     scripts: string[];
@@ -46,4 +48,10 @@ export interface CompanyFactionRequirements {
     name: string;
     location: string;
     rep: number;
+}
+
+export interface karmaNS extends NS {
+    heart: {
+        break: () => number
+    }
 }

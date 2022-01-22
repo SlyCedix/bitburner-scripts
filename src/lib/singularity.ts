@@ -1,5 +1,5 @@
 import { CrimeStats, NS } from '@ns'
-import { FactionRequirements } from '@types'
+import { FactionRequirements, karmaNS } from '@types'
 import { findServer, getServersWithoutBackdoor } from 'lib/helpers'
 
 /**
@@ -44,16 +44,21 @@ export function getAllFactions(): string[] {
     return [
         'CyberSec',
         'Tian Di Hui',
-        'Netburners',
         'Sector-12',
-        'Chongqing',
-        'New Tokyo',
-        'Ishima',
         'Aevum',
-        'Volhaven',
+        'New Tokyo',
         'NiteSec',
+        'Ishima',
         'The Black Hand',
+        'Chongqing',
         'BitRunners',
+        'Volhaven',
+        'Daedalus',
+        'Slum Snakes',
+        'Tetrads',
+        'Speakers for the Dead',
+        'The Dark Army',
+        'The Syndicate',
         'ECorp',
         'MegaCorp',
         'KuaiGong International',
@@ -64,16 +69,17 @@ export function getAllFactions(): string[] {
         'Bachman & Associates',
         'Clarke Incorporated',
         'Fulcrum Secret Technologies',
-        'Slum Snakes',
-        'Tetrads',
-        'Silhouette',
-        'Speakers for the Dead',
-        'The Dark Army',
-        'The Syndicate',
         'The Covenant',
-        'Daedalus',
         'Illuminati',
+        'Silhouette',
+        'Netburners',
     ]
+}
+
+export function getNextFaction(ns: NS): string {
+    const joinedFactions = getJoinedFactions(ns)
+    const factions = getAllFactions().filter(f => !joinedFactions.includes(f) && factionHasAugs(ns, f))
+    return factions[0]
 }
 
 /**
@@ -247,7 +253,11 @@ export function factionHasAugs(ns: NS, faction: string): boolean {
         .length > 1
 }
 
-export function getFactionRequirements(name: string): FactionRequirements{
+export function getFactionsWithAugs(ns: NS): string[] {
+    return getAllFactions().filter(f => factionHasAugs(ns, f))
+}
+
+export function getFactionRequirements(name: string): FactionRequirements {
     const factions = {
         'CyberSec': {
             backdoor: 'CSEC',
@@ -435,6 +445,51 @@ export function getFactionRequirements(name: string): FactionRequirements{
     if(!Object.keys(factions).includes(name)) throw(`getFactionRequirements: Invalid faction name: '${name}'`)
 
     return factions[name]
+}
+
+export async function fulfillFactionRequirements(ns: karmaNS, faction: string): Promise<boolean> {
+    const requirements = getFactionRequirements(faction)
+
+    // Errors if trying to fulfill requirements of requested faction
+    if(requirements.conflicts != undefined) {
+        const conflicts = requirements.conflicts
+        const hasConflicts = getJoinedFactions(ns)
+            .map(f => conflicts.includes(f))
+            .includes(true)
+
+        if(hasConflicts) throw(`Can't fulfill requirements for ${faction}: already joined a conflicting faction`)
+    }
+
+    if(requirements.kills != undefined) {
+        const crimePID = ns.run('/daemon/crime.js', 1, 'kills')
+        while(requirements.kills > ns.getPlayer().numPeopleKilled) await ns.sleep(60000)
+        ns.kill(crimePID)
+    }
+
+    if(requirements.karma != undefined) {
+        const crimePID = ns.run('/daemon/crime.js', 1, 'karma')
+        while(requirements.karma > ns.heart.break()) await ns.sleep(60000)
+        ns.kill(crimePID)
+    }
+
+    if(requirements.company != undefined) {
+        const hasNeuroreceptor = ns.getOwnedAugmentations().includes('Neuroreceptor Management Implant')
+        ns.applyToCompany(requirements.company.name, 'IT Job')
+        while(ns.getCompanyRep(requirements.company.name) < requirements.company.rep) {
+            ns.workForCompany(requirements.company.name, !hasNeuroreceptor)
+            await ns.sleep(60000)
+        }
+    }
+
+    // Travels to the location of the faction
+    if(requirements.location != undefined) {
+        while(!ns.travelToCity(requirements.location[0])) await ns.sleep(60000)
+    }
+
+    // Waits for stuff that will fulfill themselves
+    while(!ns.checkFactionInvitations().includes(faction)) await ns.sleep(60000)
+
+    return true
 }
 
 /**

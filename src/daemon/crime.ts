@@ -1,4 +1,5 @@
-import { NS, CrimeStats } from '@ns'
+import { CrimeStats } from '@ns'
+import { karmaNS } from '@types'
 import { createStatDisplay, deleteStatDisplay, getLogElement, updateStatDisplay } from 'lib/DOMhelpers'
 import { getBestCrime } from 'lib/singularity'
 
@@ -17,8 +18,3 @@ export async function main(ns: karmaNS): Promise<void> {
     }
 }
 
-interface karmaNS extends NS {
-    heart: {
-        break: () => number
-    }
-}
