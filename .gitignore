@@ -1,3 +1,4 @@
 node_modules/
 dist/
 NetscriptDefinitions.d.ts
+test.ts
