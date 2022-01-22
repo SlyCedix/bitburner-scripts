@@ -181,6 +181,9 @@ export async function augmentationReset(ns: NS): Promise<void> {
         bestAugment = getMostExpensiveAugment(ns)
     }
 
+    const factions = getJoinedFactions(ns).sort((a,b) => ns.getFactionRep(b) - ns.getFactionRep(a))
+    while(ns.purchaseAugmentation(factions[0], 'NeuroFlux Governor'));
+
     ns.installAugmentations('main.js')
 }
 
