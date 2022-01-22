@@ -243,7 +243,7 @@ export class Bot {
             hackT: 0,
             weakT: 0,
             growT: 0,
-            weak2T: 0
+            weak2T: 0,
         }
 
         let serverData = this.ns.getServer(this.target)
@@ -293,7 +293,7 @@ export class Bot {
             hackT: 0,
             weakT: 0,
             growT: 0,
-            weak2T: 0
+            weak2T: 0,
         }
 
         while (maxMoneyPerHack - minMoneyPerHack > hackAmount) {
@@ -302,7 +302,7 @@ export class Bot {
                 hackT: 0,
                 weakT: 0,
                 growT: 0,
-                weak2T: 0
+                weak2T: 0,
             }
 
             serverData.moneyAvailable = serverData.moneyMax

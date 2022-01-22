@@ -16,7 +16,7 @@ export const HackingFormulas = {
     hackExp: (server: Server, player: Player): number => calculateHackingExpGain(server, player),
     hackPercent: (server: Server, player: Player): number => calculatePercentMoneyHacked(server, player),
     hackTime: (server: Server, player: Player): number => calculateHackingTime(server, player) * 1000,
-    weakenTime: (server: Server, player: Player): number => calculateWeakenTime(server, player) * 1000
+    weakenTime: (server: Server, player: Player): number => calculateWeakenTime(server, player) * 1000,
 }
 
 function calculateServerGrowth(server: Server, threads: number, player: Player, cores = 1): number {

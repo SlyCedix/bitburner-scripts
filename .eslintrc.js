@@ -29,6 +29,7 @@ module.exports = {
         'semi': ['warn', 'never'],
         'no-trailing-spaces': ['warn'],
         'quotes': ['warn', 'single'],
+        'comma-dangle': ['warn', 'always-multiline'],
 
         //@typescript-eslint
         '@typescript-eslint/ban-ts-comment': ['off'],

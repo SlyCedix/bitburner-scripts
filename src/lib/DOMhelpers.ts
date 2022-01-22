@@ -62,7 +62,7 @@ export function traverseDOM(element: Element | null, ...path: string[]): Element
         children: (element: Element | null): HTMLCollection | null => {
             if(element == null) return element
             return element.children
-        }
+        },
     }
 
     let ret : Element | HTMLCollection | null = element
@@ -216,12 +216,12 @@ export function runTerminalCommand(command: string): void {
     //@ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     reactHandler.onChange({
-        target: terminalInput
+        target: terminalInput,
     })
     //@ts-expect-error
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     reactHandler.onKeyDown({
         keyCode: 13,
-        preventDefault: () => null
+        preventDefault: () => null,
     })
 }

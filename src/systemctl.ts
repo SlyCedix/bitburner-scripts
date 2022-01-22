@@ -7,7 +7,7 @@ export async function main(ns : NS) : Promise<void> {
     const flags = ns.flags([
         ['start', []],
         ['stop', []],
-        ['restart', []]
+        ['restart', []],
     ]) as Flags
 
     const journal = async (s: string) => {

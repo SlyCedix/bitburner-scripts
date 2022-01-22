@@ -27,7 +27,7 @@ const contractFunctions = {
     'Find All Valid Math Expressions': (data: [string, number]) => formatOutput(validEquations(data)),
     'Generate IP Addresses': (data: string) => formatOutput(generateIPAddresses(data)),
     'Sanitize Parentheses in Expression': (data: string | string[]) => formatOutput(sanitizeParenthesis(data)),
-    'Spiralize Matrix': (data: number[][]) => formatOutput(spiralizeMatrix(data))
+    'Spiralize Matrix': (data: number[][]) => formatOutput(spiralizeMatrix(data)),
 }
 
 export class Contracts {
