@@ -143,6 +143,7 @@ export async function levelFaction(ns: NS, faction: string, focus=false): Promis
         .filter(j => ns.workForFaction(faction, j, false))[0]
 
     while (ns.getFactionFavor(faction) + ns.getFactionFavorGain(faction) < 150 &&
+        ns.getFactionFavorGain(faction) < 50 &&
         ns.getFactionRep(faction) < repMax) {
         ns.workForFaction(faction, job, focus)
         await ns.sleep(60000)
@@ -189,6 +190,8 @@ export async function augmentationReset(ns: NS): Promise<void> {
 
     const factions = getJoinedFactions(ns).sort((a,b) => ns.getFactionRep(b) - ns.getFactionRep(a))
     while(ns.purchaseAugmentation(factions[0], 'NeuroFlux Governor'));
+
+    if(getJoinedFactions(ns).includes('Daedalus')) ns.purchaseAugmentation('The Red Pill')
 
     ns.installAugmentations('main.js')
 }
@@ -474,10 +477,10 @@ export async function fulfillFactionRequirements(ns: karmaNS, faction: string): 
 
     if(requirements.company != undefined) {
         const hasNeuroreceptor = ns.getOwnedAugmentations().includes('Neuroreceptor Management Implant')
-        ns.applyToCompany(requirements.company.name, 'IT Job')
         while(ns.getCompanyRep(requirements.company.name) < requirements.company.rep) {
+            ns.applyToCompany(requirements.company.name, 'IT')
             ns.workForCompany(requirements.company.name, !hasNeuroreceptor)
-            await ns.sleep(60000)
+            await ns.sleep(10000)
         }
     }
 
@@ -533,7 +536,7 @@ export function getBestCrime(ns: NS, prop: keyof CrimeStats): string {
  * @returns true if ram or cores were upgraded, false otherwise
  */
 export function upgradeHomeServer(ns: NS): boolean {
-    if (ns.getUpgradeHomeRamCost() * 16 >= ns.getUpgradeHomeCoresCost()) {
+    if (ns.getUpgradeHomeRamCost() * 16 < ns.getUpgradeHomeCoresCost()) {
         return ns.upgradeHomeRam()
     } else {
         return ns.upgradeHomeCores()
